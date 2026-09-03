@@ -1,0 +1,2439 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071b2d">
+  <meta name="description" content="Offline-Applet zur Bestimmung der Schallgeschwindigkeit mit Ultraschall und Phasenverschiebung.">
+  <title>Schallgeschwindigkeit mit Ultraschall bestimmen</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #10243a;
+      --muted: #52677a;
+      --line: #c9d7e3;
+      --surface: #ffffff;
+      --surface-soft: #f3f8fb;
+      --navy: #071b2d;
+      --navy-2: #0d2d46;
+      --cyan: #00b9d8;
+      --cyan-dark: #007f9b;
+      --amber: #ffb547;
+      --green: #16845b;
+      --red: #c33a47;
+      --focus: #ffbf3f;
+      --radius: 18px;
+      --shadow: 0 14px 36px rgba(8, 32, 54, 0.11);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 8.7rem;
+    }
+
+    body {
+      margin: 0;
+      min-width: 300px;
+      background:
+        linear-gradient(rgba(0, 185, 216, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 185, 216, 0.035) 1px, transparent 1px),
+        #edf4f8;
+      background-size: 28px 28px;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.58;
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button,
+    input[type="range"],
+    summary,
+    label {
+      touch-action: manipulation;
+    }
+
+    button,
+    input,
+    summary,
+    a {
+      -webkit-tap-highlight-color: rgba(0, 185, 216, 0.22);
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+    }
+
+    a {
+      color: var(--cyan-dark);
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      top: 0.5rem;
+      left: 0.5rem;
+      padding: 0.7rem 1rem;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+      transform: translateY(-160%);
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    .topbar {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      background: rgba(7, 27, 45, 0.98);
+      color: #fff;
+      box-shadow: 0 5px 24px rgba(4, 18, 30, 0.24);
+    }
+
+    .topbar-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0.75rem max(1rem, env(safe-area-inset-left)) 0;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 13px;
+      background: #0e344e;
+      color: var(--cyan);
+      font-size: 1.3rem;
+      font-weight: 900;
+      letter-spacing: -0.2em;
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
+
+    .brand-kicker {
+      display: block;
+      color: #8bddeb;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .brand-title {
+      display: block;
+      overflow: hidden;
+      max-width: 70vw;
+      font-size: clamp(1rem, 2.4vw, 1.28rem);
+      font-weight: 760;
+      line-height: 1.3;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .offline-badge {
+      display: inline-flex;
+      min-height: 34px;
+      align-items: center;
+      gap: 0.45rem;
+      flex: 0 0 auto;
+      padding: 0.35rem 0.7rem;
+      border: 1px solid rgba(141, 231, 204, 0.35);
+      border-radius: 999px;
+      background: rgba(22, 132, 91, 0.22);
+      color: #b6f2d8;
+      font-size: 0.83rem;
+      font-weight: 750;
+    }
+
+    .offline-badge::before {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #65ddb2;
+      content: "";
+    }
+
+    .section-nav {
+      display: flex;
+      gap: 0.25rem;
+      overflow-x: auto;
+      margin-top: 0.55rem;
+      padding: 0.12rem 0 0.7rem;
+      scrollbar-width: thin;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .section-nav a {
+      min-height: 38px;
+      padding: 0.46rem 0.72rem;
+      border-radius: 9px;
+      color: #d9e9f4;
+      font-size: 0.88rem;
+      font-weight: 680;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .section-nav a:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    main {
+      display: block;
+    }
+
+    .section {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: clamp(2.4rem, 6vw, 4.6rem) max(1rem, env(safe-area-inset-left));
+    }
+
+    .section + .section {
+      border-top: 1px solid rgba(131, 157, 178, 0.28);
+    }
+
+    .section-heading {
+      max-width: 780px;
+      margin-bottom: 1.6rem;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin: 0 0 0.55rem;
+      color: var(--cyan-dark);
+      font-size: 0.78rem;
+      font-weight: 850;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      width: 18px;
+      height: 3px;
+      border-radius: 3px;
+      background: var(--cyan);
+      content: "";
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1,
+    h2,
+    h3 {
+      color: var(--ink);
+      line-height: 1.16;
+      text-wrap: balance;
+    }
+
+    h1 {
+      max-width: 700px;
+      margin-bottom: 0.85rem;
+      font-size: clamp(2rem, 6vw, 3.65rem);
+      letter-spacing: -0.045em;
+    }
+
+    h2 {
+      margin-bottom: 0.7rem;
+      font-size: clamp(1.65rem, 4vw, 2.45rem);
+      letter-spacing: -0.025em;
+    }
+
+    h3 {
+      margin-bottom: 0.55rem;
+      font-size: 1.18rem;
+    }
+
+    .lead {
+      max-width: 690px;
+      color: var(--muted);
+      font-size: clamp(1.04rem, 2vw, 1.2rem);
+    }
+
+    .lab-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+      gap: 1.2rem;
+      align-items: stretch;
+    }
+
+    .panel {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .intro-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: clamp(1.3rem, 4vw, 2rem);
+    }
+
+    .concept-chain {
+      display: grid;
+      gap: 0.75rem;
+      margin: 1.35rem 0;
+    }
+
+    .concept-line {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 0.7rem;
+      align-items: start;
+    }
+
+    .number-dot {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 11px;
+      background: #dff6fa;
+      color: #006f86;
+      font-weight: 850;
+    }
+
+    .concept-line p {
+      margin: 0.2rem 0 0;
+      color: var(--muted);
+    }
+
+    .formula-box {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 0.55rem;
+      align-items: center;
+      padding: 1rem;
+      border: 1px solid #a7dce7;
+      border-radius: 15px;
+      background: #edfafd;
+      text-align: center;
+    }
+
+    .formula-symbol {
+      font-size: clamp(1.55rem, 4vw, 2.1rem);
+      font-weight: 850;
+      line-height: 1;
+    }
+
+    .formula-label {
+      display: block;
+      margin-top: 0.28rem;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .formula-operator {
+      color: var(--cyan-dark);
+      font-size: 1.4rem;
+      font-weight: 900;
+    }
+
+    .micro-note {
+      margin: 0.85rem 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .scope-panel {
+      background: var(--navy);
+      color: #eefaff;
+      box-shadow: 0 18px 42px rgba(4, 24, 39, 0.23);
+    }
+
+    .scope-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.2rem 1.2rem 0.9rem;
+    }
+
+    .scope-head h2 {
+      margin: 0;
+      color: #fff;
+      font-size: 1.24rem;
+      letter-spacing: 0;
+    }
+
+    .scope-head p {
+      margin: 0.2rem 0 0;
+      color: #a9c2d4;
+      font-size: 0.88rem;
+    }
+
+    .phase-chip {
+      display: inline-flex;
+      min-height: 32px;
+      align-items: center;
+      flex: 0 0 auto;
+      padding: 0.32rem 0.65rem;
+      border: 1px solid rgba(255, 181, 71, 0.35);
+      border-radius: 999px;
+      background: rgba(255, 181, 71, 0.12);
+      color: #ffd99f;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .phase-chip.in-phase {
+      border-color: rgba(101, 221, 178, 0.4);
+      background: rgba(22, 132, 91, 0.25);
+      color: #b6f2d8;
+    }
+
+    .scope-wrap {
+      position: relative;
+      margin: 0 1.2rem;
+      overflow: hidden;
+      border: 1px solid #28506a;
+      border-radius: 14px;
+      background: #04131f;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+    }
+
+    #scopeCanvas {
+      height: 260px;
+    }
+
+    .trace-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      padding: 0.65rem 0.8rem;
+      border-top: 1px solid #1f435a;
+      color: #bed0dc;
+      font-size: 0.8rem;
+    }
+
+    .trace-key {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.38rem;
+    }
+
+    .trace-key::before {
+      width: 18px;
+      height: 3px;
+      border-radius: 3px;
+      background: var(--trace);
+      content: "";
+    }
+
+    .bench-schematic {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 0.7rem;
+      align-items: center;
+      margin: 1rem 1.2rem 0;
+      color: #c6dae7;
+      font-size: 0.78rem;
+      font-weight: 750;
+    }
+
+    .device-block {
+      padding: 0.42rem 0.55rem;
+      border: 1px solid #3a6580;
+      border-radius: 8px;
+      background: #0c3049;
+    }
+
+    .wave-path {
+      position: relative;
+      height: 24px;
+      border-bottom: 2px dashed #3c7896;
+    }
+
+    .wave-path::after {
+      position: absolute;
+      right: -2px;
+      bottom: -6px;
+      border-width: 5px 0 5px 8px;
+      border-style: solid;
+      border-color: transparent transparent transparent #3c7896;
+      content: "";
+    }
+
+    .distance-readout {
+      margin: 0.85rem 1.2rem 0;
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 750;
+    }
+
+    .distance-readout output {
+      color: var(--amber);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .slider-row {
+      padding: 0.4rem 1.2rem 0;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 38px;
+      margin: 0;
+      accent-color: var(--amber);
+      cursor: pointer;
+    }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: -0.25rem;
+      color: #819fb2;
+      font-size: 0.72rem;
+    }
+
+    .scope-controls {
+      display: grid;
+      grid-template-columns: minmax(130px, 0.75fr) minmax(0, 1.25fr);
+      gap: 0.75rem;
+      padding: 0.9rem 1.2rem 1.2rem;
+    }
+
+    .field label,
+    .field-label {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: inherit;
+      font-size: 0.82rem;
+      font-weight: 750;
+    }
+
+    .input-with-unit {
+      display: flex;
+      align-items: center;
+      min-height: 48px;
+      overflow: hidden;
+      border: 1px solid #a8bdcc;
+      border-radius: 11px;
+      background: #fff;
+    }
+
+    .scope-panel .input-with-unit {
+      border-color: #3b6178;
+      background: #0b2a40;
+    }
+
+    .input-with-unit input {
+      width: 100%;
+      min-width: 0;
+      min-height: 46px;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+      padding: 0.65rem 0.2rem 0.65rem 0.75rem;
+      font-weight: 760;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .scope-panel .input-with-unit input {
+      color: #fff;
+    }
+
+    .unit {
+      padding: 0 0.7rem 0 0.35rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .scope-panel .unit {
+      color: #93b3c7;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: end;
+    }
+
+    .btn {
+      display: inline-flex;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      border: 1px solid transparent;
+      border-radius: 11px;
+      padding: 0.68rem 0.95rem;
+      background: var(--cyan-dark);
+      color: #fff;
+      font-weight: 780;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      filter: brightness(1.06);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-secondary {
+      border-color: var(--line);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .scope-panel .btn {
+      background: var(--amber);
+      color: #2b1a00;
+    }
+
+    .scope-panel .btn-secondary {
+      border-color: #3b6178;
+      background: #0d3049;
+      color: #e8f6ff;
+    }
+
+    .scope-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid #24475e;
+      background: #092338;
+    }
+
+    .metric {
+      min-width: 0;
+      padding: 0.8rem 0.7rem;
+      text-align: center;
+    }
+
+    .metric + .metric {
+      border-left: 1px solid #24475e;
+    }
+
+    .metric strong {
+      display: block;
+      overflow: hidden;
+      color: #fff;
+      font-size: 1.02rem;
+      font-variant-numeric: tabular-nums;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 0.12rem;
+      color: #91aec1;
+      font-size: 0.72rem;
+      line-height: 1.2;
+    }
+
+    .why-grid,
+    .material-grid,
+    .result-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .why-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .why-card {
+      position: relative;
+      overflow: hidden;
+      padding: 1.35rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .why-card::before {
+      display: block;
+      width: 46px;
+      height: 5px;
+      margin-bottom: 1rem;
+      border-radius: 5px;
+      background: var(--accent, var(--cyan));
+      content: "";
+    }
+
+    .why-card p {
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+
+    .callout {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.85rem;
+      align-items: start;
+      margin-top: 1rem;
+      padding: 1rem 1.1rem;
+      border-left: 5px solid var(--cyan);
+      border-radius: 0 13px 13px 0;
+      background: #e7f8fb;
+    }
+
+    .callout-icon {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 50%;
+      background: #fff;
+      color: var(--cyan-dark);
+      font-weight: 900;
+    }
+
+    .callout p {
+      margin: 0;
+    }
+
+    .info-details {
+      margin-top: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+    }
+
+    .info-details summary {
+      min-height: 52px;
+      padding: 0.82rem 1rem;
+      font-weight: 780;
+      cursor: pointer;
+    }
+
+    .info-details > div {
+      padding: 0 1rem 1rem;
+      color: var(--muted);
+    }
+
+    .info-details > div p:last-child {
+      margin-bottom: 0;
+    }
+
+    .material-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .material-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .material-card[open] {
+      border-color: #76c9d8;
+      box-shadow: 0 12px 30px rgba(8, 50, 68, 0.09);
+    }
+
+    .material-card summary {
+      display: grid;
+      grid-template-columns: 44px 1fr auto;
+      gap: 0.75rem;
+      align-items: center;
+      min-height: 78px;
+      padding: 0.85rem 1rem;
+      list-style: none;
+      cursor: pointer;
+    }
+
+    .material-card summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .material-icon {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border-radius: 13px;
+      background: #e6f7fa;
+      color: var(--cyan-dark);
+      font-size: 1.25rem;
+      font-weight: 900;
+    }
+
+    .material-title {
+      display: block;
+      color: var(--ink);
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .material-hint {
+      display: block;
+      margin-top: 0.15rem;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 650;
+    }
+
+    .details-plus {
+      color: var(--cyan-dark);
+      font-size: 1.4rem;
+      font-weight: 500;
+      transition: transform 160ms ease;
+    }
+
+    .material-card[open] .details-plus {
+      transform: rotate(45deg);
+    }
+
+    .material-body {
+      padding: 0 1rem 1.1rem;
+      color: var(--muted);
+    }
+
+    .material-body p {
+      margin-bottom: 0.75rem;
+    }
+
+    .material-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .channel-tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 27px;
+      padding: 0.15rem 0.52rem;
+      border-radius: 999px;
+      background: #e8f7fb;
+      color: #006f86;
+      font-size: 0.77rem;
+      font-weight: 820;
+    }
+
+    .channel-tag.amber {
+      background: #fff2dc;
+      color: #885300;
+    }
+
+    .progress-card {
+      margin-bottom: 1rem;
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+    }
+
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.55rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #dfe9ef;
+    }
+
+    .progress-fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--cyan-dark), var(--cyan));
+      transition: width 220ms ease;
+    }
+
+    .steps {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .step-card {
+      display: grid;
+      grid-template-columns: auto 46px 1fr;
+      gap: 0.85rem;
+      align-items: start;
+      min-height: 88px;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--surface);
+      cursor: pointer;
+    }
+
+    .step-card:has(input:checked) {
+      border-color: #77caae;
+      background: #f1fbf7;
+    }
+
+    .step-check {
+      width: 24px;
+      height: 24px;
+      margin: 0.12rem 0 0;
+      accent-color: var(--green);
+    }
+
+    .step-number {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: 13px;
+      background: var(--navy);
+      color: #fff;
+      font-weight: 850;
+    }
+
+    .step-card:has(input:checked) .step-number {
+      background: var(--green);
+    }
+
+    .step-text strong {
+      display: block;
+      margin-bottom: 0.18rem;
+      color: var(--ink);
+      font-size: 1.03rem;
+    }
+
+    .step-text span {
+      display: block;
+      color: var(--muted);
+    }
+
+    .pitfall-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .pitfall {
+      padding: 0.9rem 1rem;
+      border: 1px solid #e9c47d;
+      border-radius: 13px;
+      background: #fff8e9;
+      color: #654a1c;
+    }
+
+    .pitfall strong {
+      display: block;
+      margin-bottom: 0.18rem;
+      color: #51370c;
+    }
+
+    .evaluation-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .data-card,
+    .results-card {
+      padding: clamp(1rem, 3vw, 1.4rem);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .input-grid .field label {
+      color: var(--ink);
+    }
+
+    .table-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.6rem;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .table-actions p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .button-cluster {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .btn-small {
+      min-height: 42px;
+      padding: 0.5rem 0.72rem;
+      font-size: 0.86rem;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      min-width: 470px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 0.62rem 0.7rem;
+      border-bottom: 1px solid #dbe5eb;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #eaf3f7;
+      color: #355064;
+      font-size: 0.78rem;
+      letter-spacing: 0.025em;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    td:first-child {
+      width: 92px;
+      font-weight: 780;
+    }
+
+    .position-input {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid #adc0ce;
+      border-radius: 9px;
+      padding: 0.45rem 0.62rem;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 720;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .delta-cell {
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .data-message {
+      min-height: 25px;
+      margin: 0.65rem 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 650;
+    }
+
+    .data-message.error {
+      color: var(--red);
+    }
+
+    .results-card {
+      position: sticky;
+      top: 9.1rem;
+    }
+
+    .results-card h3 {
+      margin-bottom: 1rem;
+    }
+
+    .empty-result {
+      display: grid;
+      min-height: 250px;
+      place-items: center;
+      border: 2px dashed #cbd8e1;
+      border-radius: 14px;
+      padding: 1.2rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty-symbol {
+      display: block;
+      margin-bottom: 0.55rem;
+      color: #8ba0b0;
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .result-grid {
+      grid-template-columns: repeat(3, 1fr);
+      margin-bottom: 1rem;
+    }
+
+    .result-tile {
+      min-width: 0;
+      padding: 0.85rem 0.55rem;
+      border-radius: 13px;
+      background: var(--surface-soft);
+      text-align: center;
+    }
+
+    .result-tile.primary {
+      background: #daf5f9;
+    }
+
+    .result-tile strong {
+      display: block;
+      color: var(--ink);
+      font-size: clamp(1.02rem, 2.5vw, 1.28rem);
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+    }
+
+    .result-tile span {
+      display: block;
+      margin-top: 0.28rem;
+      color: var(--muted);
+      font-size: 0.72rem;
+      line-height: 1.25;
+    }
+
+    .calculation {
+      margin-bottom: 0.85rem;
+      padding: 0.85rem;
+      border: 1px solid #b7d8e1;
+      border-radius: 13px;
+      background: #f0fafc;
+    }
+
+    .calculation p {
+      margin-bottom: 0.45rem;
+      color: #2a5364;
+      font-size: 0.88rem;
+      overflow-wrap: anywhere;
+    }
+
+    .calculation p:last-child {
+      margin-bottom: 0;
+    }
+
+    .calculation strong {
+      color: var(--ink);
+    }
+
+    .chart-box {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #fff;
+    }
+
+    #measurementChart {
+      height: 220px;
+    }
+
+    .chart-caption {
+      padding: 0.5rem 0.7rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.76rem;
+      text-align: center;
+    }
+
+    .result-note {
+      margin: 0.75rem 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .quiz-list {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .quiz-card {
+      margin: 0;
+      padding: 1.15rem;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--surface);
+    }
+
+    .quiz-card.is-correct {
+      border-color: #69ba9b;
+      background: #f2fbf7;
+    }
+
+    .quiz-card.is-wrong {
+      border-color: #dc8991;
+      background: #fff7f8;
+    }
+
+    .quiz-card legend {
+      width: 100%;
+      margin-bottom: 0.7rem;
+      color: var(--ink);
+      font-size: 1.04rem;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .option-list {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .quiz-option {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.65rem;
+      align-items: start;
+      min-height: 48px;
+      padding: 0.68rem 0.75rem;
+      border: 1px solid #d4e0e7;
+      border-radius: 11px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .quiz-option:hover {
+      border-color: #8fcad6;
+    }
+
+    .quiz-option input {
+      width: 20px;
+      height: 20px;
+      margin: 0.12rem 0 0;
+      accent-color: var(--cyan-dark);
+    }
+
+    .quiz-feedback {
+      min-height: 0;
+      margin: 0.65rem 0 0;
+      font-size: 0.9rem;
+      font-weight: 680;
+    }
+
+    .quiz-card.is-correct .quiz-feedback {
+      color: var(--green);
+    }
+
+    .quiz-card.is-wrong .quiz-feedback {
+      color: var(--red);
+    }
+
+    .quiz-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    .quiz-summary {
+      flex: 1 1 250px;
+      min-height: 48px;
+      margin: 0;
+      padding: 0.65rem 0.8rem;
+      border-radius: 11px;
+      background: #e9f3f7;
+      color: var(--ink);
+      font-weight: 750;
+    }
+
+    footer {
+      padding: 1.7rem max(1rem, env(safe-area-inset-left)) calc(1.7rem + env(safe-area-inset-bottom));
+      background: var(--navy);
+      color: #b8ccda;
+      text-align: center;
+    }
+
+    footer p {
+      max-width: 820px;
+      margin: 0 auto;
+      font-size: 0.86rem;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      margin: -1px;
+      padding: 0;
+      border: 0;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      html {
+        scroll-padding-top: 8.2rem;
+      }
+
+      .lab-grid,
+      .evaluation-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .results-card {
+        position: static;
+      }
+
+      .material-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .why-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .topbar-inner {
+        padding-top: 0.55rem;
+      }
+
+      .offline-badge {
+        width: 34px;
+        padding: 0;
+        justify-content: center;
+        font-size: 0;
+      }
+
+      .brand-mark {
+        width: 38px;
+        height: 38px;
+      }
+
+      .section-nav {
+        margin-top: 0.4rem;
+      }
+
+      .section {
+        padding-top: 2.5rem;
+        padding-bottom: 2.8rem;
+      }
+
+      .material-grid,
+      .input-grid,
+      .pitfall-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .scope-head {
+        flex-direction: column;
+      }
+
+      #scopeCanvas {
+        height: 220px;
+      }
+
+      .scope-controls {
+        grid-template-columns: 1fr;
+      }
+
+      .formula-box {
+        gap: 0.3rem;
+        padding: 0.85rem 0.55rem;
+      }
+
+      .formula-label {
+        font-size: 0.66rem;
+      }
+
+      .step-card {
+        grid-template-columns: auto 1fr;
+      }
+
+      .step-number {
+        display: none;
+      }
+
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .result-tile {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.7rem;
+        text-align: left;
+      }
+
+      .result-tile span {
+        order: -1;
+        margin: 0;
+        font-size: 0.78rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+      }
+    }
+
+    @media print {
+      .topbar,
+      .scope-panel,
+      .quiz-actions,
+      .button-cluster {
+        display: none !important;
+      }
+
+      body {
+        background: #fff;
+      }
+
+      .section {
+        max-width: none;
+        padding: 1rem 0;
+        break-inside: avoid;
+      }
+
+      .panel,
+      .data-card,
+      .results-card {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Direkt zum Inhalt</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand-row">
+        <div class="brand" aria-label="Physik-Labor">
+          <span class="brand-mark" aria-hidden="true">∿∿</span>
+          <span class="brand-text">
+            <span class="brand-kicker">Physiktechnik</span>
+            <span class="brand-title">Schallgeschwindigkeit mit Ultraschall</span>
+          </span>
+        </div>
+        <span class="offline-badge" title="Diese Datei benötigt keine Internetverbindung">Offline-fähig</span>
+      </div>
+      <nav class="section-nav" aria-label="Inhalte">
+        <a href="#start">Simulation</a>
+        <a href="#verstehen">Warum?</a>
+        <a href="#aufbau">Material</a>
+        <a href="#durchfuehrung">Durchführung</a>
+        <a href="#auswertung">Auswertung</a>
+        <a href="#quiz">Quiz</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="section" id="start">
+      <div class="lab-grid">
+        <article class="panel intro-panel">
+          <div>
+            <p class="eyebrow">Die Grundidee</p>
+            <h1>Gleiche Phase – eine Wellenlänge weiter</h1>
+            <p class="lead">Verschieben wir den Empfänger so weit, bis beide Kurven wieder genau gleich liegen, dann entspricht dieser Weg einer Wellenlänge.</p>
+
+            <div class="concept-chain">
+              <div class="concept-line">
+                <span class="number-dot">1</span>
+                <p>Der Sender erzeugt viele gleichmäßige Ultraschallwellen pro Sekunde.</p>
+              </div>
+              <div class="concept-line">
+                <span class="number-dot">2</span>
+                <p>Die gleiche Kurvenlage wiederholt sich räumlich nach jeder Wellenlänge <strong>λ</strong>.</p>
+              </div>
+              <div class="concept-line">
+                <span class="number-dot">3</span>
+                <p>Mit der bekannten Frequenz <strong>f</strong> folgt daraus die Geschwindigkeit <strong>c</strong>.</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="formula-box" aria-label="Formel: Schallgeschwindigkeit ist Frequenz mal Wellenlänge">
+              <div><span class="formula-symbol">c</span><span class="formula-label">Geschwindigkeit</span></div>
+              <span class="formula-operator">=</span>
+              <div><span class="formula-symbol">f</span><span class="formula-label">Frequenz</span></div>
+              <span class="formula-operator">·</span>
+              <div><span class="formula-symbol">λ</span><span class="formula-label">Wellenlänge</span></div>
+            </div>
+            <p class="micro-note"><strong>Praktischer Einheitentrick:</strong> kHz · mm ergibt direkt m/s.</p>
+          </div>
+        </article>
+
+        <article class="panel scope-panel" aria-labelledby="simulation-title">
+          <div class="scope-head">
+            <div>
+              <h2 id="simulation-title">Phasen-Simulation</h2>
+              <p>Verschiebe den Empfänger und beobachte Kanal 2.</p>
+            </div>
+            <span class="phase-chip" id="phaseChip">Phasenverschoben</span>
+          </div>
+
+          <div class="scope-wrap">
+            <canvas id="scopeCanvas" role="img" aria-label="Oszilloskopdarstellung mit Sender- und Empfängersignal">
+              Zwei Sinuskurven zeigen die Phasenlage von Sender und Empfänger.
+            </canvas>
+            <div class="trace-legend" aria-hidden="true">
+              <span class="trace-key" style="--trace:#00d3ee">Kanal 1 · Sender</span>
+              <span class="trace-key" style="--trace:#ffb547">Kanal 2 · Empfänger</span>
+            </div>
+          </div>
+
+          <div class="bench-schematic" aria-label="Sender links, verschiebbarer Empfänger rechts">
+            <span class="device-block">Sender</span>
+            <span class="wave-path" aria-hidden="true"></span>
+            <span class="device-block">Empfänger</span>
+          </div>
+
+          <p class="distance-readout">Verschiebung: <output id="distanceOutput" for="distanceSlider">0,00 mm</output></p>
+          <div class="slider-row">
+            <label class="sr-only" for="distanceSlider">Verschiebung des Empfängers in Millimetern</label>
+            <input id="distanceSlider" type="range" min="0" max="51.45" step="0.05" value="0">
+            <div class="range-labels" aria-hidden="true"><span>Start</span><span>sechs Wellenlängen</span></div>
+          </div>
+
+          <div class="scope-controls">
+            <div class="field">
+              <label for="simFrequency">Sendefrequenz</label>
+              <div class="input-with-unit">
+                <input id="simFrequency" type="number" inputmode="decimal" min="1" max="1000" step="0.1" value="40.0" aria-describedby="frequencyHelp">
+                <span class="unit">kHz</span>
+              </div>
+            </div>
+            <div class="button-row">
+              <button class="btn" id="nextPhaseButton" type="button">Nächste gleiche Phase</button>
+              <button class="btn btn-secondary" id="resetSimButton" type="button">Zurück zum Start</button>
+            </div>
+          </div>
+
+          <p id="frequencyHelp" class="sr-only">Trage die am Frequenzgenerator eingestellte Frequenz ein.</p>
+          <div class="scope-metrics" aria-live="polite">
+            <div class="metric"><strong id="phaseOutput">0°</strong><span>Phasenunterschied</span></div>
+            <div class="metric"><strong id="simLambdaOutput">8,58 mm</strong><span>Modell-Wellenlänge</span></div>
+            <div class="metric"><strong>343 m/s</strong><span>Modellwert bei etwa 20 °C</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="verstehen">
+      <div class="section-heading">
+        <p class="eyebrow">Gesamterklärung</p>
+        <h2>Warum lässt sich so die Schallgeschwindigkeit bestimmen?</h2>
+        <p class="lead">Das Oszilloskop macht nicht den Schallweg selbst sichtbar. Es zeigt zwei Spannungen, die sich im gleichen Rhythmus wie Sender und empfangene Schallwelle ändern.</p>
+      </div>
+
+      <div class="why-grid">
+        <article class="why-card" style="--accent:#00b9d8">
+          <h3>1. Die Frequenz ist bekannt</h3>
+          <p>Bei 40 kHz führt der Sender 40.000 Schwingungen pro Sekunde aus. Die Frequenz sagt also, wie viele vollständige Wellen pro Sekunde entstehen.</p>
+        </article>
+        <article class="why-card" style="--accent:#ffb547">
+          <h3>2. Die Wellenlänge wird gemessen</h3>
+          <p>Nach einer Verschiebung um genau eine Wellenlänge zeigt Kanal 2 wieder dieselbe Phasenlage zu Kanal 1. Der Abstand zweier solcher Positionen ist λ.</p>
+        </article>
+        <article class="why-card" style="--accent:#16845b">
+          <h3>3. Weg pro Zeit ergibt Tempo</h3>
+          <p>In einer Schwingungsdauer legt der Schall genau eine Wellenlänge zurück. Daher gilt: Wellen pro Sekunde mal Weg pro Welle, also c = f · λ.</p>
+        </article>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon" aria-hidden="true">!</span>
+        <p><strong>Wichtig:</strong> Ein fester Zeitversatz durch Kabel oder Elektronik stört die Abstandsmessung kaum. Entscheidend ist nicht die erste absolute Phasenlage, sondern der Weg zwischen zwei wiederkehrenden gleichen Phasenlagen.</p>
+      </div>
+
+      <details class="info-details">
+        <summary>Was bedeutet „gleiche Phase“?</summary>
+        <div>
+          <p>Zwei Signale sind gleichphasig, wenn sie an derselben Stelle ihrer Schwingung sind: Maxima, Minima und Nulldurchgänge liegen übereinander.</p>
+          <p>Achte besonders auf die <strong>gleiche Richtung</strong> am Nulldurchgang. Ein steigendes und ein fallendes Signal sind nicht gleichphasig, obwohl beide gerade den Wert null besitzen.</p>
+        </div>
+      </details>
+
+      <details class="info-details">
+        <summary>Warum verwendet man Ultraschall?</summary>
+        <div>
+          <p>Ultraschall mit 40 kHz hat in Luft nur ungefähr 8,6 mm Wellenlänge. Deshalb passen mehrere Wiederholungen auf eine kurze Messschiene. Die hohe Frequenz ist für Menschen nicht hörbar.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="section" id="aufbau">
+      <div class="section-heading">
+        <p class="eyebrow">Versuchsmaterial</p>
+        <h2>Tippe ein Gerät an – was macht es?</h2>
+        <p class="lead">Jedes Bauteil hat eine klare Aufgabe. Öffne die Karten, bevor du verkabelst.</p>
+      </div>
+
+      <div class="material-grid">
+        <details class="material-card">
+          <summary>
+            <span class="material-icon" aria-hidden="true">S</span>
+            <span><span class="material-title">Ultraschallsender</span><span class="material-hint">Aufgabe und Anschluss</span></span>
+            <span class="details-plus" aria-hidden="true">+</span>
+          </summary>
+          <div class="material-body">
+            <p>Der Sender wandelt die elektrische Wechselspannung in schnelle Luftdruckschwankungen um. So entsteht eine Schallwelle.</p>
+            <p><span class="channel-tag">Kanal 1</span> zeigt das Sendersignal als zeitliche Referenz.</p>
+          </div>
+        </details>
+
+        <details class="material-card">
+          <summary>
+            <span class="material-icon" aria-hidden="true">E</span>
+            <span><span class="material-title">Ultraschallempfänger</span><span class="material-hint">Beweglicher Messpunkt</span></span>
+            <span class="details-plus" aria-hidden="true">+</span>
+          </summary>
+          <div class="material-body">
+            <p>Der Empfänger wandelt die ankommenden Druckschwankungen wieder in eine kleine elektrische Spannung um.</p>
+            <p><span class="channel-tag amber">Kanal 2</span> zeigt dieses Empfangssignal. Der Empfänger wird entlang der Messschiene verschoben.</p>
+          </div>
+        </details>
+
+        <details class="material-card">
+          <summary>
+            <span class="material-icon" aria-hidden="true">∿</span>
+            <span><span class="material-title">Zweikanal-Oszilloskop</span><span class="material-hint">Zwei Kurven vergleichen</span></span>
+            <span class="details-plus" aria-hidden="true">+</span>
+          </summary>
+          <div class="material-body">
+            <p>Es stellt beide Spannungen gleichzeitig über der Zeit dar. So erkennt man, ob Maxima und steigende Nulldurchgänge an denselben Stellen liegen.</p>
+            <p>Stelle beide Kanäle gut sichtbar dar und triggere möglichst auf Kanal 1, damit das Bild ruhig steht.</p>
+          </div>
+        </details>
+
+        <details class="material-card">
+          <summary>
+            <span class="material-icon" aria-hidden="true">f</span>
+            <span><span class="material-title">Frequenzgenerator</span><span class="material-hint">Erzeugt den Takt</span></span>
+            <span class="details-plus" aria-hidden="true">+</span>
+          </summary>
+          <div class="material-body">
+            <p>Er liefert die sinusförmige Spannung für den Sender. Häufig werden 40,0 kHz eingestellt.</p>
+            <p>Notiere den tatsächlich angezeigten Frequenzwert. Genau dieser Wert gehört später in die Rechnung.</p>
+          </div>
+        </details>
+
+        <details class="material-card">
+          <summary>
+            <span class="material-icon" aria-hidden="true">↔</span>
+            <span><span class="material-title">Messschiene oder Maßstab</span><span class="material-hint">Positionen in Millimetern</span></span>
+            <span class="details-plus" aria-hidden="true">+</span>
+          </summary>
+          <div class="material-body">
+            <p>Damit liest du die Position des Empfängers ab. Eine absolute Nullposition ist nicht nötig, weil nur die Differenz zweier Positionen zählt.</p>
+            <p>Lies immer von derselben Markierung am Empfänger ab, damit kein zusätzlicher Versatz entsteht.</p>
+          </div>
+        </details>
+
+        <details class="material-card">
+          <summary>
+            <span class="material-icon" aria-hidden="true">CH</span>
+            <span><span class="material-title">Kabel und Verbindungen</span><span class="material-hint">Signale sicher zuordnen</span></span>
+            <span class="details-plus" aria-hidden="true">+</span>
+          </summary>
+          <div class="material-body">
+            <p>Verbinde das Referenzsignal mit Kanal 1 und den Empfänger mit Kanal 2. Nutze die vorgesehenen Leitungen und vermeide lose Kontakte.</p>
+            <p>Schalte Geräte zum Umstecken nach der Vorgabe deiner Lehrkraft aus. Die Gerätemassen dürfen nur entsprechend dem Schulaufbau verbunden werden.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="section" id="durchfuehrung">
+      <div class="section-heading">
+        <p class="eyebrow">Geführter Versuch</p>
+        <h2>Schritt für Schritt messen</h2>
+        <p class="lead">Hake einen Schritt erst ab, wenn deine Gruppe ihn wirklich durchgeführt hat.</p>
+      </div>
+
+      <div class="progress-card">
+        <div class="progress-head"><span>Versuchsfortschritt</span><span id="progressText">0 von 6 Schritten</span></div>
+        <div class="progress-track" id="progressTrack" role="progressbar" aria-label="Versuchsfortschritt" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <label class="step-card">
+          <input class="step-check" type="checkbox">
+          <span class="step-number">1</span>
+          <span class="step-text"><strong>Aufbau ausrichten und verbinden</strong><span>Sender und Empfänger zeigen sich auf gleicher Höhe direkt an. Kanal 1 erhält das Referenzsignal, Kanal 2 das Empfängersignal.</span></span>
+        </label>
+        <label class="step-card">
+          <input class="step-check" type="checkbox">
+          <span class="step-number">2</span>
+          <span class="step-text"><strong>Frequenz einstellen und notieren</strong><span>Stelle den vorgesehenen Wert ein, zum Beispiel 40,0 kHz. Verwende später den tatsächlich abgelesenen Wert.</span></span>
+        </label>
+        <label class="step-card">
+          <input class="step-check" type="checkbox">
+          <span class="step-number">3</span>
+          <span class="step-text"><strong>Ersten Gleichphasenpunkt finden</strong><span>Verschiebe den Empfänger langsam, bis Maxima, Minima und gleichgerichtete Nulldurchgänge beider Kurven zusammenpassen. Notiere die Position als P₀.</span></span>
+        </label>
+        <label class="step-card">
+          <input class="step-check" type="checkbox">
+          <span class="step-number">4</span>
+          <span class="step-text"><strong>Nächsten Gleichphasenpunkt suchen</strong><span>Bewege den Empfänger in nur eine Richtung. Stoppe bei der nächsten gleichen Kurvenlage und notiere P₁.</span></span>
+        </label>
+        <label class="step-card">
+          <input class="step-check" type="checkbox">
+          <span class="step-number">5</span>
+          <span class="step-text"><strong>Über mehrere Wellenlängen messen</strong><span>Wiederhole den Vorgang mindestens viermal. Ein längerer Gesamtweg macht den relativen Ablesefehler kleiner.</span></span>
+        </label>
+        <label class="step-card">
+          <input class="step-check" type="checkbox">
+          <span class="step-number">6</span>
+          <span class="step-text"><strong>Messwerte auswerten</strong><span>Trage die Positionen in die Tabelle ein. Das Applet berechnet Wellenlänge und Schallgeschwindigkeit.</span></span>
+        </label>
+      </div>
+
+      <div class="pitfall-grid">
+        <div class="pitfall"><strong>Intervalle zählen</strong>Fünf markierte Punkte enthalten nur vier Abstände. In der Formel steht deshalb N = Punkte − 1.</div>
+        <div class="pitfall"><strong>Nicht „irgendeine Kreuzung“</strong>Gleichphasig bedeutet gleiche Kurvenform zur gleichen Zeit – einschließlich derselben Bewegungsrichtung.</div>
+      </div>
+    </section>
+
+    <section class="section" id="auswertung">
+      <div class="section-heading">
+        <p class="eyebrow">Messwerte & Rechnung</p>
+        <h2>Aus vielen Positionen wird ein Ergebnis</h2>
+        <p class="lead">Trage aufeinanderfolgende Gleichphasenpositionen ohne Lücke ein. Dezimalpunkt und Dezimalkomma werden akzeptiert.</p>
+      </div>
+
+      <div class="evaluation-shell">
+        <article class="data-card">
+          <div class="input-grid">
+            <div class="field">
+              <label for="evalFrequency">Gemessene Frequenz</label>
+              <div class="input-with-unit">
+                <input id="evalFrequency" type="number" inputmode="decimal" min="1" max="1000" step="0.1" value="40.0">
+                <span class="unit">kHz</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="roomTemperature">Raumtemperatur (für Vergleich)</label>
+              <div class="input-with-unit">
+                <input id="roomTemperature" type="number" inputmode="decimal" min="-20" max="60" step="0.5" value="20">
+                <span class="unit">°C</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-actions">
+            <p>Jede Zeile ist die nächste gleiche Phasenlage.</p>
+            <div class="button-cluster">
+              <button class="btn btn-secondary btn-small" id="exampleButton" type="button">Beispieldaten laden</button>
+              <button class="btn btn-secondary btn-small" id="clearButton" type="button">Tabelle leeren</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Punkt</th>
+                  <th scope="col">Position x in mm</th>
+                  <th scope="col">Abstand zum vorigen Punkt</th>
+                </tr>
+              </thead>
+              <tbody id="measurementBody">
+                <tr><td>P₀</td><td><input class="position-input" aria-label="Position P0 in Millimetern" inputmode="decimal"></td><td class="delta-cell">–</td></tr>
+                <tr><td>P₁</td><td><input class="position-input" aria-label="Position P1 in Millimetern" inputmode="decimal"></td><td class="delta-cell">–</td></tr>
+                <tr><td>P₂</td><td><input class="position-input" aria-label="Position P2 in Millimetern" inputmode="decimal"></td><td class="delta-cell">–</td></tr>
+                <tr><td>P₃</td><td><input class="position-input" aria-label="Position P3 in Millimetern" inputmode="decimal"></td><td class="delta-cell">–</td></tr>
+                <tr><td>P₄</td><td><input class="position-input" aria-label="Position P4 in Millimetern" inputmode="decimal"></td><td class="delta-cell">–</td></tr>
+                <tr><td>P₅</td><td><input class="position-input" aria-label="Position P5 in Millimetern" inputmode="decimal"></td><td class="delta-cell">–</td></tr>
+                <tr><td>P₆</td><td><input class="position-input" aria-label="Position P6 in Millimetern" inputmode="decimal"></td><td class="delta-cell">–</td></tr>
+                <tr><td>P₇</td><td><input class="position-input" aria-label="Position P7 in Millimetern" inputmode="decimal"></td><td class="delta-cell">–</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="data-message" id="dataMessage" role="status">Mindestens zwei Positionen eintragen.</p>
+        </article>
+
+        <aside class="results-card" aria-labelledby="resultsTitle">
+          <h3 id="resultsTitle">Dein Messergebnis</h3>
+          <div class="empty-result" id="emptyResult">
+            <div><span class="empty-symbol" aria-hidden="true">λ</span>Nach zwei gültigen Positionen erscheint hier die Rechnung.</div>
+          </div>
+
+          <div id="resultContent" hidden>
+            <div class="result-grid">
+              <div class="result-tile"><strong id="intervalResult">–</strong><span>volle Abstände N</span></div>
+              <div class="result-tile"><strong id="lambdaResult">–</strong><span>Wellenlänge λ</span></div>
+              <div class="result-tile primary"><strong id="speedResult">–</strong><span>Schallgeschwindigkeit c</span></div>
+            </div>
+
+            <div class="calculation">
+              <p><strong>1. Wellenlänge:</strong><br><span id="lambdaCalculation"></span></p>
+              <p><strong>2. Geschwindigkeit:</strong><br><span id="speedCalculation"></span></p>
+              <p><strong>Vergleich:</strong><br><span id="referenceCalculation"></span></p>
+            </div>
+
+            <div class="chart-box">
+              <canvas id="measurementChart" role="img" aria-label="Diagramm der gemessenen Positionen über der Nummer des Gleichphasenpunktes">
+                Diagramm der Messpunkte.
+              </canvas>
+              <div class="chart-caption">Steigung der Messreihe = Wellenlänge λ</div>
+            </div>
+            <p class="result-note" id="scatterNote"></p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="quiz">
+      <div class="section-heading">
+        <p class="eyebrow">Kurz-Check</p>
+        <h2>Hast du die Methode verstanden?</h2>
+        <p class="lead">Wähle bei jeder Frage eine Antwort. Danach erhältst du sofort eine Erklärung.</p>
+      </div>
+
+      <form id="quizForm">
+        <div class="quiz-list">
+          <fieldset class="quiz-card" data-correct="b" data-explanation="Der Abstand zweier aufeinanderfolgender gleicher Phasenlagen ist genau eine Wellenlänge.">
+            <legend>1. Was entspricht dem Abstand zweier aufeinanderfolgender Gleichphasenpositionen?</legend>
+            <div class="option-list">
+              <label class="quiz-option"><input type="radio" name="q1" value="a"><span>Der Schallgeschwindigkeit</span></label>
+              <label class="quiz-option"><input type="radio" name="q1" value="b"><span>Einer Wellenlänge</span></label>
+              <label class="quiz-option"><input type="radio" name="q1" value="c"><span>Einer halben Frequenz</span></label>
+            </div>
+            <p class="quiz-feedback" aria-live="polite"></p>
+          </fieldset>
+
+          <fieldset class="quiz-card" data-correct="c" data-explanation="Die Geschwindigkeit ist Frequenz mal Wellenlänge: c = f · λ.">
+            <legend>2. Welche Formel wird für die Auswertung gebraucht?</legend>
+            <div class="option-list">
+              <label class="quiz-option"><input type="radio" name="q2" value="a"><span>c = f ÷ λ</span></label>
+              <label class="quiz-option"><input type="radio" name="q2" value="b"><span>c = λ ÷ f</span></label>
+              <label class="quiz-option"><input type="radio" name="q2" value="c"><span>c = f · λ</span></label>
+            </div>
+            <p class="quiz-feedback" aria-live="polite"></p>
+          </fieldset>
+
+          <fieldset class="quiz-card" data-correct="a" data-explanation="Mehrere Wellenlängen ergeben einen längeren Messweg. Derselbe Ablesefehler fällt dadurch relativ weniger ins Gewicht.">
+            <legend>3. Warum misst man möglichst über mehrere Wellenlängen?</legend>
+            <div class="option-list">
+              <label class="quiz-option"><input type="radio" name="q3" value="a"><span>Der relative Ablesefehler wird kleiner.</span></label>
+              <label class="quiz-option"><input type="radio" name="q3" value="b"><span>Der Schall wird dadurch schneller.</span></label>
+              <label class="quiz-option"><input type="radio" name="q3" value="c"><span>Die Frequenz verdoppelt sich.</span></label>
+            </div>
+            <p class="quiz-feedback" aria-live="polite"></p>
+          </fieldset>
+
+          <fieldset class="quiz-card" data-correct="b" data-explanation="Bei annähernd gleicher Schallgeschwindigkeit gilt λ = c ÷ f. Eine größere Frequenz führt daher zu einer kleineren Wellenlänge.">
+            <legend>4. Was passiert mit der Wellenlänge, wenn die Frequenz steigt?</legend>
+            <div class="option-list">
+              <label class="quiz-option"><input type="radio" name="q4" value="a"><span>Sie wird größer.</span></label>
+              <label class="quiz-option"><input type="radio" name="q4" value="b"><span>Sie wird kleiner.</span></label>
+              <label class="quiz-option"><input type="radio" name="q4" value="c"><span>Sie bleibt immer exakt gleich.</span></label>
+            </div>
+            <p class="quiz-feedback" aria-live="polite"></p>
+          </fieldset>
+
+          <fieldset class="quiz-card" data-correct="c" data-explanation="1 kHz · 1 mm = 1000 Hz · 0,001 m = 1 m/s. Deshalb ist kHz · mm besonders praktisch.">
+            <legend>5. Welche Einheiten liefern beim Multiplizieren direkt m/s?</legend>
+            <div class="option-list">
+              <label class="quiz-option"><input type="radio" name="q5" value="a"><span>Hz und mm</span></label>
+              <label class="quiz-option"><input type="radio" name="q5" value="b"><span>kHz und cm</span></label>
+              <label class="quiz-option"><input type="radio" name="q5" value="c"><span>kHz und mm</span></label>
+            </div>
+            <p class="quiz-feedback" aria-live="polite"></p>
+          </fieldset>
+        </div>
+
+        <div class="quiz-actions">
+          <button class="btn" type="submit">Antworten prüfen</button>
+          <button class="btn btn-secondary" id="quizResetButton" type="button">Neu starten</button>
+          <p class="quiz-summary" id="quizSummary" aria-live="polite">Noch nicht ausgewertet.</p>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>Das Applet verwendet ein ideales Wellenmodell. Beim realen Versuch beeinflussen unter anderem Temperatur, Ausrichtung, Ablesegenauigkeit und Reflexionen das Ergebnis.</p>
+  </footer>
+
+  <noscript>
+    <p style="padding:1rem;background:#fff3cd;color:#4f3b00">Für Simulation, Auswertung und Quiz muss JavaScript im Browser aktiviert sein.</p>
+  </noscript>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var MODEL_SPEED = 343;
+      var distanceSlider = document.getElementById("distanceSlider");
+      var distanceOutput = document.getElementById("distanceOutput");
+      var simFrequency = document.getElementById("simFrequency");
+      var evalFrequency = document.getElementById("evalFrequency");
+      var phaseOutput = document.getElementById("phaseOutput");
+      var simLambdaOutput = document.getElementById("simLambdaOutput");
+      var phaseChip = document.getElementById("phaseChip");
+      var scopeCanvas = document.getElementById("scopeCanvas");
+      var measurementChart = document.getElementById("measurementChart");
+      var numberFormat = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 2 });
+
+      function parseNumber(value) {
+        var normalized = String(value).trim().replace(",", ".");
+        return normalized === "" ? NaN : Number(normalized);
+      }
+
+      function validFrequency(value) {
+        var f = parseNumber(value);
+        return Number.isFinite(f) && f >= 1 && f <= 1000 ? f : 40;
+      }
+
+      function formatNumber(value, digits) {
+        return new Intl.NumberFormat("de-DE", {
+          minimumFractionDigits: digits,
+          maximumFractionDigits: digits
+        }).format(value);
+      }
+
+      function prepareCanvas(canvas) {
+        var rect = canvas.getBoundingClientRect();
+        var width = Math.max(280, rect.width);
+        var height = Math.max(180, rect.height);
+        var ratio = Math.min(window.devicePixelRatio || 1, 2.5);
+        canvas.width = Math.round(width * ratio);
+        canvas.height = Math.round(height * ratio);
+        var context = canvas.getContext("2d");
+        context.setTransform(ratio, 0, 0, ratio, 0, 0);
+        return { context: context, width: width, height: height };
+      }
+
+      function getSimulationValues() {
+        var frequency = validFrequency(simFrequency.value);
+        var lambda = MODEL_SPEED / frequency;
+        var distance = parseNumber(distanceSlider.value);
+        if (!Number.isFinite(distance)) {
+          distance = 0;
+        }
+        var phase = ((360 * distance / lambda) % 360 + 360) % 360;
+        return { frequency: frequency, lambda: lambda, distance: distance, phase: phase };
+      }
+
+      function drawScope() {
+        var size = prepareCanvas(scopeCanvas);
+        var ctx = size.context;
+        var width = size.width;
+        var height = size.height;
+        var values = getSimulationValues();
+        var phaseRadians = values.phase * Math.PI / 180;
+        var plotTop = 18;
+        var plotBottom = height - 18;
+        var centerY = (plotTop + plotBottom) / 2;
+        var amplitude = Math.min(54, (plotBottom - plotTop) * 0.31);
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "#04131f";
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.lineWidth = 1;
+        for (var xGrid = 0; xGrid <= 10; xGrid += 1) {
+          var gx = xGrid * width / 10;
+          ctx.strokeStyle = xGrid === 5 ? "#31566b" : "#17384d";
+          ctx.beginPath();
+          ctx.moveTo(gx, 0);
+          ctx.lineTo(gx, height);
+          ctx.stroke();
+        }
+        for (var yGrid = 0; yGrid <= 8; yGrid += 1) {
+          var gy = yGrid * height / 8;
+          ctx.strokeStyle = yGrid === 4 ? "#31566b" : "#17384d";
+          ctx.beginPath();
+          ctx.moveTo(0, gy);
+          ctx.lineTo(width, gy);
+          ctx.stroke();
+        }
+
+        function drawTrace(color, offset, glow) {
+          ctx.save();
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 2.6;
+          ctx.shadowBlur = glow;
+          ctx.shadowColor = color;
+          ctx.beginPath();
+          for (var px = 0; px <= width; px += 2) {
+            var theta = (px / width) * Math.PI * 8 - Math.PI / 2 - offset;
+            var py = centerY - Math.sin(theta) * amplitude;
+            if (px === 0) {
+              ctx.moveTo(px, py);
+            } else {
+              ctx.lineTo(px, py);
+            }
+          }
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        drawTrace("#00d3ee", 0, 7);
+        drawTrace("#ffb547", phaseRadians, 5);
+
+        ctx.fillStyle = "#89a8bb";
+        ctx.font = "700 12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+        ctx.fillText("Zeit →", Math.max(12, width - 52), height - 8);
+      }
+
+      function updateSimulation() {
+        var values = getSimulationValues();
+        var nearestPhase = Math.min(values.phase, 360 - values.phase);
+        var isInPhase = nearestPhase < 4;
+        distanceSlider.max = (values.lambda * 6).toFixed(3);
+        if (values.distance > parseNumber(distanceSlider.max)) {
+          distanceSlider.value = distanceSlider.max;
+          values = getSimulationValues();
+          nearestPhase = Math.min(values.phase, 360 - values.phase);
+          isInPhase = nearestPhase < 4;
+        }
+
+        distanceOutput.textContent = formatNumber(values.distance, 2) + " mm";
+        phaseOutput.textContent = formatNumber(values.phase, 0) + "°";
+        simLambdaOutput.textContent = formatNumber(values.lambda, 2) + " mm";
+        phaseChip.textContent = isInPhase ? "Gleiche Phase" : "Phasenverschoben";
+        phaseChip.classList.toggle("in-phase", isInPhase);
+        scopeCanvas.setAttribute(
+          "aria-label",
+          "Oszilloskopdarstellung. Phasenunterschied " + formatNumber(values.phase, 0) +
+          " Grad bei " + formatNumber(values.distance, 2) + " Millimeter Verschiebung."
+        );
+        drawScope();
+      }
+
+      distanceSlider.addEventListener("input", updateSimulation);
+
+      simFrequency.addEventListener("input", function () {
+        evalFrequency.value = simFrequency.value;
+        updateSimulation();
+        calculateMeasurements();
+      });
+
+      evalFrequency.addEventListener("input", function () {
+        simFrequency.value = evalFrequency.value;
+        updateSimulation();
+        calculateMeasurements();
+      });
+
+      document.getElementById("nextPhaseButton").addEventListener("click", function () {
+        var values = getSimulationValues();
+        var nextIndex = Math.floor(values.distance / values.lambda + 0.001) + 1;
+        var nextDistance = Math.min(nextIndex * values.lambda, parseNumber(distanceSlider.max));
+        distanceSlider.value = nextDistance.toFixed(3);
+        updateSimulation();
+      });
+
+      document.getElementById("resetSimButton").addEventListener("click", function () {
+        distanceSlider.value = "0";
+        updateSimulation();
+      });
+
+      var stepChecks = Array.prototype.slice.call(document.querySelectorAll(".step-check"));
+      var progressFill = document.getElementById("progressFill");
+      var progressText = document.getElementById("progressText");
+      var progressTrack = document.getElementById("progressTrack");
+
+      function updateProgress() {
+        var checked = stepChecks.filter(function (box) { return box.checked; }).length;
+        var percent = checked / stepChecks.length * 100;
+        progressFill.style.width = percent + "%";
+        progressText.textContent = checked + " von " + stepChecks.length + " Schritten";
+        progressTrack.setAttribute("aria-valuenow", String(checked));
+      }
+
+      stepChecks.forEach(function (box) {
+        box.addEventListener("change", updateProgress);
+      });
+
+      var positionInputs = Array.prototype.slice.call(document.querySelectorAll(".position-input"));
+      var deltaCells = Array.prototype.slice.call(document.querySelectorAll(".delta-cell"));
+      var dataMessage = document.getElementById("dataMessage");
+      var emptyResult = document.getElementById("emptyResult");
+      var resultContent = document.getElementById("resultContent");
+      var roomTemperature = document.getElementById("roomTemperature");
+
+      function clearDeltas() {
+        deltaCells.forEach(function (cell, index) {
+          cell.textContent = index === 0 ? "–" : "–";
+        });
+      }
+
+      function showMeasurementError(message) {
+        dataMessage.textContent = message;
+        dataMessage.classList.add("error");
+        emptyResult.hidden = false;
+        resultContent.hidden = true;
+        clearDeltas();
+      }
+
+      function collectPositions() {
+        var raw = positionInputs.map(function (input) { return input.value.trim(); });
+        var lastFilled = -1;
+        raw.forEach(function (value, index) {
+          if (value !== "") {
+            lastFilled = index;
+          }
+        });
+        if (lastFilled < 1) {
+          return { error: "Mindestens zwei Positionen eintragen." };
+        }
+        for (var index = 0; index <= lastFilled; index += 1) {
+          if (raw[index] === "") {
+            return { error: "Bitte die Positionen der Reihe nach und ohne Lücke eintragen." };
+          }
+        }
+        var values = raw.slice(0, lastFilled + 1).map(parseNumber);
+        if (values.some(function (value) { return !Number.isFinite(value); })) {
+          return { error: "Mindestens ein Eintrag ist keine gültige Zahl." };
+        }
+        for (var point = 1; point < values.length; point += 1) {
+          if (values[point] <= values[point - 1]) {
+            return { error: "Die Positionen müssen in Bewegungsrichtung größer werden." };
+          }
+        }
+        return { values: values };
+      }
+
+      function drawMeasurementChart(values, lambda) {
+        var size = prepareCanvas(measurementChart);
+        var ctx = size.context;
+        var width = size.width;
+        var height = size.height;
+        var left = 54;
+        var right = 20;
+        var top = 22;
+        var bottom = 40;
+        var plotWidth = width - left - right;
+        var plotHeight = height - top - bottom;
+        var minY = Math.min.apply(null, values);
+        var maxY = Math.max.apply(null, values);
+        var padding = Math.max((maxY - minY) * 0.15, 1);
+        minY -= padding;
+        maxY += padding;
+
+        function xAt(index) {
+          return left + index / Math.max(1, values.length - 1) * plotWidth;
+        }
+
+        function yAt(value) {
+          return top + (maxY - value) / (maxY - minY) * plotHeight;
+        }
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, width, height);
+        ctx.font = "12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+
+        for (var line = 0; line <= 4; line += 1) {
+          var gridValue = minY + (maxY - minY) * line / 4;
+          var y = yAt(gridValue);
+          ctx.strokeStyle = "#dce7ed";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(left, y);
+          ctx.lineTo(width - right, y);
+          ctx.stroke();
+          ctx.fillStyle = "#607687";
+          ctx.fillText(numberFormat.format(gridValue), left - 7, y);
+        }
+
+        ctx.strokeStyle = "#6f8797";
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.moveTo(left, top);
+        ctx.lineTo(left, height - bottom);
+        ctx.lineTo(width - right, height - bottom);
+        ctx.stroke();
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        values.forEach(function (value, index) {
+          ctx.fillStyle = "#607687";
+          ctx.fillText(String(index), xAt(index), height - bottom + 8);
+        });
+        ctx.fillStyle = "#52677a";
+        ctx.fillText("Gleichphasenpunkt n", left + plotWidth / 2, height - 18);
+
+        ctx.save();
+        ctx.translate(14, top + plotHeight / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.textAlign = "center";
+        ctx.fillText("Position x (mm)", 0, 0);
+        ctx.restore();
+
+        ctx.strokeStyle = "#00a7c4";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        values.forEach(function (value, index) {
+          var px = xAt(index);
+          var py = yAt(value);
+          if (index === 0) {
+            ctx.moveTo(px, py);
+          } else {
+            ctx.lineTo(px, py);
+          }
+        });
+        ctx.stroke();
+
+        values.forEach(function (value, index) {
+          var px = xAt(index);
+          var py = yAt(value);
+          ctx.fillStyle = "#ffffff";
+          ctx.strokeStyle = "#007f9b";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(px, py, 5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        });
+
+        ctx.fillStyle = "#10243a";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        ctx.font = "700 12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+        ctx.fillText("λ = " + formatNumber(lambda, 2) + " mm", left + 8, top + 4);
+      }
+
+      function calculateMeasurements() {
+        var collected = collectPositions();
+        if (collected.error) {
+          showMeasurementError(collected.error);
+          if (measurementChart) {
+            var size = prepareCanvas(measurementChart);
+            size.context.clearRect(0, 0, size.width, size.height);
+          }
+          return;
+        }
+
+        var values = collected.values;
+        var frequency = parseNumber(evalFrequency.value);
+        if (!Number.isFinite(frequency) || frequency < 1 || frequency > 1000) {
+          showMeasurementError("Bitte eine gültige Frequenz zwischen 1 und 1000 kHz eintragen.");
+          return;
+        }
+        var intervals = values.length - 1;
+        var totalDistance = values[values.length - 1] - values[0];
+        var lambda = totalDistance / intervals;
+        var speed = frequency * lambda;
+        var deltas = [];
+
+        clearDeltas();
+        for (var index = 1; index < values.length; index += 1) {
+          var delta = values[index] - values[index - 1];
+          deltas.push(delta);
+          deltaCells[index].textContent = formatNumber(delta, 2) + " mm";
+        }
+
+        var temp = parseNumber(roomTemperature.value);
+        var hasValidTemperature = Number.isFinite(temp) && temp >= -20 && temp <= 60;
+        var scatter = 0;
+        if (deltas.length > 1) {
+          var sumSquares = deltas.reduce(function (sum, value) {
+            return sum + Math.pow(value - lambda, 2);
+          }, 0);
+          scatter = Math.sqrt(sumSquares / (deltas.length - 1));
+        }
+
+        document.getElementById("intervalResult").textContent = String(intervals);
+        document.getElementById("lambdaResult").textContent = formatNumber(lambda, 2) + " mm";
+        document.getElementById("speedResult").textContent = formatNumber(speed, 0) + " m/s";
+        document.getElementById("lambdaCalculation").textContent =
+          "λ = (" + formatNumber(values[values.length - 1], 2) + " mm − " +
+          formatNumber(values[0], 2) + " mm) ÷ " + intervals + " = " +
+          formatNumber(lambda, 2) + " mm";
+        document.getElementById("speedCalculation").textContent =
+          "c = " + formatNumber(frequency, 1) + " kHz · " +
+          formatNumber(lambda, 2) + " mm = " + formatNumber(speed, 0) + " m/s";
+        if (hasValidTemperature) {
+          var referenceSpeed = 331.3 + 0.606 * temp;
+          var deviation = Math.abs(speed - referenceSpeed) / referenceSpeed * 100;
+          document.getElementById("referenceCalculation").textContent =
+            "Bei " + formatNumber(temp, 1) + " °C sind etwa " +
+            formatNumber(referenceSpeed, 0) + " m/s zu erwarten. Abweichung: " +
+            formatNumber(deviation, 1) + " %.";
+        } else {
+          document.getElementById("referenceCalculation").textContent =
+            "Für den Vergleich bitte eine Raumtemperatur zwischen −20 °C und 60 °C eintragen.";
+        }
+        document.getElementById("scatterNote").textContent =
+          deltas.length > 1
+            ? "Streuung der einzelnen Abstände: " + formatNumber(scatter, 2) +
+              " mm. Kleine Streuung bedeutet: Die Gleichphasenpunkte wurden gleichmäßig gefunden."
+            : "Mit weiteren Gleichphasenpunkten lässt sich die Messung zuverlässiger mitteln.";
+
+        dataMessage.textContent = values.length + " gültige Positionen werden ausgewertet.";
+        dataMessage.classList.remove("error");
+        emptyResult.hidden = true;
+        resultContent.hidden = false;
+        measurementChart.setAttribute(
+          "aria-label",
+          "Diagramm mit " + values.length + " Positionen. Die Steigung und damit die Wellenlänge beträgt " +
+          formatNumber(lambda, 2) + " Millimeter."
+        );
+        drawMeasurementChart(values, lambda);
+      }
+
+      positionInputs.forEach(function (input) {
+        input.addEventListener("input", calculateMeasurements);
+      });
+      roomTemperature.addEventListener("input", calculateMeasurements);
+
+      document.getElementById("exampleButton").addEventListener("click", function () {
+        var example = ["12,3", "20,9", "29,4", "38,0", "46,6"];
+        positionInputs.forEach(function (input, index) {
+          input.value = example[index] || "";
+        });
+        calculateMeasurements();
+      });
+
+      document.getElementById("clearButton").addEventListener("click", function () {
+        positionInputs.forEach(function (input) { input.value = ""; });
+        calculateMeasurements();
+        positionInputs[0].focus();
+      });
+
+      var quizForm = document.getElementById("quizForm");
+      var quizCards = Array.prototype.slice.call(document.querySelectorAll(".quiz-card"));
+      var quizSummary = document.getElementById("quizSummary");
+
+      quizForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        var correctCount = 0;
+        var answeredCount = 0;
+
+        quizCards.forEach(function (card) {
+          var selected = card.querySelector("input:checked");
+          var feedback = card.querySelector(".quiz-feedback");
+          card.classList.remove("is-correct", "is-wrong");
+
+          if (!selected) {
+            feedback.textContent = "Bitte wähle eine Antwort.";
+            card.classList.add("is-wrong");
+            return;
+          }
+
+          answeredCount += 1;
+          var correct = selected.value === card.dataset.correct;
+          if (correct) {
+            correctCount += 1;
+            card.classList.add("is-correct");
+            feedback.textContent = "Richtig. " + card.dataset.explanation;
+          } else {
+            card.classList.add("is-wrong");
+            feedback.textContent = "Noch nicht richtig. " + card.dataset.explanation;
+          }
+        });
+
+        if (answeredCount < quizCards.length) {
+          quizSummary.textContent = answeredCount + " von " + quizCards.length + " Fragen beantwortet. Bitte vervollständigen.";
+        } else if (correctCount === quizCards.length) {
+          quizSummary.textContent = "5 von 5 richtig – die Methode sitzt!";
+        } else {
+          quizSummary.textContent = correctCount + " von " + quizCards.length + " richtig. Lies die Rückmeldungen und versuche es erneut.";
+        }
+      });
+
+      document.getElementById("quizResetButton").addEventListener("click", function () {
+        quizForm.reset();
+        quizCards.forEach(function (card) {
+          card.classList.remove("is-correct", "is-wrong");
+          card.querySelector(".quiz-feedback").textContent = "";
+        });
+        quizSummary.textContent = "Noch nicht ausgewertet.";
+      });
+
+      var resizeTimer;
+      window.addEventListener("resize", function () {
+        window.clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(function () {
+          updateSimulation();
+          if (!resultContent.hidden) {
+            calculateMeasurements();
+          }
+        }, 120);
+      });
+
+      updateProgress();
+      updateSimulation();
+      calculateMeasurements();
+    }());
+  </script>
+</body>
+</html>
