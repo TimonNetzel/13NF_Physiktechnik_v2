@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ultraschall-Laufzeitmessung – interaktive Simulation</title>
+<style>
+:root{
+  --bg:#eef2f6; --paper:#ffffff; --ink:#172333; --muted:#5d6b7a;
+  --blue:#174a7e; --blue2:#2e6fae; --line:#d8e0e8; --ok:#176b47;
+  --warn:#8a5a00; --bad:#9f2f2f; --scope:#0a1118; --yellow:#f6d84a;
+  --cyan:#48d5e7; --a:#ff8b3d; --b:#e264ff; --shadow:0 10px 30px rgba(25,45,70,.10);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.5}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid rgba(46,111,174,.32);outline-offset:2px}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
+.topbar-inner{max-width:1180px;margin:auto;padding:10px 18px;display:flex;align-items:center;gap:14px}
+.brand{font-weight:800;color:var(--blue);letter-spacing:.01em;white-space:nowrap}
+.progress{display:flex;gap:5px;flex:1;overflow:auto;padding:2px}
+.navstep{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 11px;color:var(--muted);white-space:nowrap;font-size:.9rem}
+.navstep.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.navstep.done{border-color:#72aa90;color:var(--ok)}
+.lk-mini{border:0;background:transparent;color:#8a96a4;font-size:.78rem;padding:6px}
+main{max-width:1180px;margin:24px auto 60px;padding:0 18px}
+.hero{background:linear-gradient(135deg,#153e69,#27699f);color:#fff;border-radius:18px;padding:28px 30px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero:after{content:"40 kHz";position:absolute;right:24px;bottom:-18px;font-size:6rem;font-weight:900;opacity:.07;line-height:1}
+.hero h1{margin:0 0 8px;font-size:clamp(1.65rem,4vw,2.55rem)}
+.hero p{margin:0;max-width:820px;color:#eaf3fb}
+.modechips{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.chip{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);border-radius:999px;padding:5px 9px;font-size:.84rem}
+.section{display:none;margin-top:20px}
+.section.active{display:block}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 5px 18px rgba(25,45,70,.06);margin-bottom:16px}
+.card h2,.card h3{margin-top:0;color:#173f68}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:850px){.grid2,.grid3{grid-template-columns:1fr}.progress{display:none}}
+.kicker{font-size:.78rem;text-transform:uppercase;letter-spacing:.12em;color:var(--blue2);font-weight:800}
+.callout{border-left:4px solid var(--blue2);background:#f2f7fc;border-radius:9px;padding:12px 14px}
+.callout.ok{border-left-color:var(--ok);background:#eef8f3}
+.callout.warn{border-left-color:#d79a28;background:#fff8e9}
+.callout.bad{border-left-color:var(--bad);background:#fff1f1}
+.formula{font-family:Cambria,"Times New Roman",serif;font-size:1.32rem;background:#f7f9fb;border:1px solid var(--line);padding:12px 16px;border-radius:10px;text-align:center;margin:12px 0}
+.btn{border:1px solid transparent;border-radius:10px;padding:10px 14px;font-weight:700;background:var(--blue);color:#fff}
+.btn:hover{filter:brightness(1.05)}
+.btn.secondary{background:#fff;color:var(--blue);border-color:#9fb8cf}
+.btn.ghost{background:#f3f6f9;color:#33465a;border-color:var(--line)}
+.btn.good{background:var(--ok)}
+.btn.small{padding:7px 10px;font-size:.9rem}
+.btnrow{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.field{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:9px 0}
+.field label{font-weight:700}
+.field input[type="number"],.field select{border:1px solid #b8c6d3;border-radius:8px;padding:8px 9px;background:#fff;min-width:110px}
+.help{font-size:.91rem;color:var(--muted)}
+.status{font-weight:700;margin-left:4px}
+.status.ok{color:var(--ok)} .status.bad{color:var(--bad)}
+.setup{position:relative;height:235px;background:linear-gradient(#f8fafc,#eef3f7);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.bench{position:absolute;left:7%;right:6%;bottom:50px;height:9px;background:#7d8894;border-radius:5px}
+.ruler{position:absolute;left:18%;right:7%;bottom:24px;height:20px;border-top:2px solid #53606d}
+.ruler:before{content:"20        40        60        80       100 cm";position:absolute;left:0;right:0;top:5px;color:#526272;font-size:.78rem;word-spacing:5.2vw;white-space:pre}
+.transducer{position:absolute;left:7.2%;bottom:60px;width:66px;height:92px}
+.transducer .body{position:absolute;left:4px;bottom:0;width:34px;height:58px;border:2px solid #263849;background:#d8e1e8;border-radius:5px 5px 0 0}
+.transducer .cone{position:absolute;right:0;bottom:9px;width:0;height:0;border-top:21px solid transparent;border-bottom:21px solid transparent;border-left:28px solid #4f6477}
+.rx{position:absolute;left:10.6%;bottom:60px;width:46px;height:62px;border:2px solid #263849;background:#d9e2e8;border-radius:50% 50% 8px 8px}
+.label-small{position:absolute;font-size:.8rem;color:#4c5e70;font-weight:700}
+.reflector{position:absolute;bottom:55px;width:18px;height:130px;background:repeating-linear-gradient(135deg,#667480,#667480 4px,#c9d2d9 4px,#c9d2d9 8px);border:1px solid #46535d;transform:translateX(-50%)}
+.wavepath{position:absolute;left:16%;bottom:111px;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);transform-origin:left center;opacity:0}
+.wavepath.go{animation:pulsego 1.5s ease-in-out}
+@keyframes pulsego{0%{width:0;opacity:1}46%{width:var(--wave-w);opacity:1}50%{width:var(--wave-w);opacity:.8}100%{width:0;opacity:0}}
+.distance-control{margin-top:14px}
+.distance-control input[type=range]{width:100%}
+.scope-wrap{background:#151c23;border:8px solid #4b5965;border-radius:16px;padding:9px;box-shadow:inset 0 0 0 2px #26323c}
+.scope-title{color:#c9d4de;font-size:.82rem;display:flex;justify-content:space-between;padding:0 4px 7px}
+canvas.scope{display:block;width:100%;height:auto;background:var(--scope);border:1px solid #111}
+.scope-controls{background:#25323d;color:#eff7fb;display:flex;gap:9px;align-items:center;flex-wrap:wrap;padding:9px;border-radius:0 0 8px 8px}
+.scope-controls label{font-size:.85rem}
+.scope-controls select{border-radius:6px;padding:4px 7px}
+.readout{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#0b151c;color:#dce8ef;padding:8px 10px;border-radius:8px;display:flex;gap:18px;flex-wrap:wrap;margin-top:8px;font-size:.92rem}
+.a{color:var(--a);font-weight:800}.b{color:var(--b);font-weight:800}
+.cursor-sliders{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;margin-top:8px}
+.cursor-sliders input{width:100%}
+.simpletimeline{position:relative;height:150px;border:1px solid var(--line);border-radius:12px;background:#fafcfe;overflow:hidden}
+.simpletimeline .axis{position:absolute;left:6%;right:4%;top:75px;height:2px;background:#5c6874}
+.pulsebox{position:absolute;top:48px;height:54px;border-radius:5px;opacity:.9}
+.pulse-send{background:var(--yellow);left:12%;width:5%}
+.pulse-echo{background:var(--cyan);left:58%;width:8%}
+.cursorline{position:absolute;top:18px;bottom:18px;width:2px;background:currentColor;z-index:3}
+.cursorline:before{content:attr(data-name);position:absolute;top:-2px;left:5px;font-weight:800}
+.thermo-wrap{display:flex;align-items:center;gap:24px;justify-content:center;padding:10px}
+.thermo{position:relative;width:100px;height:310px}
+.thermo-tube{position:absolute;left:42px;top:12px;width:18px;height:250px;border:3px solid #7b8995;border-radius:10px;background:#f6fbff;overflow:hidden}
+.mercury{position:absolute;left:3px;right:3px;bottom:0;background:#c44848;border-radius:6px 6px 0 0}
+.thermo-bulb{position:absolute;left:27px;bottom:10px;width:48px;height:48px;border:3px solid #7b8995;border-radius:50%;background:#c44848}
+.thermo-scale{position:absolute;left:66px;top:13px;height:250px;width:34px;background:repeating-linear-gradient(to bottom,transparent 0,transparent 24px,#667 25px,#667 26px)}
+.thermo-scale span{position:absolute;left:9px;font-size:.72rem;color:#526272}
+.quiz label{display:block;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;cursor:pointer}
+.quiz label:hover{background:#f5f8fb}
+.meter{height:10px;background:#e7edf2;border-radius:99px;overflow:hidden}
+.meter > div{height:100%;background:var(--blue2);width:0;transition:width .3s}
+.tablewrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{background:#f4f7fa;color:#415367;position:sticky;top:0}
+td input[type=number]{width:92px;padding:6px;border:1px solid #b9c5d1;border-radius:7px}
+.badge{display:inline-block;padding:3px 7px;border-radius:999px;font-size:.78rem;font-weight:800}
+.badge.wait{background:#eef1f4;color:#566575}.badge.ok{background:#e8f7ef;color:var(--ok)}.badge.bad{background:#ffeded;color:var(--bad)}
+.analysis-canvas{border:1px solid var(--line);border-radius:10px;width:100%;height:auto;background:#fff}
+.teacher{display:none;border:2px dashed #8aa6bf;background:#f5faff}
+.teacher.show{display:block}
+.solution{display:none}.teacher-solutions .solution{display:block}
+.source-list{font-size:.9rem;color:#405365}
+.source-list li{margin:7px 0}
+.source-list a{color:#174a7e;word-break:break-all}
+.footer-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;margin-top:20px}
+.toast{position:fixed;right:18px;bottom:18px;z-index:50;background:#182532;color:#fff;padding:12px 15px;border-radius:10px;box-shadow:var(--shadow);opacity:0;transform:translateY(10px);pointer-events:none;transition:.22s;max-width:360px}
+.toast.show{opacity:1;transform:none}
+.hidden{display:none!important}
+.print-only{display:none}
+@media print{
+  .topbar,.hero,.btn,.distance-control,.scope-controls,.cursor-sliders,.footer-actions,.lk-mini{display:none!important}
+  body{background:#fff}.card{box-shadow:none;break-inside:avoid}.section{display:block!important}
+  .print-only{display:block}.scope-wrap{border:1px solid #777}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">Ultraschall · ToF</div>
+    <nav class="progress" aria-label="Versuchsabschnitte">
+      <button class="navstep active" data-go="intro">1 Einstieg</button>
+      <button class="navstep" data-go="temp">2 Temperatur</button>
+      <button class="navstep" data-go="real">3 Realversuch</button>
+      <button class="navstep" data-go="series">4 Messreihe</button>
+      <button class="navstep" data-go="eval">5 Auswertung</button>
+    </nav>
+    <button id="teacherBtn" class="lk-mini" title="Lehrkraftmodus">LK</button>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="kicker" style="color:#d9edff">Physik · Jahrgang 13 · offline</div>
+  <h1>Entfernungsmessung mit Ultraschall</h1>
+  <p>Vom einfachen Laufzeitbild zum realistisch simulierten Zweikanal-Oszilloskop. Du misst die Laufzeit selbst mit zwei Cursorn und bestimmst daraus den Abstand zum Reflektor.</p>
+  <div class="modechips"><span class="chip">40 kHz</span><span class="chip">Time of Flight</span><span class="chip">10 Messungen</span><span class="chip">Autospeicherung im Browser</span></div>
+</section>
+
+<section id="intro" class="section active">
+  <div class="card">
+    <div class="kicker">Teil A · zum Reinkommen</div>
+    <h2>1. Was wird eigentlich gemessen?</h2>
+    <div class="grid2">
+      <div>
+        <p>Der Sender erzeugt einen kurzen Ultraschallimpuls. Der Impuls läuft zum Reflektor, wird dort zurückgeworfen und trifft als Echo auf den Empfänger.</p>
+        <div class="formula">Weg des Schalls = Hinweg + Rückweg = <strong>2 · s</strong></div>
+        <div class="callout"><strong>Merksatz:</strong> Das Oszilloskop misst eine <em>Zeit</em>. Den Abstand berechnen wir anschließend aus Zeit und Schallgeschwindigkeit.</div>
+      </div>
+      <div>
+        <div class="setup" id="easySetup">
+          <div class="bench"></div>
+          <div class="transducer"><div class="body"></div><div class="cone"></div></div>
+          <div class="rx"></div>
+          <div class="label-small" style="left:5%;bottom:165px">Sender + Empfänger</div>
+          <div class="reflector" style="left:78%"></div>
+          <div class="label-small" style="right:8%;bottom:192px">Reflektor</div>
+          <div class="wavepath" id="easyWave"></div>
+        </div>
+        <div class="btnrow" style="margin-top:10px"><button class="btn" id="easyPulse">Impuls starten</button><span class="help">Beobachte Hin- und Rückweg.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Erste Laufzeitmessung – stark vereinfacht</h3>
+    <p>Im Einstieg sind Sendeimpuls und Echo absichtlich groß dargestellt. Schiebe <span class="a">Cursor A</span> an den Beginn des Sendeimpulses und <span class="b">Cursor B</span> an den Beginn des Echos.</p>
+    <div class="simpletimeline" id="easyTimeline">
+      <div class="axis"></div><div class="pulsebox pulse-send"></div><div class="pulsebox pulse-echo"></div>
+      <div class="cursorline a" id="easyA" data-name="A" style="left:20%"></div>
+      <div class="cursorline b" id="easyB" data-name="B" style="left:72%"></div>
+    </div>
+    <div class="cursor-sliders">
+      <span class="a">A</span><input id="easyASlider" type="range" min="0" max="5" step="0.01" value="0.8"><output id="easyAOut">0,80 ms</output>
+      <span class="b">B</span><input id="easyBSlider" type="range" min="0" max="5" step="0.01" value="3.8"><output id="easyBOut">3,80 ms</output>
+    </div>
+    <div class="readout"><span>Δt = <strong id="easyDt">3,00 ms</strong></span><span>Zielwert liegt ungefähr bei 2,60 ms.</span></div>
+    <div class="btnrow" style="margin-top:10px"><button class="btn secondary" id="easyCheckCursor">Cursor prüfen</button><span id="easyCursorStatus" class="status"></span></div>
+  </div>
+
+  <div class="card">
+    <h3>Warum steht in der Formel eine 2?</h3>
+    <div class="quiz" id="factorQuiz">
+      <label><input type="radio" name="factor" value="a"> Weil der Sender mit 40 kHz arbeitet.</label>
+      <label><input type="radio" name="factor" value="b"> Weil der Schall zum Reflektor <strong>und wieder zurück</strong> läuft.</label>
+      <label><input type="radio" name="factor" value="c"> Weil zwei Oszilloskopkanäle benutzt werden.</label>
+    </div>
+    <div class="btnrow"><button class="btn secondary" id="factorCheck">Antwort prüfen</button><span id="factorStatus" class="status"></span></div>
+    <div class="formula">s = <span style="display:inline-block;border-bottom:1px solid #444">c · Δt</span><br><span style="font-size:.9em">2</span></div>
+    <div class="btnrow"><button class="btn" data-go="temp">Weiter: Raumtemperatur messen →</button></div>
+  </div>
+</section>
+
+<section id="temp" class="section">
+  <div class="card">
+    <div class="kicker">Teil B · Vorbereitung</div>
+    <h2>2. Raumtemperatur und Schallgeschwindigkeit</h2>
+    <p>Die Schallgeschwindigkeit in Luft hängt von der Temperatur ab. Lies zuerst das Thermometer ab und berechne anschließend \(c\).</p>
+    <div class="grid2">
+      <div class="thermo-wrap">
+        <div class="thermo" aria-label="Thermometer">
+          <div class="thermo-tube"><div id="mercury" class="mercury"></div></div><div class="thermo-bulb"></div><div class="thermo-scale">
+            <span style="top:-7px">30</span><span style="top:43px">27</span><span style="top:93px">24</span><span style="top:143px">21</span><span style="top:193px">18</span><span style="top:243px">15 °C</span>
+          </div>
+        </div>
+        <div><strong>Ablesetipp</strong><p class="help">Die beschrifteten Marken liegen 3 °C auseinander; die kleinen Zwischenmarken helfen beim Schätzen. Lies auf etwa 0,5 °C genau ab.</p></div>
+      </div>
+      <div>
+        <h3>Schritt 1: Temperatur ablesen</h3>
+        <div class="field"><label for="tempInput">T =</label><input id="tempInput" type="number" step="0.1" min="10" max="35"> <span>°C</span><button id="tempCheck" class="btn secondary small">prüfen</button><span id="tempStatus" class="status"></span></div>
+        <h3>Schritt 2: Schallgeschwindigkeit berechnen</h3>
+        <div class="formula">c ≈ 331,3 m/s + (0,606 m/s·°C⁻¹) · T</div>
+        <div class="field"><label for="cInput">c =</label><input id="cInput" type="number" step="0.1" min="320" max="360"> <span>m/s</span><button id="cCheck" class="btn secondary small">prüfen</button><span id="cStatus" class="status"></span></div>
+        <button class="btn ghost small" id="tempHint">Rechenhilfe anzeigen</button>
+        <div id="tempHintBox" class="callout hidden" style="margin-top:10px"></div>
+      </div>
+    </div>
+    <div class="callout warn"><strong>Für diese Simulation:</strong> Feuchte, Luftdruck und Luftströmungen werden nicht gesondert modelliert. Für den Schulversuch reicht die Temperatur-Näherung.</div>
+    <div class="btnrow" style="margin-top:14px"><button class="btn" data-go="real">Weiter: echter Versuchsaufbau →</button></div>
+  </div>
+</section>
+
+<section id="real" class="section">
+  <div class="card">
+    <div class="kicker">Teil C · realitätsnäher</div>
+    <h2>3. Versuchsaufbau wie im Praktikum</h2>
+    <p>Der Sender erhält ein <strong>40-kHz-Signal für 1 ms</strong>. Danach folgt eine Pause. Kanal 1 zeigt das Sendesignal, Kanal 2 das Echo. Verschiebe den Reflektor und beobachte, wie sich das Echo verschiebt.</p>
+    <div class="setup" id="realSetup">
+      <div class="bench"></div><div class="ruler"></div>
+      <div class="transducer"><div class="body"></div><div class="cone"></div></div><div class="rx"></div>
+      <div class="label-small" style="left:4%;bottom:165px">Sender / Empfänger</div>
+      <div class="reflector" id="reflector"></div><div class="label-small" id="reflectorLabel" style="bottom:192px">Reflektor</div>
+      <div class="wavepath" id="realWave"></div>
+    </div>
+    <div class="distance-control">
+      <label for="distanceRange"><strong>Reflektor verschieben</strong> <span class="help">(entspricht der Wegskala an der optischen Bank)</span></label>
+      <input id="distanceRange" type="range" min="20" max="95" step="1" value="35">
+      <div class="btnrow"><button id="emitBtn" class="btn secondary">Ultraschallimpuls senden</button><button id="captureBtn" class="btn">Signal aufnehmen</button><span class="help">Aktuelle Skalenposition: <strong id="distanceRead">35 cm</strong></span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Zweikanal-Oszilloskop</h3>
+    <div class="scope-wrap">
+      <div class="scope-title"><span>TEK · SIM</span><span id="scopeTop">Trig: CH1 · 40 kHz burst</span></div>
+      <canvas id="scope" class="scope" width="1000" height="460" aria-label="Simuliertes Zweikanal-Oszilloskop"></canvas>
+      <div class="scope-controls">
+        <span style="color:var(--yellow);font-weight:800">CH1 2,00 V/div</span>
+        <span style="color:var(--cyan);font-weight:800">CH2 50 mV/div</span>
+        <label>Zeitbasis <select id="timebase"><option value="0.5">0,5 ms/div</option><option value="1" selected>1,0 ms/div</option><option value="2">2,0 ms/div</option></select></label>
+        <label><input type="checkbox" id="noiseToggle" checked> Messrauschen</label>
+        <span>Trigger: CH1 ↑</span>
+      </div>
+    </div>
+    <div class="readout">
+      <span class="a">A = <strong id="aRead">0,30 ms</strong></span>
+      <span class="b">B = <strong id="bRead">2,50 ms</strong></span>
+      <span>Δt = <strong id="dtRead">2,20 ms</strong></span>
+    </div>
+    <div class="cursor-sliders">
+      <span class="a">Cursor A</span><input id="cursorA" type="range" min="0" max="10" step="0.005" value="0.3"><output id="aOut">0,30 ms</output>
+      <span class="b">Cursor B</span><input id="cursorB" type="range" min="0" max="10" step="0.005" value="2.5"><output id="bOut">2,50 ms</output>
+    </div>
+    <div class="callout" style="margin-top:10px"><strong>Messregel:</strong> A an den Beginn der gelben Sendegruppe. B an den Beginn des ersten klaren blauen Echo-Pakets. Die Cursorlinien lassen sich auch direkt im Oszilloskop ziehen.</div>
+    <div class="btnrow" style="margin-top:10px"><button id="takeDt" class="btn good">Δt in Messreihe übernehmen</button><button id="scopeHint" class="btn ghost">Hinweis</button><span id="scopeStatus" class="status"></span></div>
+  </div>
+
+  <div class="card">
+    <h3>Kurzer Check vor der Messreihe</h3>
+    <p>Wenn du den Reflektor weiter weg stellst, was passiert mit dem Echo?</p>
+    <div class="quiz" id="realQuiz">
+      <label><input type="radio" name="realq" value="a"> Das Echo erscheint früher.</label>
+      <label><input type="radio" name="realq" value="b"> Das Echo erscheint später.</label>
+      <label><input type="radio" name="realq" value="c"> Die Position des Echos bleibt gleich.</label>
+    </div>
+    <div class="btnrow"><button id="realQuizCheck" class="btn secondary">Antwort prüfen</button><span id="realQuizStatus" class="status"></span><button class="btn" data-go="series">Zur Messreihe →</button></div>
+  </div>
+</section>
+
+<section id="series" class="section">
+  <div class="card">
+    <div class="kicker">Teil D · Messprotokoll</div>
+    <h2>4. Mindestens zehn Abstände messen</h2>
+    <p>Wähle unterschiedliche Reflektorpositionen. Nimm das Signal auf, setze die Cursor und übernimm Δt. Berechne anschließend für jede Zeile den Abstand aus deiner gemessenen Laufzeit.</p>
+    <div class="formula">s [cm] = c [m/s] · Δt [ms] ÷ 20</div>
+    <div class="grid3">
+      <div><strong>Schallgeschwindigkeit</strong><div id="seriesC" style="font-size:1.3rem">— m/s</div><div class="help">aus Teil 2</div></div>
+      <div><strong>Fortschritt</strong><div id="seriesCount" style="font-size:1.3rem">0 / 10</div><div class="meter"><div id="seriesMeter"></div></div></div>
+      <div><strong>Nächster Schritt</strong><div class="btnrow"><button id="nextPos" class="btn secondary small">Position vorschlagen</button><button class="btn small" data-go="real">zum Oszilloskop</button></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tablewrap">
+      <table id="measureTable">
+        <thead><tr><th>Nr.</th><th>Δt gemessen / ms</th><th>c / m·s⁻¹</th><th>s berechnet / cm</th><th>Prüfung</th><th>Skala / cm</th><th>Abweichung</th><th></th></tr></thead>
+        <tbody id="measureBody"></tbody>
+      </table>
+    </div>
+    <div id="emptyRows" class="callout">Noch keine Messung gespeichert. Gehe zum Oszilloskop und übernimm dort deine erste Laufzeit.</div>
+    <div class="footer-actions">
+      <div class="btnrow"><button id="exportCsv" class="btn secondary">CSV exportieren</button><button onclick="window.print()" class="btn ghost">Protokoll drucken</button></div>
+      <button class="btn" data-go="eval">Weiter zur Auswertung →</button>
+    </div>
+  </div>
+</section>
+
+<section id="eval" class="section">
+  <div class="card">
+    <div class="kicker">Teil E · Auswertung</div>
+    <h2>5. Messreihe auswerten</h2>
+    <div id="evalGate" class="callout warn">Für eine vollständige Auswertung werden 10 Messungen benötigt. Du kannst die Seite trotzdem schon ansehen.</div>
+    <div class="grid2" style="margin-top:14px">
+      <div><canvas id="plot" class="analysis-canvas" width="640" height="390"></canvas></div>
+      <div>
+        <h3>Ergebnisse</h3>
+        <div id="stats" class="callout">Noch nicht genügend geprüfte Messwerte.</div>
+        <div class="solution callout ok" style="margin-top:10px"><strong>Lehrkraft-Hinweis:</strong> Die Simulation enthält eine kleine feste akustisch-elektronische Verzögerung und positionsabhängiges Rauschen. Dadurch liegen Messpunkte nicht perfekt auf der Idealgeraden.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Verständnis sichern</h3>
+    <div class="quiz">
+      <p><strong>A.</strong> Warum wird die gemessene Laufzeit durch 2 berücksichtigt?</p>
+      <label><input type="radio" name="evalA" value="a"> Wegen Hin- und Rückweg des Schalls.</label>
+      <label><input type="radio" name="evalA" value="b"> Wegen der zwei Sensoren.</label>
+      <p><strong>B.</strong> Die Raumtemperatur steigt, der Abstand bleibt gleich. Was passiert mit der Laufzeit?</p>
+      <label><input type="radio" name="evalB" value="a"> Sie wird etwas kleiner.</label>
+      <label><input type="radio" name="evalB" value="b"> Sie wird größer.</label>
+      <label><input type="radio" name="evalB" value="c"> Sie bleibt exakt gleich.</label>
+    </div>
+    <div class="btnrow"><button id="finalCheck" class="btn secondary">Auswertung prüfen</button><span id="finalStatus" class="status"></span></div>
+  </div>
+
+  <div class="card">
+    <h3>Zusatz für Schnelle</h3>
+    <p>Aus der Steigung der Geraden \(Δt(s)\) kann man die Schallgeschwindigkeit auch experimentell bestimmen. Für \(Δt = m·s + b\) gilt:</p>
+    <div class="formula">c<sub>exp</sub> = 2 / m</div>
+    <p class="help">Die Simulation berechnet diesen Wert automatisch, sobald mehrere geprüfte Messwerte vorliegen.</p>
+  </div>
+</section>
+
+<section id="teacherPanel" class="card teacher">
+  <div class="kicker">Lehrkraftmodus</div>
+  <h2>Lehrkraft & Lösungen</h2>
+  <div class="grid2">
+    <div>
+      <p><strong>Code:</strong> physik13 · Der Modus ist nur eine Unterrichtshilfe, keine echte Zugriffssicherung.</p>
+      <div id="teacherLive" class="callout"></div>
+      <div class="btnrow" style="margin-top:10px"><button id="toggleSolutions" class="btn secondary">Lösungen einblenden</button><button id="demoFill" class="btn ghost">Demo-Messreihe füllen</button></div>
+    </div>
+    <div>
+      <h3>Simulationsmodell</h3>
+      <ul>
+        <li>40 kHz Trägerfrequenz, 1 ms Sendeburst, Wiederholung nach 7 ms.</li>
+        <li>Echo-Laufzeit: \(2s/c\), plus kleine Modell-Latenz von 0,04 ms.</li>
+        <li>Echohülle mit Ein- und Ausschwingen; Amplitude nimmt mit Abstand ab.</li>
+        <li>Deterministisches Rauschen, damit Messungen reproduzierbar bleiben.</li>
+        <li>Messbereich 20–95 cm, passend zur 7-ms-Burstperiode.</li>
+      </ul>
+    </div>
+  </div>
+  <h3>Modellgrundlagen / Quellen</h3>
+  <ol class="source-list">
+    <li>CONATEX Ultraschall-Experimentierset: 40-kHz-Generator, Sender 1132046, Empfänger 1132047. <a href="https://www.conatex.com/out/media/BADE_1132030.pdf">conatex.com – Anleitung</a></li>
+    <li>CONATEX Ultraschallempfänger 1132047: 40-kHz-Empfänger mit BNC-Anschluss. <a href="https://www.conatex.com/physik-lehrmittel/schwingungen-und-wellen/ultraschall/ultraschallempfaenger-40-khz.html">Produktseite</a></li>
+    <li>Pro-Wave 400ST/R160 als repräsentativer 40-kHz-Wandler: 40,0 ± 1,0 kHz, Bandbreite etwa 2–2,5 kHz, typischer −6-dB-Strahlwinkel 55°. Diese Werte dienen nur zur realistischen Formgebung, nicht als Behauptung über den CONATEX-Wandler. <a href="https://www.prowave.com.tw/english/products/ut/open-type/400s160.htm">Datenblattseite</a></li>
+    <li>Murata MA40S4S/R als weiteres Referenzbeispiel: 40-kHz-Wandler, typischer Erfassungsbereich bis mehrere Meter und ausgeprägte Frequenzselektivität um 40 kHz. <a href="https://www.murata.com/-/media/webrenewal/products/sensor/ultrasonic/open/datasheet_maopn.ashx">Murata-Datenblatt</a></li>
+    <li>Temperaturnäherung für trockene Luft: \(c≈331,3+0,606T\) m/s. <a href="https://www.physicsclassroom.com/class/sound/Lesson-2/The-Speed-of-Sound">The Physics Classroom</a></li>
+  </ol>
+  <p class="help">Die Simulation ist ein didaktisches Modell. Sie ersetzt keine Kalibrierung des konkreten Laboraufbaus.</p>
+</section>
+
+<div class="footer-actions">
+  <button id="resetBtn" class="btn ghost">Fortschritt zurücksetzen</button>
+  <span class="help">Alle Funktionen arbeiten offline; es werden keine externen Bibliotheken geladen.</span>
+</div>
+</main>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const fmt = (v,n=2) => Number(v).toFixed(n).replace('.',',');
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const KEY='ultraschall_tof_sim_v2';
+
+function newState(){
+  const t = 20 + ((Date.now() % 34) / 10); // 20.0 ... 23.3 °C, stable after first save
+  return {
+    page:'intro', tempTrue:Math.round(t*2)/2, tempInput:'', cInput:'',
+    introCursorOk:false, factorOk:false, tempOk:false, cOk:false, realQuizOk:false,
+    distance:35, timebase:1, noise:true, cursorA:.30, cursorB:2.50,
+    captureSeed:1, capturedDistance:35, rows:[], finalOk:false
+  };
+}
+let S;
+try{ S=Object.assign(newState(),JSON.parse(localStorage.getItem(KEY)||'{}')); }catch(e){S=newState()}
+let teacher=false, solutions=false;
+
+function save(){localStorage.setItem(KEY,JSON.stringify(S))}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2400)}
+function cTrue(){return 331.3+0.606*S.tempTrue}
+function cStudent(){const v=parseFloat(String(S.cInput).replace(',','.'));return Number.isFinite(v)?v:NaN}
+function tofMs(dcm){return 2*(dcm/100)/cTrue()*1000 + .040}
+function go(id){
+  S.page=id;save();
+  $$('.section').forEach(x=>x.classList.toggle('active',x.id===id));
+  $$('.navstep').forEach(x=>x.classList.toggle('active',x.dataset.go===id));
+  updateNav(); window.scrollTo({top:0,behavior:'smooth'});
+  if(id==='real') setTimeout(drawScope,50);
+  if(id==='eval') setTimeout(()=>{drawPlot();updateStats()},50);
+}
+$$('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
+
+function updateNav(){
+  const done={intro:S.introCursorOk&&S.factorOk,temp:S.tempOk&&S.cOk,real:S.realQuizOk,series:S.rows.length>=10,eval:S.finalOk};
+  $$('.navstep').forEach(x=>x.classList.toggle('done',!!done[x.dataset.go]));
+}
+function setStatus(sel,ok,text){const e=$(sel);e.textContent=text;e.className='status '+(ok?'ok':'bad')}
+
+// EASY
+$('#easyPulse').onclick=()=>{
+  const w=$('#easyWave'); w.style.setProperty('--wave-w','62%'); w.classList.remove('go'); void w.offsetWidth; w.classList.add('go');
+};
+function easyUpdate(){
+  const a=+$('#easyASlider').value,b=+$('#easyBSlider').value;
+  $('#easyA').style.left=(6+a/5*90)+'%'; $('#easyB').style.left=(6+b/5*90)+'%';
+  $('#easyAOut').textContent=fmt(a,2)+' ms';$('#easyBOut').textContent=fmt(b,2)+' ms';$('#easyDt').textContent=fmt(Math.abs(b-a),2)+' ms';
+}
+$('#easyASlider').oninput=easyUpdate;$('#easyBSlider').oninput=easyUpdate;
+$('#easyCheckCursor').onclick=()=>{
+  const a=+$('#easyASlider').value,b=+$('#easyBSlider').value,dt=b-a;
+  const ok=Math.abs(a-.33)<.18 && Math.abs(dt-2.60)<.20;
+  S.introCursorOk=ok;save();setStatus('#easyCursorStatus',ok,ok?'Passt – beide Zeitpunkte sind sinnvoll gesetzt.':'Noch nicht. A an den linken Rand des gelben Pulses, B an den linken Rand des blauen Echos.');
+  updateNav();
+};
+$('#factorCheck').onclick=()=>{
+  const v=document.querySelector('input[name=factor]:checked')?.value,ok=v==='b';S.factorOk=ok;save();setStatus('#factorStatus',ok,ok?'Richtig: Der Schall legt 2·s zurück.':'Noch einmal: Welche Strecke legt das Echo insgesamt zurück?');updateNav();
+};
+
+// TEMP
+function renderThermo(){
+  const pct=clamp((S.tempTrue-15)/15*100,0,100);$('#mercury').style.height=pct+'%';
+  $('#tempInput').value=S.tempInput;$('#cInput').value=S.cInput;
+}
+$('#tempInput').oninput=e=>{S.tempInput=e.target.value;save()};
+$('#cInput').oninput=e=>{S.cInput=e.target.value;save();updateSeries()};
+$('#tempCheck').onclick=()=>{
+  const v=parseFloat($('#tempInput').value),ok=Number.isFinite(v)&&Math.abs(v-S.tempTrue)<=.55;S.tempOk=ok;save();setStatus('#tempStatus',ok,ok?'Gut abgelesen.':'Lies die Höhe der roten Säule noch einmal ab (±0,5 °C).');updateNav();
+};
+$('#cCheck').onclick=()=>{
+  const t=parseFloat($('#tempInput').value),v=parseFloat($('#cInput').value),target=331.3+0.606*(Number.isFinite(t)?t:S.tempTrue);
+  const ok=S.tempOk&&Number.isFinite(v)&&Math.abs(v-target)<=.6;S.cOk=ok;save();setStatus('#cStatus',ok,ok?'Richtig berechnet.':(!S.tempOk?'Prüfe zuerst deine Temperaturmessung.':'Prüfe Einsetzen, Multiplikation und Einheit.'));updateNav();updateSeries();
+};
+$('#tempHint').onclick=()=>{
+  const t=parseFloat($('#tempInput').value);const box=$('#tempHintBox');box.classList.toggle('hidden');
+  box.innerHTML=Number.isFinite(t)?`Setze deinen Wert ein:<br><strong>c = 331,3 + 0,606 · ${fmt(t,1)} ≈ ${fmt(331.3+.606*t,1)} m/s</strong>`:'Trage zuerst deine abgelesene Temperatur ein.';
+};
+
+// SETUP / SCOPE
+function updateReflector(){
+  const pct=18+(S.distance-20)/(95-20)*75;
+  $('#reflector').style.left=pct+'%';$('#reflectorLabel').style.left=`calc(${pct}% - 24px)`;$('#distanceRead').textContent=S.distance+' cm';
+  $('#distanceRange').value=S.distance;
+  $('#realWave').style.setProperty('--wave-w',(pct-16)+'%');
+}
+$('#distanceRange').oninput=e=>{S.distance=+e.target.value;save();updateReflector()};
+$('#emitBtn').onclick=()=>{const w=$('#realWave');w.classList.remove('go');void w.offsetWidth;w.classList.add('go')};
+$('#captureBtn').onclick=()=>{
+  S.capturedDistance=S.distance;S.captureSeed++;
+  const echo=.30+tofMs(S.distance);
+  S.cursorA=.30+.055*Math.sin(S.captureSeed*2.1);
+  S.cursorB=echo+.16+.10*Math.cos(S.captureSeed*1.7);
+  save();syncScopeUI();drawScope();toast('Neue Oszilloskopaufnahme erzeugt.');
+};
+$('#timebase').onchange=e=>{S.timebase=+e.target.value;save();syncScopeUI();drawScope()};
+$('#noiseToggle').onchange=e=>{S.noise=e.target.checked;save();drawScope()};
+$('#cursorA').oninput=e=>{S.cursorA=+e.target.value;save();syncScopeUI();drawScope()};
+$('#cursorB').oninput=e=>{S.cursorB=+e.target.value;save();syncScopeUI();drawScope()};
+function scopeWindow(){return 10*S.timebase}
+function syncScopeUI(){
+  $('#timebase').value=String(S.timebase);$('#noiseToggle').checked=S.noise;
+  const max=scopeWindow();for(const id of ['cursorA','cursorB']){$('#'+id).max=max}
+  S.cursorA=clamp(S.cursorA,0,max);S.cursorB=clamp(S.cursorB,0,max);
+  $('#cursorA').value=S.cursorA;$('#cursorB').value=S.cursorB;
+  $('#aRead').textContent=$('#aOut').textContent=fmt(S.cursorA,3)+' ms';
+  $('#bRead').textContent=$('#bOut').textContent=fmt(S.cursorB,3)+' ms';
+  $('#dtRead').textContent=fmt(Math.abs(S.cursorB-S.cursorA),3)+' ms';
+}
+function noiseAt(i,seed){return (Math.sin(i*12.9898+seed*78.233)+.55*Math.sin(i*4.123+seed*31.7)+.25*Math.sin(i*29.17+seed))*0.33}
+function drawGrid(ctx,w,h){
+  ctx.fillStyle='#091119';ctx.fillRect(0,0,w,h);
+  ctx.lineWidth=1;
+  for(let i=0;i<=10;i++){const x=i*w/10;ctx.strokeStyle=i===5?'#60707b':'#293742';ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}
+  for(let j=0;j<=8;j++){const y=j*h/8;ctx.strokeStyle=j===4?'#60707b':'#293742';ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}
+  ctx.setLineDash([2,6]);ctx.strokeStyle='#26333d';
+  for(let i=0;i<50;i++){let x=i*w/50;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}
+  ctx.setLineDash([]);
+}
+function drawScope(){
+  const c=$('#scope'),ctx=c.getContext('2d'),w=c.width,h=c.height,max=scopeWindow(),seed=S.captureSeed;
+  drawGrid(ctx,w,h);
+  const tSend=.30, sendEnd=1.30, echo=tSend+tofMs(S.capturedDistance), next=7.30;
+  // channel baselines
+  const y1=118,y2=304;
+  ctx.strokeStyle='rgba(246,216,74,.25)';ctx.beginPath();ctx.moveTo(0,y1);ctx.lineTo(w,y1);ctx.stroke();
+  ctx.strokeStyle='rgba(72,213,231,.25)';ctx.beginPath();ctx.moveTo(0,y2);ctx.lineTo(w,y2);ctx.stroke();
+
+  // CH1 40 kHz burst(s)
+  ctx.strokeStyle='#f6d84a';ctx.lineWidth=1.7;ctx.beginPath();
+  for(let i=0;i<w;i++){
+    const t=i/w*max; let v=0;
+    const burst=(t>=tSend&&t<=sendEnd)||(t>=next&&t<=next+1);
+    if(burst) v=Math.sin(2*Math.PI*40*t); // t in ms -> 40 cycles/ms
+    const y=y1-v*55;
+    if(i===0)ctx.moveTo(i,y);else ctx.lineTo(i,y);
+  }ctx.stroke();
+
+  // CH2 echo with plausible narrow-band ringing + distance-dependent amplitude
+  const dist=S.capturedDistance/100;
+  const amp=clamp(1.05*Math.pow(.35/dist,1.18),.30,1.25);
+  ctx.strokeStyle='#48d5e7';ctx.lineWidth=1.45;ctx.beginPath();
+  for(let i=0;i<w;i++){
+    const t=i/w*max, p=t-echo;
+    let env=0;
+    if(p>=0 && p<1.55) env=(1-Math.exp(-p/.095))*Math.exp(-p/.43);
+    // small later reflection from surroundings
+    const p2=t-(echo+.78);let env2=0;if(p2>=0&&p2<1.1)env2=.16*(1-Math.exp(-p2/.08))*Math.exp(-p2/.31);
+    let v=amp*env*Math.sin(2*Math.PI*40*p)+env2*Math.sin(2*Math.PI*40*p2+1.2);
+    if(S.noise)v+=.030*noiseAt(i,seed);
+    const y=y2-v*105;
+    if(i===0)ctx.moveTo(i,y);else ctx.lineTo(i,y);
+  }ctx.stroke();
+
+  // labels
+  ctx.font='700 18px system-ui';ctx.fillStyle='#f6d84a';ctx.fillText('1',14,30);ctx.fillStyle='#48d5e7';ctx.fillText('2',14,222);
+  // cursors
+  const drawCursor=(t,col,name)=>{
+    const x=t/max*w;ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();
+    ctx.fillStyle=col;ctx.font='700 16px system-ui';ctx.fillText(name,clamp(x+5,5,w-20),20);
+  };
+  drawCursor(S.cursorA,'#ff8b3d','A');drawCursor(S.cursorB,'#e264ff','B');
+}
+let dragCursor=null;
+$('#scope').addEventListener('pointerdown',e=>{
+  const r=e.currentTarget.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*scopeWindow();
+  dragCursor=Math.abs(x-S.cursorA)<Math.abs(x-S.cursorB)?'A':'B';
+  e.currentTarget.setPointerCapture(e.pointerId);setCursorFromPointer(e);
+});
+$('#scope').addEventListener('pointermove',e=>{if(dragCursor)setCursorFromPointer(e)});
+$('#scope').addEventListener('pointerup',()=>dragCursor=null);
+function setCursorFromPointer(e){
+  const r=$('#scope').getBoundingClientRect(),t=clamp((e.clientX-r.left)/r.width*scopeWindow(),0,scopeWindow());
+  if(dragCursor==='A')S.cursorA=t;else S.cursorB=t;save();syncScopeUI();drawScope();
+}
+$('#scopeHint').onclick=()=>toast('A: linker Rand des gelben Bursts. B: dort, wo das blaue Signal deutlich aus dem Rauschen wächst.');
+$('#realQuizCheck').onclick=()=>{
+  const ok=document.querySelector('input[name=realq]:checked')?.value==='b';S.realQuizOk=ok;save();setStatus('#realQuizStatus',ok,ok?'Richtig: längerer Weg → längere Laufzeit.':'Vergleiche zwei Reflektorpositionen auf dem Oszilloskop.');updateNav();
+};
+$('#takeDt').onclick=()=>{
+  const dt=Math.abs(S.cursorB-S.cursorA);
+  if(dt<.4){setStatus('#scopeStatus',false,'Die Cursor liegen zu dicht zusammen.');return}
+  if(S.rows.some(r=>Math.abs(r.actual-S.capturedDistance)<2.5)){setStatus('#scopeStatus',false,'Diese Position ist schon fast gleich. Nimm einen anderen Abstand.');return}
+  const cs=cStudent();
+  if(!S.cOk || !Number.isFinite(cs)){setStatus('#scopeStatus',false,'Bestimme zuerst in Teil 2 die Schallgeschwindigkeit.');return}
+  const row={id:Date.now(),dt:+dt.toFixed(3),c:+cs.toFixed(1),calc:'',actual:S.capturedDistance,checked:false,ok:false};
+  S.rows.push(row);save();setStatus('#scopeStatus',true,`Messung ${S.rows.length} gespeichert: Δt = ${fmt(dt,3)} ms`);updateSeries();updateNav();toast('Laufzeit in die Messreihe übernommen.');
+};
+
+// SERIES
+function updateSeries(){
+  const cs=cStudent(); $('#seriesC').textContent=Number.isFinite(cs)?fmt(cs,1)+' m/s':'— m/s';
+  $('#seriesCount').textContent=S.rows.length+' / 10';$('#seriesMeter').style.width=Math.min(100,S.rows.length*10)+'%';
+  $('#emptyRows').classList.toggle('hidden',S.rows.length>0);
+  const tb=$('#measureBody');tb.innerHTML='';
+  S.rows.forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    const ref=r.checked?`${r.actual} cm`:'—';
+    let dev='—';if(r.checked&&r.calc!==''){dev=fmt(+r.calc-r.actual,1)+' cm'}
+    tr.innerHTML=`<td>${i+1}</td><td><strong>${fmt(r.dt,3)}</strong></td><td>${fmt(r.c,1)}</td>
+      <td><input type="number" step="0.1" data-calc="${r.id}" value="${r.calc}" aria-label="Berechneter Abstand Messung ${i+1}"></td>
+      <td><button class="btn secondary small" data-check="${r.id}">prüfen</button> <span class="badge ${r.checked?(r.ok?'ok':'bad'):'wait'}">${r.checked?(r.ok?'passt':'prüfen'):'offen'}</span></td>
+      <td>${ref}</td><td>${dev}</td><td><button class="btn ghost small" data-del="${r.id}" title="Zeile löschen">×</button></td>`;
+    tb.appendChild(tr);
+  });
+  $$('[data-calc]').forEach(inp=>inp.oninput=e=>{const r=S.rows.find(x=>x.id==e.target.dataset.calc);r.calc=e.target.value;r.checked=false;save();updateStats()});
+  $$('[data-check]').forEach(b=>b.onclick=e=>{
+    const r=S.rows.find(x=>x.id==e.target.dataset.check),v=parseFloat(r.calc);
+    const expected=r.c*r.dt/20;r.checked=Number.isFinite(v);r.ok=r.checked&&Math.abs(v-expected)<=1.0;save();updateSeries();updateStats();
+    toast(r.ok?'Rechnung stimmt innerhalb der Toleranz.':'Rechnung noch einmal prüfen.');
+  });
+  $$('[data-del]').forEach(b=>b.onclick=e=>{S.rows=S.rows.filter(x=>x.id!=e.target.dataset.del);save();updateSeries();updateNav();drawPlot()});
+  if(S.page==='eval'){drawPlot();updateStats()}
+}
+const proposals=[25,32,40,48,56,64,72,80,88,94];
+$('#nextPos').onclick=()=>{
+  const used=S.rows.map(r=>r.actual);const p=proposals.find(x=>!used.some(u=>Math.abs(u-x)<2.5));
+  S.distance=p??(25+Math.floor(Math.random()*65));save();updateReflector();go('real');toast('Neue Reflektorposition eingestellt – jetzt Signal aufnehmen.');
+};
+$('#exportCsv').onclick=()=>{
+  const lines=[['Nr','Delta_t_ms','c_m_s','s_berechnet_cm','s_skala_cm','Abweichung_cm'].join(';')];
+  S.rows.forEach((r,i)=>lines.push([i+1,String(r.dt).replace('.',','),String(r.c).replace('.',','),String(r.calc).replace('.',','),r.checked?r.actual:'',r.checked&&r.calc!==''?String((+r.calc-r.actual).toFixed(1)).replace('.',','):''].join(';')));
+  const blob=new Blob(["\ufeff"+lines.join('\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ultraschall_messreihe.csv';a.click();URL.revokeObjectURL(a.href);
+};
+
+// EVAL
+function checkedRows(){return S.rows.filter(r=>r.checked&&r.ok&&Number.isFinite(+r.calc))}
+function regression(rows){
+  if(rows.length<3)return null;
+  const xs=rows.map(r=>r.actual/100), ys=rows.map(r=>r.dt/1000);
+  const xm=xs.reduce((a,b)=>a+b,0)/xs.length,ym=ys.reduce((a,b)=>a+b,0)/ys.length;
+  let num=0,den=0;for(let i=0;i<xs.length;i++){num+=(xs[i]-xm)*(ys[i]-ym);den+=(xs[i]-xm)**2}
+  const m=num/den,b=ym-m*xm;return {m,b,c:2/m};
+}
+function updateStats(){
+  const rows=checkedRows(), gate=$('#evalGate');
+  gate.className='callout '+(S.rows.length>=10?'ok':'warn');
+  gate.innerHTML=S.rows.length>=10?`Messreihe vorhanden: <strong>${S.rows.length} Messungen</strong>. ${rows.length} davon sind rechnerisch geprüft.`:`Für eine vollständige Auswertung werden 10 Messungen benötigt. Aktuell: <strong>${S.rows.length}/10</strong>.`;
+  if(rows.length<3){$('#stats').innerHTML='Noch nicht genügend geprüfte Messwerte.';return}
+  const mae=rows.reduce((a,r)=>a+Math.abs(+r.calc-r.actual),0)/rows.length,reg=regression(rows);
+  $('#stats').innerHTML=`<strong>Mittlere absolute Abweichung:</strong> ${fmt(mae,1)} cm<br><strong>Schallgeschwindigkeit aus Steigung:</strong> ${fmt(reg.c,1)} m/s<br><strong>Vergleichswert aus Temperatur:</strong> ${fmt(cTrue(),1)} m/s<br><strong>Achsenabschnitt:</strong> ${fmt(reg.b*1000,3)} ms`;
+  if(teacher)updateTeacher();
+}
+function drawPlot(){
+  const c=$('#plot'),ctx=c.getContext('2d'),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
+  const L=62,R=22,T=24,B=52,xmin=15,xmax=100,ymin=0,ymax=6.5;
+  ctx.strokeStyle='#c9d3dd';ctx.lineWidth=1;
+  for(let x=20;x<=100;x+=20){let px=L+(x-xmin)/(xmax-xmin)*(w-L-R);ctx.beginPath();ctx.moveTo(px,T);ctx.lineTo(px,h-B);ctx.stroke();ctx.fillStyle='#526272';ctx.font='13px system-ui';ctx.fillText(x,px-8,h-B+20)}
+  for(let y=0;y<=6;y+=1){let py=h-B-(y-ymin)/(ymax-ymin)*(h-T-B);ctx.beginPath();ctx.moveTo(L,py);ctx.lineTo(w-R,py);ctx.stroke();ctx.fillStyle='#526272';ctx.fillText(y.toString().replace('.',','),22,py+4)}
+  ctx.strokeStyle='#41515e';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(L,T);ctx.lineTo(L,h-B);ctx.lineTo(w-R,h-B);ctx.stroke();
+  ctx.fillStyle='#253746';ctx.font='14px system-ui';ctx.fillText('Abstand s / cm',w/2-45,h-12);ctx.save();ctx.translate(14,h/2+35);ctx.rotate(-Math.PI/2);ctx.fillText('Laufzeit Δt / ms',0,0);ctx.restore();
+  const rows=checkedRows();
+  // theoretical line
+  ctx.strokeStyle='#2e6fae';ctx.lineWidth=2;ctx.setLineDash([7,5]);ctx.beginPath();
+  for(let x=20;x<=95;x++){const y=2*(x/100)/cTrue()*1000;const px=L+(x-xmin)/(xmax-xmin)*(w-L-R),py=h-B-y/ymax*(h-T-B);if(x===20)ctx.moveTo(px,py);else ctx.lineTo(px,py)}ctx.stroke();ctx.setLineDash([]);
+  rows.forEach(r=>{const x=r.actual,y=r.dt,px=L+(x-xmin)/(xmax-xmin)*(w-L-R),py=h-B-y/ymax*(h-T-B);ctx.fillStyle='#173f68';ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);ctx.fill()});
+  ctx.fillStyle='#173f68';ctx.font='700 15px system-ui';ctx.fillText('Messpunkte',L+8,T+17);ctx.fillStyle='#2e6fae';ctx.fillText('– – Ideal ohne Zusatzlatenz',L+105,T+17);
+}
+$('#finalCheck').onclick=()=>{
+  const a=document.querySelector('input[name=evalA]:checked')?.value,b=document.querySelector('input[name=evalB]:checked')?.value,ok=a==='a'&&b==='a';
+  S.finalOk=ok;save();setStatus('#finalStatus',ok,ok?'Beides richtig. Versuch abgeschlossen.':'Mindestens eine Antwort stimmt noch nicht. Denke an Weglänge und c = s/t.');updateNav();
+};
+
+// TEACHER
+$('#teacherBtn').onclick=()=>{
+  if(!teacher){const code=prompt('Lehrkraftcode:');if(code!=='physik13'){toast('Lehrkraftmodus nicht aktiviert.');return}teacher=true;$('#teacherPanel').classList.add('show');updateTeacher();toast('Lehrkraftmodus aktiviert.');}
+  else{$('#teacherPanel').scrollIntoView({behavior:'smooth'})}
+};
+function updateTeacher(){
+  const ideal=2*(S.capturedDistance/100)/cTrue()*1000;
+  $('#teacherLive').innerHTML=`<strong>Aktuell:</strong><br>Temperatur: ${fmt(S.tempTrue,1)} °C → c = ${fmt(cTrue(),2)} m/s<br>Reflektor: ${S.capturedDistance} cm<br>Ideale ToF: ${fmt(ideal,3)} ms · Modell-ToF inkl. Latenz: ${fmt(ideal+.040,3)} ms<br>Cursor-Δt: ${fmt(Math.abs(S.cursorB-S.cursorA),3)} ms`;
+}
+$('#toggleSolutions').onclick=()=>{solutions=!solutions;document.body.classList.toggle('teacher-solutions',solutions);$('#toggleSolutions').textContent=solutions?'Lösungen ausblenden':'Lösungen einblenden'};
+$('#demoFill').onclick=()=>{
+  S.tempInput=String(S.tempTrue);S.cInput=(331.3+.606*S.tempTrue).toFixed(1);S.tempOk=S.cOk=true;
+  S.rows=proposals.map((d,i)=>{const dt=tofMs(d)+(i%3-1)*.018;const c=+S.cInput;const calc=c*dt/20;return{id:Date.now()+i,dt:+dt.toFixed(3),c,calc:calc.toFixed(1),actual:d,checked:true,ok:true}});
+  save();renderThermo();updateSeries();updateStats();drawPlot();updateNav();toast('Demo-Messreihe eingefügt.');
+};
+
+// reset
+$('#resetBtn').onclick=()=>{if(confirm('Alle gespeicherten Eingaben und Messwerte dieser Simulation löschen?')){localStorage.removeItem(KEY);S=newState();save();location.reload()}};
+
+// init
+function init(){
+  renderThermo();updateReflector();syncScopeUI();easyUpdate();updateSeries();updateNav();
+  $('#distanceRange').value=S.distance;
+  go(S.page||'intro');
+  drawScope();
+}
+init();
+})();
+</script>
+</body>
+</html>
