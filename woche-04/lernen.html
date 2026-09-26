@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>13NF · Woche 4 · Impuls, Echo und Kalibriergerade</title>
+<style>
+:root{--ink:#14283b;--sub:#405368;--blue:#075f85;--blue2:#e8f4fa;--red:#a03d35;--green:#17644d;--line:#b4c4d0;--paper:#fff;--bg:#eef2f6}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Arial,sans-serif}button,input,select{font:inherit}button,select,input[type=range]{cursor:pointer}button{min-height:42px}a{color:#075f85}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #e3a500;outline-offset:3px}
+.top{position:sticky;top:0;z-index:5;background:#14283b;color:#fff;box-shadow:0 2px 8px #172b4240}.top-inner{max-width:1150px;margin:auto;padding:.6rem .9rem;display:flex;flex-wrap:wrap;align-items:center;gap:.45rem}.top strong{margin-right:.8rem}.top button{border:1px solid #9db3c7;color:#fff;background:transparent;border-radius:.5rem;padding:.45rem .72rem}.top button[aria-current=true],.top button:hover{background:#fff;color:#14283b}.top .print-button{border-color:#a5d4db}.skip{position:absolute;left:-10000px}.skip:focus{left:.5rem;top:.5rem;z-index:9;background:white;padding:.5rem}
+main{max-width:1120px;margin:1rem auto 3rem}.view-section{display:none}.view-section>.screen-head{padding:1.2rem 1.5rem;color:#fff;background:#174a68;border-radius:1rem 1rem 0 0}.view-section>.screen-head h1{margin:0;font-size:1.8rem}.view-section>.screen-head p{margin:.25rem 0 0}body[data-view=student] #student,body[data-view=simulations] #simulations,body[data-view=teacher] #teacher,body[data-view=solutions] #solutions,body[data-view=hints] #hints,body[data-view=sources] #sources{display:block}
+.panel,.sheet,.sim-card{background:#fff;padding:1.35rem 1.55rem;margin:0 0 1rem;border:1px solid #d6e0e8;border-radius:.8rem;box-shadow:0 2px 8px #19314a12}.sheet{margin-top:1rem}.sheet-head{border-bottom:3px solid var(--blue);padding-bottom:.55rem;margin-bottom:.8rem;display:flex;justify-content:space-between;align-items:flex-end;gap:1rem}.sheet-head p,.sheet-head h2{margin:0}.sheet-head .label{color:#405368;font-size:.89rem}.sheet-head h2{font-size:1.48rem}.sheet-head .name{white-space:nowrap;font-size:.9rem}.kicker{font-weight:750;letter-spacing:.03em;color:#076383}.lead{font-size:1.1rem}.note{border-left:4px solid var(--blue);background:var(--blue2);padding:.58rem .8rem;margin:.65rem 0}.warning{border-left-color:#ae5531;background:#fff5e8}.green-note{border-left-color:var(--green);background:#edf8f3}.muted{color:var(--sub)}.small{font-size:.9rem}h2,h3,h4{line-height:1.2}h3{font-size:1.14rem;margin:.85rem 0 .4rem}h4{margin:.7rem 0 .3rem}p{margin:.42rem 0 .7rem}ol,ul{padding-left:1.35rem;margin:.4rem 0 .75rem}li{margin:.16rem 0}.task{border-left:4px solid #aec8d7;padding:.18rem .8rem;margin:.55rem 0}.task b{color:#12364e}.step{display:inline-grid;place-items:center;min-width:1.45rem;height:1.45rem;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;margin-right:.35rem}.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem}.tile{border:1px solid var(--line);background:#f8fbfd;border-radius:.55rem;padding:.65rem .75rem}.tile p:last-child{margin-bottom:0}.equation{padding:.4rem .6rem;background:#eef5f8;border-radius:.4rem;font-weight:700;overflow-wrap:anywhere}.answer{margin:.3rem 0 .65rem;border:1px solid #c0ccd5;border-radius:.4rem;background:repeating-linear-gradient(to bottom,#fff 0,#fff 28px,#aab6c1 29px,#fff 30px);min-height:62px}.answer.short{min-height:37px}.answer.medium{min-height:82px}.answer.tall{min-height:112px}.write-line{border-bottom:1px solid #718393;display:inline-block;min-width:6em;height:1.2em}.hintbox{margin:.6rem 0;border:1px solid #abc4d3;border-radius:.5rem;background:#f2f8fc}.hintbox summary{cursor:pointer;font-weight:700;padding:.45rem .7rem}.hintbox>div{padding:0 .7rem .55rem}.hintbox p{margin:.25rem 0}.check{margin-right:.3em;white-space:nowrap}table{border-collapse:collapse;width:100%;margin:.5rem 0 .75rem;table-layout:fixed}th,td{border:1px solid #a7b7c4;text-align:left;vertical-align:top;padding:.38rem .47rem;overflow-wrap:anywhere}th{background:#eaf1f5}tbody tr:nth-child(even){background:#f9fbfd}.data-table{max-width:730px}.data-table th:nth-child(1){width:26%}.data-table th:nth-child(2),.data-table th:nth-child(3){width:37%}.mini-table th,.mini-table td{padding:.32rem .38rem}.svg-illustration{display:block;width:100%;height:auto;max-height:225px;border:1px solid #c2d0d9;border-radius:.45rem;background:#fff}.plot-print{display:block;width:100%;height:auto;max-height:340px;background:#fff;border:1px solid #b8c6d0}.plot-note{margin:.25rem 0;font-size:.91rem}.lab-link{font-weight:700}.station-label{display:inline-block;border-radius:1rem;background:#e3f2f8;padding:.16rem .6rem;margin-bottom:.3rem;color:#074e6a;font-weight:700}.mini-flow{display:flex;gap:.35rem;flex-wrap:wrap;align-items:center}.mini-flow span{background:#e9f4f9;padding:.32rem .5rem;border-radius:.4rem}.form-grid{display:grid;grid-template-columns:9.8rem 1fr;gap:.35rem .65rem;align-items:center}.form-grid label{font-weight:700}.form-grid .blank{min-height:1.7em;border-bottom:1px solid #718393}.glossary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}.glossary div{padding:.55rem .7rem;border:1px solid #cbd7e0;border-radius:.4rem}.glossary dt{font-weight:750}.glossary dd{margin:0}.plan-table th:nth-child(1){width:12%}.plan-table th:nth-child(2){width:18%}.plan-table th:nth-child(3){width:35%}.plan-table th:nth-child(4){width:35%}.small-table{font-size:.93rem}
+.sim-card h2{margin:.1rem 0 .4rem}.sim-card p{max-width:82ch}.controls{display:flex;flex-wrap:wrap;gap:.65rem 1.1rem;align-items:end;margin:.8rem 0}.controls label{display:grid;gap:.22rem;font-weight:700;min-width:180px;flex:1}.controls input[type=range]{width:100%;min-height:35px}.controls select{width:100%;padding:.44rem;border-radius:.4rem;border:1px solid #7d95a7;background:white;min-height:42px}.sim-button{padding:.45rem .8rem;border:0;border-radius:.45rem;color:white;background:var(--blue)}.sim-button.secondary{background:#4b6478}.sim-visual{width:100%;max-width:760px;height:auto;display:block;border:1px solid #b7c7d1;background:white}.readout{border-left:4px solid var(--green);background:#f0f8f5;padding:.55rem .75rem;margin:.7rem 0;font-weight:600}.timelinebar{height:25px;max-width:760px;display:flex;position:relative;border:1px solid #8196a4;border-radius:4px;overflow:hidden}.timelinebar .acoustic{background:#8fd1e2}.timelinebar .electronic{background:#f2b783}.timelinebar .cursor{position:absolute;width:3px;background:#132839;height:100%;left:0;top:0}.legend{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.9rem;margin:.4rem 0}.legend span:before{content:"";display:inline-block;width:.8em;height:.8em;margin-right:.35em;border-radius:2px;background:var(--blue)}.legend .b:before{background:var(--red)}.legend .offset:before{background:#ebad79}.barcompare{max-width:760px}.barrow{display:grid;grid-template-columns:11rem 1fr 5rem;gap:.5rem;align-items:center;margin:.35rem 0}.bartrack{height:1.3rem;border:1px solid #a5b6c1;border-radius:3px;background:#f4f8fa}.barfill{height:100%;background:var(--blue)}.barfill.bad{background:var(--red)}.screen-only{display:block}.print-only{display:none}
+@media(max-width:700px){body{font-size:15px}.top-inner{gap:.3rem}.top button{font-size:.85rem;min-height:38px;padding:.35rem .48rem}.grid2,.glossary{grid-template-columns:1fr}.panel,.sheet,.sim-card{padding:.95rem;margin-left:.45rem;margin-right:.45rem}.sheet-head{display:block}.sheet-head .name{margin-top:.3rem}.barrow{grid-template-columns:8rem 1fr 3.6rem;font-size:.87rem}.plan-table{font-size:.84rem}.plot-print{max-height:none}}
+@page{size:A4;margin:13mm 14mm 15mm}
+@media print{
+ html,body{background:#fff;color:#111;font:11pt/1.35 Arial,Helvetica,sans-serif;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+ .top,.screen-head,.screen-only,.hintbox,.lab-link,.print-controls{display:none!important}main{max-width:none;margin:0}.view-section,.panel,.sheet,.sim-card{display:none!important;box-shadow:none!important;border:0!important;border-radius:0!important;margin:0!important;padding:0!important}
+ body[data-print=student] #student,body[data-print=teacher] #teacher,body[data-print=solutions] #solutions,body[data-print=hints] #hints,body[data-print=sources] #sources{display:block!important}
+ body[data-print=student] #student .sheet,body[data-print=teacher] #teacher .panel,body[data-print=solutions] #solutions .panel,body[data-print=hints] #hints .panel,body[data-print=sources] #sources .panel{display:block!important}
+ .sheet,.print-page{break-before:page;page-break-before:always}.sheet:first-of-type,.print-page:first-of-type{break-before:auto;page-break-before:auto}
+ .sheet::before{content:"13NF · Physiktechnik · Woche 4 | Arbeitsblatt";display:block;font-size:9pt;color:#34485a;margin-bottom:1.5mm}
+ #teacher .panel::before{content:"13NF · Physiktechnik · Woche 4 | Lehrkraftfassung";display:block;font-size:9pt;color:#34485a;margin-bottom:1.5mm}
+ #solutions .panel::before{content:"13NF · Physiktechnik · Woche 4 | Musterlösungen";display:block;font-size:9pt;color:#34485a;margin-bottom:1.5mm}
+ #hints .panel::before{content:"13NF · Physiktechnik · Woche 4 | Hilfenblatt";display:block;font-size:9pt;color:#34485a;margin-bottom:1.5mm}
+ .sheet-head{margin-bottom:3mm;padding-bottom:2mm}.sheet-head h2{font-size:16pt}.sheet-head .name{font-size:9pt}h3{font-size:12pt;margin:3mm 0 1.5mm}h4{font-size:11pt}p{margin:1.5mm 0 2.3mm}.lead{font-size:11pt}.small{font-size:9.5pt}.task{margin:2mm 0;padding:.5mm 2.5mm}.note{margin:2mm 0;padding:2mm 2.5mm}.tile{padding:2mm 2.5mm}.grid2{gap:3mm}.equation{padding:1.5mm 2mm}.answer{min-height:16mm;margin:1mm 0 3mm;background:repeating-linear-gradient(to bottom,#fff 0,#fff 7mm,#aab6c1 7.1mm,#fff 7.3mm)}.answer.short{min-height:10mm}.answer.medium{min-height:22mm}.answer.tall{min-height:30mm}
+ table{margin:2mm 0 3mm;table-layout:fixed}th,td{padding:1.25mm 1.7mm;font-size:10.4pt}.data-table th,.data-table td{padding:1mm 1.6mm}.svg-illustration{max-height:44mm}.plot-print{height:85mm;max-height:85mm;object-fit:contain}.plot-note{font-size:9.5pt}.station-label{padding:.6mm 2mm}.mini-flow span{padding:1mm 1.5mm}.form-grid{grid-template-columns:35mm 1fr;gap:1.3mm 3mm}.print-only{display:block}.no-break{break-inside:avoid;page-break-inside:avoid}.plan-table th,.plan-table td{font-size:9.4pt;padding:1.3mm 1.5mm}.small-table{font-size:9.5pt}.glossary{gap:2mm}.glossary div{padding:1.5mm 2mm}
+ #teacher .panel:not(:first-of-type),#solutions .panel:not(:first-of-type),#hints .panel:not(:first-of-type){break-before:page;page-break-before:always}
+}
+</style>
+</head>
+<body data-view="student" data-print="student">
+<a class="skip" href="#student">Zum Inhalt springen</a>
+<nav class="top screen-only" aria-label="Ansichten und Druckfassungen"><div class="top-inner">
+ <strong>13NF · Physiktechnik · Woche 4</strong>
+ <button type="button" data-show="student" aria-current="true">Arbeitsblatt</button>
+ <button type="button" data-show="simulations">Simulationen</button>
+ <button type="button" data-show="solutions">Musterlösungen</button>
+ <button type="button" data-show="hints">Hilfen</button>
+ <button type="button" data-show="teacher">Lehrkraft</button>
+ <button type="button" data-show="sources">Glossar &amp; Quellen</button>
+ <button type="button" class="print-button" data-print-part="student">Druck: Stationen</button>
+ <button type="button" class="print-button" data-print-part="hints">Druck: Hilfen</button>
+ <button type="button" class="print-button" data-print-part="solutions">Druck: Lösungen</button>
+ <button type="button" class="print-button" data-print-part="teacher">Druck: Lehrkraft</button>
+</div></nav>
+<main id="main">
+<section id="teacher" class="view-section" aria-labelledby="teacher-title">
+ <div class="screen-head"><h1 id="teacher-title">Lehrkraftfassung</h1><p>Zwei Theoriestunden à 45 Minuten · Stationen und Kalibrierfreigabe KA-04</p></div>
+ <article class="panel print-page">
+  <h2>Einordnung und Lernziel</h2>
+  <p><b>Lerngruppe:</b> 13NF, Physiktechnik, Kurshalbjahr 13.1, Anlage C1 Technik/Naturwissenschaften. Woche 3: Sendeimpuls, Reflexion, Doppelweg und s = c · Δt / 2. Die Klasse ist nach Rückmeldung bei linearen Funktionen und Einheitenumrechnungen wenig sicher und hat kein Ultraschallgerät praktisch gesehen. iPads, Onlineansicht, Projektion, Ausdrucke und Taschenrechner stehen zur Verfügung; kein Geräteversuch ist vorgesehen.</p>
+  <p><b>Fachliche Brücke:</b> Für die gegebenen Zeitwerte im Millisekundenbereich und Meterabstände ergibt sich c ≈ 342 m/s. Wir nehmen daher einen <b>Luftultraschall-Abstandssensor</b> an, der den Abstand zu einer ebenen Prüftafel vor einer zerstörungsfreien Prüfung erfasst. Dies ist ein gekennzeichnetes, didaktisch konstruiertes Beispiel; die Kalibrierung eines Kontaktprüfkopfs im Festkörper folgt erst in Woche 5 und benötigt neue Materialgeschwindigkeit und Justierung.</p>
+  <p><b>Problem:</b> Zwei nominal gleiche Sensoraufbauten A und B liefern bei denselben Abständen etwas verschiedene Zeiten. Die Lerngruppe entscheidet: eine gemeinsame Formel oder zwei Korrekturen? Für welche Entfernungen ist eine Verwendung anhand der vorhandenen Daten vertretbar?</p>
+  <p><b>Sichtbares Ergebnis:</b> beschriftetes Δt-s-Diagramm, Parameter m und t₀ für A und B, begründete Offsetkorrektur, Prüfung zweier Validierungspunkte und ausgefüllte Freigabekarte KA-04.</p>
+  <div class="note"><b>Lernziele:</b> Impuls und Echo räumlich und zeitlich einordnen; Steigung und Achsenabschnitt aus zwei Referenzpunkten bestimmen; m = 2/c deuten; erst t₀ von Δt abziehen, dann die Strecke berechnen; Residuum <i>und</i> Echoqualität zur begrenzten Entscheidung nutzen.</div>
+  <p><b>Didaktische Lernregel, keine Norm:</b> Ein Punkt gilt als bestanden, wenn |r| ≤ 0,06 ms <i>und</i> sein Echo stabil ist. Im Lernmodell wird der zusammenhängende Bereich vom kleinsten Referenzabstand bis zum letzten bestandenen Validierungspunkt freigegeben, sofern die vorherigen Punkte passen. Diese Regel wurde für die Aufgabe gewählt, nicht aus einer Norm abgeleitet. Ein einzelner Punkt ersetzt keine vollständige Messunsicherheitsprüfung.</p>
+ </article>
+ <article class="panel print-page">
+  <h2>Verlaufsplan · 90 Minuten</h2>
+  <table class="plan-table"><thead><tr><th>Zeit</th><th>Phase / Material</th><th>Lehrkraft</th><th>Lernende / Ergebnissicherung</th></tr></thead><tbody>
+   <tr><td>Std. 1<br>0–8</td><td>Einstieg<br>Skizze, Modell<br>EA → Plenum</td><td>Prüftafel und Sender zeigen; Vorhersage „Wohin läuft das Echo?“ einsammeln. Modell am Beamer bewegen.</td><td>Allein Weg hin/zurück und vermutete Zeitanteile markieren; Bild und Zeitleiste verbal erklären.</td></tr>
+   <tr><td>8–25</td><td>Station 1A<br>Dossier, Diagramm<br>Partnerarbeit</td><td>Beide Achsen gemeinsam anbahnen; Referenzdaten und Legende zeigen. Je ein Partner beginnt A, der andere B; dann ergänzen beide das ganze Bild.</td><td>Im Tandem sechs Punkte je Aufbau eintragen, A/B unterscheiden und Trend beschreiben.</td></tr>
+   <tr><td>25–40</td><td>Station 1B<br>Rechner, Labor 1<br>Plenum → Partnerarbeit</td><td>„Steigung = Zeitänderung pro Meter“ am Aufbau A vormachen; B und beide Offsets im Tandem rechnen lassen.</td><td>In Paaren m und t₀ berechnen, Satz „ähnliche Steigung, anderer Zeitnullpunkt“ festhalten; Labor 1 zum Prüfen.</td></tr>
+   <tr><td>40–45</td><td>Zwischensicherung<br>Plenum</td><td>Beide Geraden und Einheiten sichtbar sammeln, Fehler am Ursprung besprechen.</td><td>Parameterkarte abschließen; mündlich erklären, warum eine gemeinsame Formel nicht passt.</td></tr>
+   <tr><td>Std. 2<br>0–6</td><td>Wiederholung<br>Wegbild<br>Partnerabgleich</td><td>Doppelweg und Δt = m · s + t₀ am Wegbild rekonstruieren lassen.</td><td>Zuordnen: Was ist Strecke, was ist Systemzeit?</td></tr>
+   <tr><td>6–23</td><td>Station 2<br>Rechner, Labor 2<br>EA → Partnerarbeit</td><td>Umrechnung ms → s an A gemeinsam durchführen; B im Tandem rechnen lassen.</td><td>c bestimmen; für B 4,97 ms mit/ohne Offset berechnen, Unterschied begründen.</td></tr>
+   <tr><td>23–35</td><td>Station 3<br>Labor 3<br>Partnerarbeit</td><td>Vorzeichen des Residuums und Echoqualität getrennt abfragen.</td><td>Modellwerte, Residuen und zwei Freigabeentscheidungen ausfüllen.</td></tr>
+   <tr><td>35–43</td><td>Station 4<br>Freigabekarte<br>EA → Partnervergleich</td><td>Aufbauspezifische Formel und Grenze verlangen; keine reale Zertifizierung suggerieren.</td><td>KA-04 begründet fertigstellen und mit zugänglicher Musterlösung selbst vergleichen.</td></tr>
+   <tr><td>43–45</td><td>Abschluss<br>Plenum</td><td>Leitsatz sichern und zur Festkörperprüfung der Folgewoche überleiten.</td><td>„Ich ziehe zuerst … ab, weil …“ als Exit-Satz.</td></tr>
+  </tbody></table>
+  <p class="small"><b>Material:</b> sechs druckbare Stationsseiten (Station 1 auf drei Seiten), optionales Hilfenblatt, iPads oder Beamer für vier lokale Modelle, Taschenrechner. Ohne Geräte: Wegbild und Diagramm auf Station 1, Tabellen und Beobachtungsfelder der Stationen 2–3. Keine Simulationsergebnisse sind nötig, um die Aufgaben lösen zu können.</p>
+ </article>
+ <article class="panel print-page">
+  <h2>Differenzierung und Reaktion auf Fehler</h2>
+  <table class="small-table"><thead><tr><th>Station</th><th>Hilfe am Ort der Aufgabe</th><th>Typischer Fehler → Reaktion</th></tr></thead><tbody>
+   <tr><td>1A/B</td><td>Vorgezeichnetes Netz; Beispielpunkt; Endpunktformel mit Lücken; getrennte Parameterkarten.</td><td>Gerade durch (0;0) → Zeit bei 0,20 m mit 5,84 · 0,20 vergleichen; Restzeit t₀ sichtbar machen.</td></tr>
+   <tr><td>2</td><td>Einheitenstreifen, Reihenfolge in drei Feldern, B-Werte als Datenkarte.</td><td>m = c oder Offset erst nach Strecke → Einheiten ms/m und m/s gegenüberstellen; Δt zuerst zerlegen.</td></tr>
+   <tr><td>3</td><td>Ein Modellwert als Satzanfang; Vorzeichen r = gemessen − Modell; zwei Prüfkästchen.</td><td>Nur Residuum beachten → Echoqualität separat ankreuzen; bei 1,60 m beide Gründe benennen.</td></tr>
+   <tr><td>4</td><td>Felder für A/B, Prüfumstände und Satzstarter.</td><td>Unbegrenzte Freigabe → Referenzwerte und bestandene Validierung unterstreichen.</td></tr>
+  </tbody></table>
+  <p><b>Basisweg:</b> Partnerarbeit, Hilfenblatt, 0,20- und 1,20-m-Endpunkte; die Lehrkraft rechnet m<sub>A</sub> einmal gemeinsam vor. <b>Erweiterung:</b> relative Steigungsdifferenz (≈ 0,34 %) und systematischen Wegfehler Δs = t₀/m für B erklären. <b>Selbstvergleich:</b> erst eigene Rechnung notieren, dann öffentlich zugängliche Lösung öffnen, abweichende Zeile korrigieren und Ursache dazuschreiben.</p>
+  <p><b>Simulationen:</b> Wegmodell zur Vorstellung ohne Vorerfahrung; Labor 1 trennt Steigung und Verschiebung; Labor 2 zeigt den konstanten Distanzfehler; Labor 3 prüft die UND-Bedingung aus Residuum und Echo. Alle Zeitverläufe sind schematisch, alle Zahlen verwenden die gerundeten Unterrichtsmodelle.</p>
+ </article>
+</section>
+<section id="student" class="view-section" aria-labelledby="student-title">
+ <div class="screen-head"><h1 id="student-title">Arbeitsblatt: vier Stationen</h1><p>Auf Papier rechnen und zeichnen; Simulationen danach zum Prüfen verwenden. Lösungen und Hilfen sind jederzeit zugänglich.</p></div>
+ <article class="sheet" id="station1a">
+  <header class="sheet-head"><div><span class="station-label">Station 1 · Teil A · ca. 17 Minuten mit Diagrammseite</span><h2>Wohin läuft das Echo? Welche Werte werden gemessen?</h2></div><p class="name">Name: __________________</p></header>
+  <p class="lead"><b>Beispiel KA-04:</b> Vor einer zerstörungsfreien Prüfung soll eine ebene Prüftafel in bekanntem Abstand vor einem Luftultraschall-Sensor stehen. Er sendet einen kurzen, unhörbaren Schallimpuls aus. An der Tafel entsteht ein Echo, das zurückläuft. Zwei Sensoraufbauten A und B sollen die Entfernung zuverlässig anzeigen. Noch gibt es kein reales Gerät im Unterricht.</p>
+  <p><b>Leitfrage:</b> Können A und B dieselbe Zeit-zu-Abstand-Formel verwenden? Am Ende gibst du für jeden Aufbau eine begrenzte Kalibrierfreigabe ab.</p>
+  <svg class="svg-illustration" viewBox="0 0 720 170" role="img" aria-labelledby="way-title way-desc">
+   <title id="way-title">Schematischer Impuls-Echo-Weg in Luft</title><desc id="way-desc">Links steht ein Sensor, rechts eine ebene Prüftafel. Der Schall läuft den Abstand s hin und denselben Abstand zurück. Zusätzlich enthält die Anzeige eine Systemzeit t null.</desc>
+   <rect x="38" y="41" width="96" height="78" rx="8" fill="#d4e9f3" stroke="#075f85" stroke-width="3"/><text x="86" y="75" text-anchor="middle" font-size="17" fill="#12364e">Sensor</text><text x="86" y="98" text-anchor="middle" font-size="13">A oder B</text>
+   <rect x="580" y="31" width="26" height="95" fill="#aebcc5" stroke="#506276" stroke-width="3"/><text x="610" y="25" text-anchor="middle" font-size="15">Prüftafel</text>
+   <path d="M146 61 H570" fill="none" stroke="#075f85" stroke-width="5" marker-end="url(#arrowOut)"/><path d="M570 100 H146" fill="none" stroke="#a03d35" stroke-width="5" marker-end="url(#arrowBack)"/>
+   <defs><marker id="arrowOut" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#075f85"/></marker><marker id="arrowBack" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#a03d35"/></marker></defs>
+   <text x="350" y="53" text-anchor="middle" font-size="15" fill="#075f85">Hinweg s</text><text x="350" y="120" text-anchor="middle" font-size="15" fill="#a03d35">Rückweg s</text><text x="350" y="151" text-anchor="middle" font-size="14">angezeigte Zeit Δt = Hinweg + Rückweg + Systemzeit t₀</text>
+  </svg>
+  <p class="small"><b>Bildhinweis:</b> Schematisch, ohne Längenmaßstab. t₀ ist zusätzliche Anzeigezeit der Messkette, kein weiterer Weg durch die Luft.</p>
+  <div class="task"><p><span class="step">1</span><b>Vermute:</b> Warum darfst du die angezeigte Zeit nicht sofort mit c multiplizieren? Markiere am Bild Hinweg, Rückweg und die Systemzeit.</p><div class="answer short" aria-label="Platz für Vermutung"></div></div>
+  <p><b>Datendossier:</b> Bekannt ist jeweils der einfache Abstand <i>s</i> zur Tafel; gemessen wurde die gesamte angezeigte Laufzeit <i>Δt</i>. Die Daten sind erfunden. Alle Zeiten sind auf 0,01 ms aufgelöst; beide Aufbauten stehen am gleichen Ort, Tafel und Luftbedingungen bleiben gleich.</p>
+  <table class="data-table"><thead><tr><th>Abstand s in m</th><th>Aufbau A: Δt in ms</th><th>Aufbau B: Δt in ms</th></tr></thead><tbody>
+   <tr><td>0,20</td><td>1,29</td><td>1,45</td></tr><tr><td>0,40</td><td>2,46</td><td>2,62</td></tr><tr><td>0,60</td><td>3,62</td><td>3,80</td></tr><tr><td>0,80</td><td>4,79</td><td>4,97</td></tr><tr><td>1,00</td><td>5,96</td><td>6,14</td></tr><tr><td>1,20</td><td>7,13</td><td>7,31</td></tr>
+  </tbody></table>
+  <p><b>Vorhersage für das nächste Blatt:</b> Welcher Aufbau zeigt am gleichen Abstand die größere Zeit? ___________________</p>
+ </article>
+ <article class="sheet" id="station1a-plot">
+  <header class="sheet-head"><div><span class="station-label">Station 1 · Teil A · Diagrammseite</span><h2>Messpunkte zeichnen und vergleichen</h2></div><p class="name">Name: __________________</p></header>
+  <p>Benutze die sechs Messpaare aus dem Datendossier auf dem vorherigen Blatt. Erster Beispielpunkt: A (0,20 m | 1,29 ms), B (0,20 m | 1,45 ms).</p>
+  <p><span class="step">2</span><b>Trage ein:</b> waagerecht s (m), senkrecht Δt (ms). Markiere A mit Kreuzen, B mit Kreisen; verbinde jede Punktreihe mit einer passenden Geraden. Ein Messpunkt bei s = 0 ist <b>nicht</b> gegeben.</p>
+  <svg class="plot-print" viewBox="0 0 660 350" role="img" aria-labelledby="plot-title plot-desc">
+   <title id="plot-title">Leeres Koordinatensystem für die zwei Messreihen</title><desc id="plot-desc">Waagerechte Achse Abstand s von null bis 1,6 Meter in Schritten von 0,2 Meter. Senkrechte Achse angezeigte Laufzeit Delta t von null bis zehn Millisekunden in Schritten von einer Millisekunde. Das Feld ist für handgezeichnete Kreuze, Kreise und Geraden frei.</desc>
+   <rect x="75" y="25" width="500" height="260" fill="#fff" stroke="#8399aa" stroke-width="1"/><defs><pattern id="graphGrid" x="75" y="25" width="62.5" height="26" patternUnits="userSpaceOnUse"><path d="M 62.5 0 L 0 0 0 26" fill="none" stroke="#c7d2db" stroke-width="1"/></pattern></defs><rect x="75" y="25" width="500" height="260" fill="url(#graphGrid)"/>
+   <path d="M75 22 V285 H580" fill="none" stroke="#233d51" stroke-width="2"/>
+   <g font-size="12" fill="#14283b" text-anchor="middle"><text x="75" y="303">0</text><text x="137.5" y="303">0,2</text><text x="200" y="303">0,4</text><text x="262.5" y="303">0,6</text><text x="325" y="303">0,8</text><text x="387.5" y="303">1,0</text><text x="450" y="303">1,2</text><text x="512.5" y="303">1,4</text><text x="575" y="303">1,6</text><text x="325" y="335" font-size="16">Abstand s in m →</text></g>
+   <g font-size="12" fill="#14283b" text-anchor="end"><text x="66" y="289">0</text><text x="66" y="237">2</text><text x="66" y="185">4</text><text x="66" y="133">6</text><text x="66" y="81">8</text><text x="66" y="29">10</text></g><text x="17" y="173" font-size="15" fill="#14283b" transform="rotate(-90 17 173)" text-anchor="middle">Δt in ms</text>
+  </svg>
+  <p class="plot-note">Legende selbst ergänzen: A = × (blau/dunkel) · B = ○ (rot/hell). Auf Papier genügen verschiedene Zeichen ohne Farbe.</p>
+  <p><b>Beschreibe mit zwei Beobachtungen:</b> Wie verändert sich die Zeit mit dem Abstand? Wo liegt B im Vergleich zu A?</p><div class="answer medium"></div>
+  <details class="hintbox"><summary>Hilfe zu Station 1A: Achsen und erster Punkt</summary><div><p>Den Abstand zur Tafel stellst du ein: Er gehört nach rechts. Die Zeit liest du ab: Sie gehört nach oben. Bei s = 0,20 m ist A bei 1,29 ms und B bei 1,45 ms.</p></div></details>
+  <p class="screen-only">Zur Vorstellung: <a href="#simulations" data-link-view="simulations">Wegmodell öffnen</a>. Erst vermuten und zeichnen, dann die Bewegung ansehen.</p>
+ </article>
+ <article class="sheet" id="station1b">
+  <header class="sheet-head"><div><span class="station-label">Station 1 · Teil B · ca. 15 Minuten</span><h2>Zwei Geraden: Steigung und Zeitnullpunkt</h2></div><p class="name">Name: __________________</p></header>
+  <p><b>Datenkarte aus Teil A:</b> bei s = 0,20 m: A 1,29 ms, B 1,45 ms; bei s = 1,20 m: A 7,13 ms, B 7,31 ms. Benutze diese beiden Endpunkte. Die Gerade ist eine <b>Näherung</b>; einzelne Datenpunkte dürfen etwas daneben liegen.</p>
+  <div class="equation">Modell: Δt = m · s + t₀ &nbsp; | &nbsp; Steigung m = (Zeit₂ − Zeit₁) / (Abstand₂ − Abstand₁)</div>
+  <div class="task"><p><span class="step">3</span><b>Berechne</b> die Steigung für A und B. Einheit: ms/m. Lies erst die vier Zahlen aus der Datenkarte ab, dann setze ein.</p>
+   <div class="grid2"><div><b>Aufbau A</b><p>m<sub>A</sub> = (_____ − _____) ms / (_____ − _____) m</p><div class="answer medium"></div></div><div><b>Aufbau B</b><p>m<sub>B</sub> = (_____ − _____) ms / (_____ − _____) m</p><div class="answer medium"></div></div></div>
+  </div>
+  <div class="task"><p><span class="step">4</span><b>Bestimme</b> den Zeitoffset t₀ mit dem ersten Punkt und deiner Steigung. Sprich die Gleichung als Satz: „Gemessene Zeit minus Laufzeitanteil ergibt Systemzeit.“</p><div class="equation">t₀ = Δt − m · s &nbsp; (hier: s = 0,20 m)</div>
+   <div class="grid2"><div><b>Aufbau A:</b> t₀,A = 1,29 ms − _____ · 0,20 m<div class="answer medium"></div></div><div><b>Aufbau B:</b> t₀,B = 1,45 ms − _____ · 0,20 m<div class="answer medium"></div></div></div>
+  </div>
+  <div class="task"><p><span class="step">5</span><b>Vergleiche und entscheide:</b> Sind die Steigungen ähnlich? Sind die Offsets gleich? Darf eine einzige vollständige Formel für A und B verwendet werden? Begründe mit Zahlen.</p><div class="answer medium"></div></div>
+  <div class="note green-note"><b>Merksatz zum Ausfüllen:</b> Die Steigung beschreibt die Zeitänderung pro ______. Der Offset ist eine zusätzliche ______ der Messkette. Deshalb braucht jeder Aufbau seine eigene ______.</div>
+  <p class="print-only small">Beobachtung statt Simulation: Bei s = 0,20 m beträgt Δt<sub>B</sub> − Δt<sub>A</sub> = _____ ms; bei s = 1,20 m = _____ ms. Ist der Unterschied ungefähr konstant? ____________</p>
+  <details class="hintbox"><summary>Hilfe zu Station 1B: erst Differenzen, dann Offset</summary><div><p>Bei A: Zeitdifferenz 7,13 − 1,29 = 5,84 ms; Abstandsdifferenz 1,20 − 0,20 = 1,00 m. Für den Offset ziehst du vom Wert bei 0,20 m den Laufzeitanteil m · 0,20 m ab. Ein positiver Rest ist eine Zeit, keine „negative Entfernung“.</p></div></details>
+  <p class="screen-only">Prüfe danach im <a href="#simulations" data-link-view="simulations">Labor 1 · Geradenvergleich</a>, was Steigung und Offset im Bild verändern.</p>
+ </article>
+ <article class="sheet" id="station2">
+  <header class="sheet-head"><div><span class="station-label">Station 2 · ca. 17 Minuten</span><h2>Schallgeschwindigkeit und Offsetkorrektur</h2></div><p class="name">Name: __________________</p></header>
+  <p><b>Parameterkarte:</b> Verwende deine Werte aus Station 1; falls du dort hängen bleibst, rechne mit m<sub>A</sub> = 5,84 ms/m, t₀,A = 0,12 ms und m<sub>B</sub> = 5,86 ms/m, t₀,B = 0,28 ms weiter.</p>
+  <p>Der Schall läuft <b>zweimal</b> den Abstand s. Daher gilt m = 2/c und c = 2/m. Rechne 1 ms = 0,001 s; aus ms/m wird s/m.</p>
+  <div class="task"><p><span class="step">1</span><b>Wandle um und berechne</b> die Schallgeschwindigkeit c für A und B.</p>
+   <table class="mini-table"><thead><tr><th>Aufbau</th><th>m in ms/m</th><th>m in s/m</th><th>c = 2/m in m/s</th></tr></thead><tbody><tr><td>A</td><td>________</td><td>________</td><td>________</td></tr><tr><td>B</td><td>________</td><td>________</td><td>________</td></tr></tbody></table><p>Rechenweg für A oder B:</p><div class="answer short"></div>
+  </div>
+  <div class="task"><p><span class="step">2</span><b>Stelle um:</b> Δt = m · s + t₀ → s = (________ − ________) / ________. Schreibe die drei Handlungen in der richtigen Reihenfolge auf.</p>
+   <div class="mini-flow"><span>1. ____________________</span><span>2. ____________________</span><span>3. ____________________</span></div>
+  </div>
+  <div class="task"><p><span class="step">3</span><b>Berechne und vergleiche:</b> B zeigt Δt = 4,97 ms an. Welcher Abstand entsteht mit t₀,B = 0,28 ms? Welcher ohne Offsetabzug? Berechne die Differenz und gib sie auch in mm an. Benutze s = (Δt − t₀)/m, wenn du beide Größen in ms einsetzt.</p>
+   <div class="grid2"><div><b>Mit Korrektur:</b><p>Δt<sub>akustisch</sub> = _____ − _____ = _____ ms</p><div class="answer medium"></div></div><div><b>Ohne Korrektur:</b><p>s<sub>naiv</sub> = 4,97 ms / _____</p><div class="answer medium"></div></div></div>
+   <p><b>Unterschied:</b> ______ m = ______ mm. Erkläre in einem Satz, weshalb ein fester Zeitoffset einen systematischen Wegfehler bewirkt.</p><div class="answer short"></div>
+  </div>
+  <div class="task"><p><span class="step">4</span><b>Prüfe zwei Aussagen:</b> „t₀ ist eine negative Entfernung vor dem Sensor.“ „Gleiche Steigung bedeutet gleichen Offset.“ Schreibe zu jeder Aussage eine kurze Berichtigung.</p><div class="answer short"></div></div>
+  <p class="print-only small"><b>Beobachtung ohne iPad:</b> Vergleiche bei B rechnerisch 4,97 ms und 6,14 ms. Bleibt s<sub>naiv</sub> − s<sub>korr</sub> fast gleich? __________________</p>
+  <details class="hintbox"><summary>Hilfe zu Station 2: Einheiten und Reihenfolge</summary><div><p>5,84 ms/m = 0,00584 s/m. Dann c = 2 / 0,00584 s/m. Für B zuerst 4,97 − 0,28 = 4,69 ms; danach durch 5,86 ms/m teilen. ms kürzt sich weg. 1 m = 1000 mm.</p></div></details>
+  <p class="screen-only">Teste im <a href="#simulations" data-link-view="simulations">Labor 2 · Offsetwirkung</a> verschiedene angezeigte Zeiten.</p>
+ </article>
+ <article class="sheet" id="station3">
+  <header class="sheet-head"><div><span class="station-label">Station 3 · ca. 12 Minuten</span><h2>Wie weit darf die Formel gelten?</h2></div><p class="name">Name: __________________</p></header>
+  <p>Die Referenzen aus Station 1 reichten von <b>0,20 m bis 1,20 m</b>. Jetzt gibt es <b>nur für A</b> zwei weitere Prüfpunkte. Für A verwenden wir das gerundete Modell Δt<sub>Modell</sub> = (5,84 ms/m) · s + 0,12 ms.</p>
+  <div class="equation">Residuum r = Δt<sub>gemessen</sub> − Δt<sub>Modell</sub> &nbsp; | &nbsp; Lernregel: |r| ≤ 0,06 ms UND stabiles Echo.</div>
+  <p><b>Residuum</b> bedeutet hier: Wie weit liegt eine Messung über oder unter der Modellgeraden? Das Vorzeichen bleibt beim Rechnen stehen; für die Regel prüfst du den Betrag.</p>
+  <div class="task"><p><span class="step">1</span><b>Berechne</b> Modellwert und Residuum für beide Prüfpunkte. <b>Prüfe</b> Zahl und Echoqualität getrennt.</p>
+   <table class="mini-table"><thead><tr><th>s</th><th>Δt gemessen</th><th>Echo</th><th>Δt Modell</th><th>r</th><th>Bestanden?</th></tr></thead><tbody>
+    <tr><td>1,40 m</td><td>8,30 ms</td><td>stabil</td><td>_______ ms</td><td>_______ ms</td><td>________</td></tr>
+    <tr><td>1,60 m</td><td>9,66 ms</td><td>schwach; Auslösezeit schwankt</td><td>_______ ms</td><td>_______ ms</td><td>________</td></tr>
+   </tbody></table>
+   <p>Rechenweg bei 1,40 m: 5,84 · 1,40 + 0,12 = __________ ms; r = 8,30 − __________ = __________ ms.</p><div class="answer short"></div>
+   <p>Rechenweg bei 1,60 m:</p><div class="answer short"></div>
+  </div>
+  <div class="task"><p><span class="step">2</span><b>Begrenze und begründe:</b> Bis zu welchem Abstand darf A nach der Lernregel verwendet werden? Welchen Bereich hat B ohne zusätzliche Prüfpunkte? Erkläre, warum bei 1,60 m eine hübsch verlängerte Gerade nicht genügt.</p><div class="answer medium"></div></div>
+  <div class="note warning"><b>Modellgrenze:</b> Die Lernregel ist kein technischer Normgrenzwert. Ein bestandener Einzelpunkt belegt keine lückenlose Genauigkeit zwischen allen Entfernungen. Außerhalb des geprüften Bereichs wird hier nichts freigegeben.</div>
+  <p class="print-only small"><b>Gedankenversuch statt Labor 3:</b> Wäre bei 1,60 m r = 0,02 ms, aber das Echo weiter schwach, wäre die Regel erfüllt? ______ Begründe: ______________________________</p>
+  <details class="hintbox"><summary>Hilfe zu Station 3: zwei getrennte Prüfschritte</summary><div><p>Bei 1,40 m: 5,84 · 1,40 + 0,12 = 8,296 ms. Ziehe diesen Modellwert von 8,30 ms ab. Bei 1,60 m: zuerst 5,84 · 1,60 + 0,12 rechnen. Für ein „Ja“ müssen Betrag und Echoqualität beide passen. Für B fehlen die neuen Prüfpunkte.</p></div></details>
+  <p class="screen-only">Untersuche anschließend im <a href="#simulations" data-link-view="simulations">Labor 3 · Residuenprüfung</a> einen anderen Messwert oder eine andere Echoqualität.</p>
+ </article>
+ <article class="sheet" id="station4">
+  <header class="sheet-head"><div><span class="station-label">Station 4 · ca. 8 Minuten</span><h2>Produkt: Kalibrierfreigabe KA-04</h2></div><p class="name">Name: __________________</p></header>
+  <p><b>Auftrag:</b> Formuliere eine begrenzte Freigabe für das <b>erfundene Luftultraschall-Lernmodell</b>. Das ist eine begründete Entscheidung im Unterricht und keine reale Gerätefreigabe.</p>
+  <div class="form-grid"><label>Aufbau A</label><div class="blank">Δt<sub>A</sub>(s) = __________________________________________</div><label>Bereich A</label><div class="blank">von ____________ m bis ____________ m</div><label>Aufbau B</label><div class="blank">Δt<sub>B</sub>(s) = __________________________________________</div><label>Bereich B</label><div class="blank">von ____________ m bis ____________ m</div><label>Reihenfolge</label><div class="blank">Δt → _______________________________________ → s</div></div>
+  <div class="task"><p><span class="step">1</span><b>Notiere</b> zwei Bedingungen, unter denen du die Kalibrierung verwenden würdest: z. B. gleicher Aufbau, gleiche Triggerdefinition, ebene Tafel, stabile Echozuordnung und vergleichbare Luftbedingungen.</p><div class="answer short"></div></div>
+  <div class="task"><p><span class="step">2</span><b>Begründe</b> deine Entscheidung. Beginne: „Für A ist … belegt, weil … . Für B gilt …, weil … . Eine gemeinsame Formel … .“</p><div class="answer tall"></div></div>
+  <div class="task"><p><span class="step">3</span><b>Vergleiche</b> nach dem eigenen Versuch mit der frei zugänglichen Musterlösung. Korrigiere eine abweichende Zahl oder Begründung und schreibe den Grund deiner Änderung auf.</p><div class="answer medium"></div></div>
+  <div class="note"><b>Erweiterung:</b> Wie groß ist die relative Steigungsdifferenz (m<sub>B</sub> − m<sub>A</sub>) / m<sub>A</sub>? Warum macht eine kleine Differenz die Offsets nicht gleich?</div>
+  <details class="hintbox"><summary>Hilfe zu Station 4: Satzstarter</summary><div><p>„Für A gelten 0,20 bis … m, weil der Prüfpunkt … . Für B gelten nur 0,20 bis … m, weil … . Ich ziehe erst den Offset des gewählten Aufbaus ab. Die Freigabe setzt gleiche … voraus.“</p></div></details>
+  <p class="small">Prüfliste: □ zwei Geraden □ zwei Bereiche □ richtige Offsetfolge □ Echoqualität □ Geltungsbedingungen □ Modellgrenze.</p>
+ </article>
+</section>
+
+<section id="simulations" class="view-section" aria-labelledby="sim-title">
+ <div class="screen-head"><h1 id="sim-title">Simulationen und Wegmodell</h1><p>Erst auf der Station vermuten und rechnen, dann einstellen, beobachten und erklären. Alles läuft lokal im Browser.</p></div>
+ <article class="sim-card" id="way-model">
+  <h2>Vorstellungsmodell · Wo ist der Impuls?</h2>
+  <p><b>Auftrag zu Station 1A:</b> Stelle B und s = 0,80 m ein. Vermute: Wann ist der Schall an der Tafel, wann wieder am Sensor? Bewege den Zeitregler. Beschreibe, warum die Anzeige mehr Zeit als der reine Hin- und Rückweg enthält.</p>
+  <div class="controls"><label for="pulseSetup">Sensoraufbau<select id="pulseSetup"><option value="A">A</option><option value="B" selected>B</option></select></label><label for="pulseDistance">Abstand s: <output id="pulseDistanceText">0,80 m</output><input id="pulseDistance" type="range" min="0.2" max="1.6" step="0.2" value="0.8"></label><label for="pulseTime">Zeitpunkt: <output id="pulseTimeText">0,00 ms</output><input id="pulseTime" type="range" min="0" max="100" step="1" value="0" aria-label="Zeitpunkt vom Sendeimpuls bis zur Anzeige"></label><button type="button" class="sim-button" id="pulsePlay">Impuls starten</button><button type="button" class="sim-button secondary" id="pulseReset">Zurücksetzen</button></div>
+  <svg class="sim-visual" viewBox="0 0 680 195" role="img" aria-labelledby="pulse-svg-title pulse-svg-desc"><title id="pulse-svg-title">Bewegliches Schema des Luftschallwegs</title><desc id="pulse-svg-desc">Ein beweglicher Kreis folgt dem Schall vom Sensor zur Prüftafel und zurück. Danach vergeht die separate Systemzeit bis zur Anzeige. Die Textausgabe darunter beschreibt den aktuellen Zustand.</desc>
+   <rect x="55" y="42" width="65" height="75" rx="6" fill="#d3eaf3" stroke="#075f85" stroke-width="2"/><text x="87" y="83" text-anchor="middle" font-size="15">Sensor</text>
+   <line id="pulsePath" x1="120" y1="79" x2="345" y2="79" stroke="#88a5b6" stroke-width="5"/><rect id="pulseTarget" x="345" y="38" width="17" height="82" fill="#aebcc5" stroke="#465c6c" stroke-width="2"/><text id="pulseTargetText" x="350" y="30" text-anchor="middle" font-size="15">Tafel</text>
+   <circle id="pulseDot" cx="120" cy="79" r="11" fill="#075f85" stroke="#fff" stroke-width="2"/><text x="325" y="165" text-anchor="middle" font-size="16">blau = Impuls/Echo; die Strecke ist schematisch</text>
+  </svg>
+  <div class="legend"><span>akustischer Hin- und Rückweg</span><span class="offset">zusätzliche Systemzeit bis zur Anzeige</span></div>
+  <div class="timelinebar" aria-hidden="true"><div class="acoustic" id="acousticBar"></div><div class="electronic" id="electronicBar"></div><div class="cursor" id="timeCursor"></div></div>
+  <div class="readout" id="pulseReadout" role="status" aria-live="polite">Sendeimpuls: 0,00 ms.</div>
+  <p class="small"><b>Annahme/Grenze:</b> Die bewegte Markierung zeigt keinen einzelnen Schallteilchenweg, sondern die Lage eines schematischen Impulses. Zur Veranschaulichung liegt der gesamte Offset <i>nach</i> der akustischen Rückkehr; real kann er an mehreren Stellen der Messkette entstehen. Abstände und Zeiten im Bild sind nicht maßstabsgetreu. Ein schwaches Echo wird hier nicht physikalisch simuliert.</p>
+ </article>
+ <article class="sim-card" id="lab1">
+  <h2>Labor 1 · Geradenvergleich</h2><p><b>Auftrag zu Station 1B:</b> Schätze zuerst m und t₀ aus den Endpunkten. Wähle A oder B, verändere erst nur den Offset, danach nur die Steigung. Welche Änderung verschiebt die ganze Gerade fast parallel, welche dreht sie? Erkläre, warum „fast gleiche Steigung“ keine gemeinsame Formel erlaubt.</p>
+  <div class="controls"><label for="lineSetup">Messreihe<select id="lineSetup"><option value="A" selected>A</option><option value="B">B</option></select></label><label for="lineSlope">Steigung m: <output id="lineSlopeText">5,84 ms/m</output><input id="lineSlope" type="range" min="5.60" max="6.10" step="0.01" value="5.84"></label><label for="lineOffset">Offset t₀: <output id="lineOffsetText">0,12 ms</output><input id="lineOffset" type="range" min="0" max="0.40" step="0.01" value="0.12"></label><button type="button" class="sim-button secondary" id="lineReset">Originalwerte</button></div>
+  <svg class="sim-visual" viewBox="0 0 660 350" role="img" aria-labelledby="line-title line-desc"><title id="line-title">Interaktives Zeit-Abstand-Diagramm</title><desc id="line-desc">Blaue Kreuze sind Messpunkte von A, rote Kreise die von B. Eine veränderbare Gerade ist bis 1,20 Meter durchgezogen und danach gestrichelt. Werte und Beobachtung werden als Text ausgegeben.</desc>
+   <rect x="75" y="25" width="500" height="260" fill="white" stroke="#8399aa"/><defs><pattern id="labGrid" x="75" y="25" width="62.5" height="26" patternUnits="userSpaceOnUse"><path d="M62.5 0 L0 0 0 26" fill="none" stroke="#ccd7df"/></pattern></defs><rect x="75" y="25" width="500" height="260" fill="url(#labGrid)"/>
+   <path d="M75 25 V285 H575" fill="none" stroke="#193247" stroke-width="2"/><line x1="450" y1="25" x2="450" y2="285" stroke="#7d8b96" stroke-dasharray="5 5"/><text x="452" y="18" font-size="13">Ende der Referenzen: 1,20 m</text>
+   <g id="labPoints"></g><path id="labLine" fill="none" stroke="#194f9a" stroke-width="3"/><path id="labBeyond" fill="none" stroke="#194f9a" stroke-width="3" stroke-dasharray="7 6"/>
+   <g font-size="12" fill="#14283b" text-anchor="middle"><text x="75" y="303">0</text><text x="137.5" y="303">0,2</text><text x="200" y="303">0,4</text><text x="262.5" y="303">0,6</text><text x="325" y="303">0,8</text><text x="387.5" y="303">1,0</text><text x="450" y="303">1,2</text><text x="512.5" y="303">1,4</text><text x="575" y="303">1,6</text><text x="325" y="336" font-size="16">Abstand s in m →</text></g>
+   <g font-size="12" fill="#14283b" text-anchor="end"><text x="67" y="289">0</text><text x="67" y="237">2</text><text x="67" y="185">4</text><text x="67" y="133">6</text><text x="67" y="81">8</text><text x="67" y="29">10</text></g><text x="17" y="170" font-size="15" transform="rotate(-90 17 170)" text-anchor="middle">Δt in ms</text>
+  </svg><div class="legend"><span>A: Kreuze</span><span class="b">B: Kreise</span></div>
+  <div class="readout" id="lineReadout" role="status" aria-live="polite"></div><p class="small"><b>Modellgrenze:</b> Mit den Endpunkten angepasste Gerade, keine Regression oder statistische Unsicherheit. Gestrichelte Linie rechts von 1,20 m ist nur eine Vorhersage, noch keine Freigabe. Ein Achsenabschnitt bei s = 0 wird extrapoliert, dort ist kein Messpunkt.</p>
+ </article>
+ <article class="sim-card" id="lab2">
+  <h2>Labor 2 · Offsetwirkung</h2><p><b>Auftrag zu Station 2:</b> Berechne B bei 4,97 ms selbst. Stelle dann B und t₀ = 0,28 ms ein. Vergleiche den korrigierten Abstand mit dem naiven Abstand. Wähle 6,14 ms: Warum bleibt der absolute Unterschied bei festem Offset gleich?</p>
+  <div class="controls"><label for="offsetCase">Angezeigte Zeit<select id="offsetCase"><option value="B497" selected>B: 4,97 ms</option><option value="B614">B: 6,14 ms</option><option value="A479">A: 4,79 ms</option></select></label><label for="offsetSlider">Abgezogener Offset: <output id="offsetSliderText">0,28 ms</output><input id="offsetSlider" type="range" min="0" max="0.40" step="0.01" value="0.28"></label><button type="button" class="sim-button secondary" id="offsetReset">Originalwerte</button></div>
+  <div class="barcompare" aria-label="Textwerte stehen rechts neben den beiden Vergleichsbalken"><div class="barrow"><b>mit Korrektur</b><div class="bartrack"><div class="barfill" id="correctBar"></div></div><output id="correctValue">0,800 m</output></div><div class="barrow"><b>ohne Korrektur</b><div class="bartrack"><div class="barfill bad" id="naiveBar"></div></div><output id="naiveValue">0,848 m</output></div></div>
+  <div class="readout" id="offsetReadout" role="status" aria-live="polite"></div><p class="small"><b>Modellgrenze:</b> Der Zeitoffset wird hier als konstant angenommen. In realen Geräten können Auslösung, Signalform, Temperatur und Bedingungen variieren; die Balken sind nur eine Darstellung von s = (Δt − t₀)/m.</p>
+ </article>
+ <article class="sim-card" id="lab3">
+  <h2>Labor 3 · Residuenprüfung</h2><p><b>Auftrag zu Station 3:</b> Berechne zunächst beide Residuen. Wähle 1,60 m und die echten Beobachtungen. Ändere hypothetisch nur die gemessene Zeit oder nur die Echoqualität. Reicht ein kleineres Residuum allein für eine Freigabe?</p>
+  <div class="controls"><label for="resCase">Prüfpunkt<select id="resCase"><option value="140" selected>1,40 m</option><option value="160">1,60 m</option></select></label><label for="resTime">Gemessene Zeit: <output id="resTimeText">8,30 ms</output><input id="resTime" type="range" min="8.15" max="8.55" step="0.01" value="8.30"></label><label for="resEcho">Echoqualität<select id="resEcho"><option value="stable" selected>stabil</option><option value="weak">schwach / schwankend</option></select></label><button type="button" class="sim-button secondary" id="resReset">Echte Werte</button></div>
+  <svg class="sim-visual" viewBox="0 0 660 105" role="img" aria-labelledby="res-title res-desc"><title id="res-title">Residuum mit Lernschwelle</title><desc id="res-desc">Die Mitte bedeutet Residuum null. Der farbige Bereich von minus 0,06 bis plus 0,06 Millisekunden ist die erfundene Lernschwelle. Die Messmarkierung wird verschoben; der genaue Zahlenwert steht als Text darunter.</desc><line x1="60" y1="51" x2="560" y2="51" stroke="#516476" stroke-width="3"/><rect x="250" y="34" width="120" height="34" fill="#b7e0c9"/><line x1="310" y1="29" x2="310" y2="72" stroke="#283e50" stroke-width="2"/><circle id="resMarker" cx="314" cy="51" r="11" fill="#075f85"/><g font-size="13" fill="#14283b" text-anchor="middle"><text x="60" y="94">−0,25</text><text x="250" y="94">−0,06</text><text x="310" y="94">0</text><text x="370" y="94">+0,06</text><text x="560" y="94">+0,25 ms</text></g></svg>
+  <div class="readout" id="resReadout" role="status" aria-live="polite"></div><p class="small"><b>Modellgrenze:</b> Der Balken prüft einen Zahlenwert und die gewählte Echoqualität anhand unserer Lernregel. Er kann weder reale Signalqualität messen noch die Entfernung zwischen zwei Prüfpunkten zertifizieren. Geänderte Werte sind Gedankenexperimente, nicht neue Messdaten.</p>
+ </article>
+</section>
+
+<section id="solutions" class="view-section" aria-labelledby="solution-title">
+ <div class="screen-head"><h1 id="solution-title">Ergebnissicherung und Musterlösungen</h1><p>Jede Station ist offen. Vergleiche erst nach einem eigenen Ansatz und markiere: Zahl, Einheit, Begründung.</p></div>
+ <article class="panel print-page">
+  <h2>So vergleichst du selbst</h2><ol><li>Kreise deinen ersten abweichenden Schritt ein.</li><li>Prüfe Datenwert, Rechenoperation und Einheit nacheinander.</li><li>Verbessere die Zeile und schreibe einen Satz, warum die Änderung nötig war.</li></ol>
+  <h3>Station 1A · Wegbild und Diagramm</h3><p><b>1.</b> Der Impuls durchläuft s hin und s zurück, also den Luftweg 2s. Zur angezeigten Zeit kommt ein Systemoffset t₀. Unmittelbar c · Δt zu rechnen würde sowohl den Doppelweg als auch t₀ falsch behandeln. Die passende Beziehung ist zunächst Δt = 2s/c + t₀.</p>
+  <p><b>2.</b> Waagerecht: kontrollierter Abstand s in m von 0 bis 1,6. Senkrecht: angezeigte Zeit Δt in ms von 0 bis 10. A als ×, B als ○ eintragen, z. B. A (0,20 m | 1,29 ms) und B (0,20 m | 1,45 ms). Alle sechs Paare je Aufbau steigen ungefähr geradlinig; die B-Punkte liegen über A, also lautet auch die Vorhersage auf Seite 1 „B“. Keinen gemessenen Ursprung behaupten.</p>
+  <h3>Station 1B · Parameter mit zwei Endpunkten</h3>
+  <p><b>3.</b> m<sub>A</sub> = (7,13 − 1,29) ms / (1,20 − 0,20) m = <b>5,84 ms/m</b>. m<sub>B</sub> = (7,31 − 1,45) ms / (1,20 − 0,20) m = <b>5,86 ms/m</b>. Eine Steigung gibt die Änderung der Laufzeit pro Meter an; sie ist keine Schallgeschwindigkeit.</p>
+  <p><b>4.</b> t₀,A = 1,29 ms − (5,84 ms/m · 0,20 m) = 0,122 ms ≈ <b>0,12 ms</b>. t₀,B = 1,45 ms − (5,86 ms/m · 0,20 m) = 0,278 ms ≈ <b>0,28 ms</b>. Wir verwenden danach durchgehend die gerundeten Modelle Δt<sub>A</sub> = (5,84 ms/m) · s + 0,12 ms und Δt<sub>B</sub> = (5,86 ms/m) · s + 0,28 ms.</p>
+  <p><b>5.</b> Die Steigungen unterscheiden sich um 0,02 ms/m, die gerundeten Offsets um 0,16 ms. Beide Schallwege haben nahezu dieselbe Physik, aber verschiedene Anzeigezeiten. Deshalb <b>keine gemeinsame vollständige Geradengleichung</b>. Bei 0,20 m ist B − A = 0,16 ms; bei 1,20 m ist B − A = 0,18 ms: ungefähr parallele Messreihen, nicht völlig identisch.</p>
+  <p class="small"><b>Bildgrenze:</b> Der bei s = 0 errechnete Achsenabschnitt liegt außerhalb der gemessenen Abstände und bedeutet keine negative reale Entfernung. Das Endpunktmodell ignoriert kleine Streuungen; es ist kein Nachweis perfekter Linearität.</p>
+ </article>
+ <article class="panel print-page">
+  <h2>Station 2 · Geschwindigkeit und Offsetkorrektur</h2>
+  <p><b>1.</b> A: 5,84 ms/m = 0,00584 s/m; c<sub>A</sub> = 2 / (0,00584 s/m) = 342,47 m/s ≈ <b>342 m/s</b>. B: 5,86 ms/m = 0,00586 s/m; c<sub>B</sub> = 2 / (0,00586 s/m) = 341,30 m/s ≈ <b>341 m/s</b>. Die Einheit ist m/s. Beide Werte sind größenordnungsmäßig Luftschall nahe Raumtemperatur; Festkörperwerte wären völlig anders.</p>
+  <p><b>2.</b> Δt = m · s + t₀ → Δt − t₀ = m · s → <b>s = (Δt − t₀)/m = c · (Δt − t₀)/2</b>. Reihenfolge: (1) passenden Sensor und sein t₀ wählen, (2) t₀ von der angezeigten Zeit abziehen, (3) mit m teilen; bei c in m/s zuvor ms in s umrechnen.</p>
+  <p><b>3.</b> Für B: Δt<sub>akustisch</sub> = 4,97 − 0,28 = <b>4,69 ms</b>. s<sub>korr</sub> = 4,69 ms / (5,86 ms/m) = <b>0,80034 m ≈ 0,800 m</b>. Ohne Korrektur: s<sub>naiv</sub> = 4,97 / 5,86 m = <b>0,84812 m ≈ 0,848 m</b>. Unterschied = 0,28 / 5,86 m = <b>0,04778 m ≈ 47,8 mm</b>. Für den Messfall B 6,14 ms ergibt sich dieselbe absolute Differenz t₀/m, solange beide Parameter konstant bleiben.</p>
+  <p><b>4.</b> Der Offset ist eine <b>Zeit</b> in Mess- und Triggerkette, keine negative räumliche Position. Eine ähnliche Steigung bedeutet ähnliche Zeitänderung je Meter; daraus folgt nicht, dass beide Systeme beim gleichen Nullpunkt starten.</p>
+  <p class="small"><b>Grenze:</b> Das Modell verwendet konstante Geschwindigkeit und konstante Verzögerung im geprüften Bereich. Es beschreibt keine wechselnden Temperaturen oder schlecht zugeordneten Echos.</p>
+ </article>
+ <article class="panel print-page">
+  <h2>Station 3 · Prüfpunkte und Geltungsbereich</h2>
+  <p><b>1.</b> Bei 1,40 m: Δt<sub>Modell</sub> = 5,84 · 1,40 + 0,12 = <b>8,296 ms</b>. r = 8,30 − 8,296 = <b>+0,004 ms</b>. |r| = 0,004 ≤ 0,06 ms; Echo stabil → <b>bestanden</b>.</p>
+  <p>Bei 1,60 m: Δt<sub>Modell</sub> = 5,84 · 1,60 + 0,12 = <b>9,464 ms</b>. r = 9,66 − 9,464 = <b>+0,196 ms</b>. |r| = 0,196 &gt; 0,06 ms; Echo schwach und Schwellwert schwankt → <b>nicht bestanden</b>. Schon jeder Grund für sich verhindert hier die Freigabe. Die 0,06 ms sind ein ausdrücklich erfundenes Unterrichtskriterium.</p>
+  <p><b>2.</b> Im vereinfachten Lernmodell A <b>0,20–1,40 m</b>, denn der Bereich ab dem ersten Referenzpunkt bis zum bestandenen Prüfpunkt 1,40 m wird per Lernregel zusammenhängend betrachtet. Der Punkt 1,60 m fällt durch. Für B <b>0,20–1,20 m</b>: Es gibt keine zusätzlichen Validierungsdaten. Eine über den Messbereich verlängerte Gerade ist nur eine Vorhersage. Ein stabiles Echo und ein kleines Residuum müssen beide vorliegen.</p>
+  <p><b>Gedankenversuch:</b> Selbst r = 0,02 ms bei 1,60 m würde bei schwachem Echo die UND-Bedingung nicht erfüllen.</p>
+  <p class="small"><b>Grenze:</b> Das Bestehen eines isolierten Validierungspunkts beweist keine lückenlose Genauigkeit im Intervall. Die Bereichsannahme ist hier didaktisch gesetzt und keine reale Sicherheitsfreigabe.</p>
+  <h2>Station 4 · Beispiel für KA-04</h2>
+  <p><b>Formeln und Bereiche:</b> A: Δt<sub>A</sub>(s) = (5,84 ms/m) · s + 0,12 ms für <b>0,20 ≤ s ≤ 1,40 m</b>. B: Δt<sub>B</sub>(s) = (5,86 ms/m) · s + 0,28 ms für <b>0,20 ≤ s ≤ 1,20 m</b>. Beim Umrechnen passende Offsetzeit abziehen und danach s = (Δt − t₀)/m anwenden.</p>
+  <p><b>Bedingungen:</b> Gleicher Sensoraufbau, dieselbe Triggerdefinition, ebene und ähnlich ausgerichtete Prüftafel, vergleichbare Luftbedingungen und klar erkennbares Echo. Die Werte gelten nur für den angenommenen Luftweg.</p>
+  <p><b>Begründeter Freigabesatz:</b> „In diesem erfundenen Lernfall verwende ich zwei getrennte Formeln. Aufbau A reicht nach dem bestandenen Prüfpunkt bis 1,40 m, B ohne weiteren Prüfpunkt nur bis 1,20 m. Ich ziehe vor jeder Abstandsrechnung den jeweiligen Offset ab. Für andere Bedingungen oder Entfernungen brauche ich neue Referenz- und Qualitätsprüfungen.“</p>
+  <p><b>Erweiterung:</b> (5,86 − 5,84) / 5,84 = 0,00342 ≈ <b>0,34 %</b>. Diese kleine Steigungsdifferenz ändert nichts an der Offsetdifferenz von ≈ 0,16 ms. <b>Selbstvergleich:</b> Eine abweichende Stelle mit Einheit korrigieren und begründen, z. B. „Ich hatte c = m gesetzt; ms/m ist jedoch keine Geschwindigkeit.“</p>
+ </article>
+</section>
+
+<section id="hints" class="view-section" aria-labelledby="hints-title">
+ <div class="screen-head"><h1 id="hints-title">Hilfenblatt zum getrennten Drucken</h1><p>Die gleichen Hilfen stehen digital direkt an den Aufgaben. Dieses Blatt kann neben das Stationsheft gelegt werden.</p></div>
+ <article class="panel print-page"><h2>Kurzhilfen für die vier Stationen</h2>
+  <h3>Station 1A · Sehen und Eintragen</h3><p>Schall läuft einmal hin und einmal zurück: 2s. Rechts auf der waagerechten Achse steht der gewählte Abstand s in m, nach oben die gemessene Zeit Δt in ms. Erster Punkt: A (0,20 | 1,29), B (0,20 | 1,45). A = × und B = ○.</p>
+  <h3>Station 1B · Zwei Punkte reichen für die Näherung</h3><p>m = (zweite Zeit − erste Zeit)/(zweiter Abstand − erster Abstand). Für A ist die Zeitdifferenz 5,84 ms und die Abstandsdifferenz 1,00 m. Mit t₀ = gemessene Zeit − m · Abstand findest du den Rest bei s = 0,20 m. „Der Rest ist eine Zeit der Messkette.“</p>
+  <h3>Station 2 · Einheit und Reihenfolge</h3><p>1 ms = 0,001 s; 5,84 ms/m = 0,00584 s/m. c = 2/m. Zur Wegberechnung mit ms und ms/m: erst den passenden Offset von Δt abziehen, dann durch die passende Steigung teilen. Für B: 4,97 − 0,28 = 4,69 ms. 1 m = 1000 mm.</p>
+  <h3>Station 3 · Zwei Prüfkästchen</h3><p>1,40 m → Modellwert 8,296 ms. r = gemessen − Modell. Für jeden Prüfpunkt getrennt prüfen: □ |r| ≤ 0,06 ms? □ Echo stabil? Nur zweimal Ja ergibt „bestanden“. Bei B sind keine Prüfpunkte über 1,20 m vorhanden.</p>
+  <h3>Station 4 · Satzgerüst</h3><p>„Für A gilt die Formel … im Bereich …, weil … . Für B gilt … nur bis …, weil … . Der jeweilige Zeitoffset muss zuerst … . Die Aussage setzt … voraus.“</p>
+  <p class="note">Hilfen und Lösungen sind offen verfügbar. Schreibe zunächst deinen eigenen Ansatz und kennzeichne danach die verbesserte Zeile.</p>
+ </article>
+</section>
+
+<section id="sources" class="view-section" aria-labelledby="sources-title">
+ <div class="screen-head"><h1 id="sources-title">Glossar, Annahmen und Quellen</h1><p>Kurze Begriffe und die fachliche Grenze des Lernmodells.</p></div>
+ <article class="panel print-page"><h2>Glossar</h2>
+  <dl class="glossary"><div><dt>Impuls</dt><dd>Kurzes ausgesendetes Ultraschallsignal; das Bild zeigt seine Bewegung nur schematisch.</dd></div><div><dt>Echo</dt><dd>An einer Grenze reflektierter Teil des Signals, der zum Sensor zurückkehrt.</dd></div><div><dt>Referenzabstand s</dt><dd>Bekannter einfacher Abstand zwischen Sensor und ebener Tafel, in m.</dd></div><div><dt>Angezeigte Zeit Δt</dt><dd>Zeit vom Auslösen bis zum angezeigten Echo, hier in ms, einschließlich Systemoffset.</dd></div><div><dt>Steigung m</dt><dd>Änderung der angezeigten Zeit pro Meter: Einheit ms/m; im Doppelwegmodell m = 2/c.</dd></div><div><dt>Schallgeschwindigkeit c</dt><dd>Geschwindigkeit der Wellenausbreitung im angenommenen Medium Luft: m/s.</dd></div><div><dt>Offset t₀</dt><dd>Im Modell fast konstante zusätzliche Anzeigezeit der Messkette, in ms.</dd></div><div><dt>Residuum r</dt><dd>Gemessene Zeit minus Modellzeit am selben Abstand, in ms; kann positiv oder negativ sein.</dd></div><div><dt>Validierungspunkt</dt><dd>Zusätzlicher Prüfpunkt außerhalb der zur Geradenbestimmung verwendeten Referenzen.</dd></div><div><dt>Kalibrierbereich</dt><dd>Hier: der Bereich der sechs Referenzabstände; die Lernregel kann bei A einen geprüften Punkt ergänzen.</dd></div></dl>
+  <h2>Annahmen und fachliche Abgrenzung</h2><ul><li>Das Beispiel ist erfunden: Luftultraschall-Sensor mit ebener Prüftafel, einfacher Abstand s, akustischer Doppelweg 2s; zwei Aufbauten mit ähnlichen Geschwindigkeiten und unterschiedlichen Zeitverzögerungen. Die Frequenz und ein realer Sensortyp werden nicht festgelegt.</li><li>Die Geschwindigkeiten ≈ 341–342 m/s passen zu Luft nahe Raumtemperatur. Sie dürften nicht als Schallgeschwindigkeit in Stahl oder als Justierwert eines Kontaktprüfkopfs verwendet werden.</li><li>Das Kriterium |r| ≤ 0,06 ms plus stabiles Echo, die Intervallfreigabe und KA-04 sind didaktische Festlegungen ohne normativen Status. Es gibt nach Angabe der Lehrkraft keine zusätzliche verbindliche Vorgabe. Keine Messunsicherheitsanalyse, reale Gerätezertifizierung oder Zeichnungsnorm wird beansprucht.</li><li>Die Geraden stammen aus den ersten und letzten Referenzpunkten; gerundete t₀-Werte 0,12 und 0,28 ms werden konsistent für spätere Rechnungen verwendet. Die Animation legt die Systemzeit zur Darstellung hinter die akustische Rückkehr; im realen Aufbau kann die Verzögerung anders verteilt sein.</li></ul>
+  <h2>Fachquellen (Links optional, die Datei funktioniert offline)</h2><ul>
+   <li>OpenStax, <a href="https://openstax.org/books/physics/pages/a-reference-tables">Physics, Reference Tables, A16</a>: Schallgeschwindigkeit in Luft bei 20 °C etwa 343 m/s; Vergleichswert für die Einordnung.</li>
+   <li>Evident Scientific, <a href="https://ims.evidentscientific.com/de/learn/ndt-tutorials/flaw-detection/ultrasound">Was ist Ultraschall?</a>: Schallweg, Reflexion und Abhängigkeit der Schallgeschwindigkeit vom Medium; Megahertz-Ultraschall in Luft ist für klassische Werkstoffprüfung ungeeignet.</li>
+   <li>Evident Scientific, <a href="https://ims.evidentscientific.com/en/learn/ndt-tutorials/flaw-detection/calibration-concepts">Calibration Concepts</a>: Geschwindigkeit und Nullpunktverschiebung sind bei Laufzeit-Abstand-Messungen getrennt zu berücksichtigen; reale Geräte erfordern passende Referenzen und Prüfbedingungen.</li>
+   <li>Fachliche Angaben und Ausgangsmessreihen: die beigefügte HTML-Vorlage „13NF · Physiktechnik · Woche 4 · Kalibriergerade und Zeitversatz“; Unterrichtskontext gemäß dieser Vorlage und Rückmeldung zur Lerngruppe.</li>
+  </ul>
+ </article>
+</section>
+</main>
+<script>
+(() => {
+ 'use strict';
+ const $ = id => document.getElementById(id);
+ const fmt = (x,n=2) => Number(x).toFixed(n).replace('.',',');
+ const A = {m:5.84,t0:0.12,times:[1.29,2.46,3.62,4.79,5.96,7.13]};
+ const B = {m:5.86,t0:0.28,times:[1.45,2.62,3.80,4.97,6.14,7.31]};
+ const ref = [0.2,0.4,0.6,0.8,1.0,1.2];
+ function showView(name){
+   document.body.dataset.view=name;
+   document.querySelectorAll('[data-show]').forEach(b=>b.setAttribute('aria-current',String(b.dataset.show===name)));
+   window.scrollTo({top:0,behavior:'auto'});
+ }
+ document.querySelectorAll('[data-show]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.show)));
+ document.querySelectorAll('[data-link-view]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();showView(a.dataset.linkView);const target=document.querySelector(a.getAttribute('href'));if(target)target.scrollIntoView({block:'start'});}));
+ document.querySelectorAll('[data-print-part]').forEach(b=>b.addEventListener('click',()=>{document.body.dataset.print=b.dataset.printPart;window.print();}));
+ window.addEventListener('afterprint',()=>{document.body.dataset.print='student';});
+ const svgNS='http://www.w3.org/2000/svg';
+ const mk=(tag,attrs)=>{const el=document.createElementNS(svgNS,tag);Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,String(v)));return el;};
+
+ // Wegmodell: Zeit t durchläuft akustische Hin- und Rückzeit; t0 wird danach gezeigt.
+ let pulseTimer=null;
+ const stopPulse=()=>{if(pulseTimer){clearInterval(pulseTimer);pulseTimer=null;}$('pulsePlay').textContent='Impuls starten';};
+ function drawPulse(){
+   const d=+$('pulseDistance').value, setup=$('pulseSetup').value, model=setup==='A'?A:B;
+   const acoustic=model.m*d, total=acoustic+model.t0, progress=+$('pulseTime').value/100;
+   const now=total*progress, endX=120+450*d/1.6;
+   $('pulseDistanceText').textContent=fmt(d)+' m';$('pulseTimeText').textContent=fmt(now)+' ms';
+   $('pulsePath').setAttribute('x2',String(endX));$('pulseTarget').setAttribute('x',String(endX));$('pulseTargetText').setAttribute('x',String(endX+8));
+   let state, x=120, visible=true;
+   if(now<=acoustic/2 && now<total){x=120+(endX-120)*(now/(acoustic/2));state=now===0?'Sendeimpuls am Sensor.':'Impuls auf dem Hinweg zur Tafel.';}
+   else if(now<acoustic){x=endX-(endX-120)*((now-acoustic/2)/(acoustic/2));state='Echo auf dem Rückweg zum Sensor.';}
+   else {visible=false;state=now>=total?'Echo wird angezeigt.':'Echo zurück; die zusätzliche Systemzeit vergeht bis zur Anzeige.';}
+   $('pulseDot').setAttribute('cx',String(x));$('pulseDot').style.visibility=visible?'visible':'hidden';
+   const acousticPercent=100*acoustic/total;
+   $('acousticBar').style.width=acousticPercent+'%';$('electronicBar').style.width=(100-acousticPercent)+'%';$('timeCursor').style.left=(100*progress)+'%';
+   $('pulseReadout').textContent=`${state} ${fmt(now)} ms seit Auslösung. Luftweg hin und zurück: ${fmt(acoustic)} ms; Systemzeit ${fmt(model.t0)} ms; Anzeige insgesamt ${fmt(total)} ms. Schallgeschwindigkeit im Modell ≈ ${fmt(2000/model.m,0)} m/s.`;
+ }
+ $('pulseSetup').addEventListener('change',()=>{stopPulse();$('pulseTime').value='0';drawPulse();});
+ $('pulseDistance').addEventListener('input',()=>{stopPulse();$('pulseTime').value='0';drawPulse();});
+ $('pulseTime').addEventListener('input',()=>{stopPulse();drawPulse();});
+ $('pulsePlay').addEventListener('click',()=>{if(pulseTimer){stopPulse();return;}if(+$('pulseTime').value>=100)$('pulseTime').value='0';$('pulsePlay').textContent='Pause';pulseTimer=setInterval(()=>{let next=+$('pulseTime').value+2;if(next>=100){next=100;stopPulse();}$('pulseTime').value=String(next);drawPulse();},75);});
+ $('pulseReset').addEventListener('click',()=>{stopPulse();$('pulseSetup').value='B';$('pulseDistance').value='0.8';$('pulseTime').value='0';drawPulse();});
+
+ // Diagramm: zwei Messreihen, veränderbare Modellgerade und gestrichelte Extrapolation.
+ const graphX=s=>75+500*s/1.6,graphY=t=>285-26*t;
+ function drawPoints(){
+   const g=$('labPoints');
+   for(const [key,model] of [['A',A],['B',B]])ref.forEach((s,i)=>{
+     const x=graphX(s),y=graphY(model.times[i]);
+     if(key==='A')g.appendChild(mk('path',{d:`M${x-5} ${y-5} L${x+5} ${y+5} M${x+5} ${y-5} L${x-5} ${y+5}`,stroke:'#075f85','stroke-width':2.5,fill:'none'}));
+     else g.appendChild(mk('circle',{cx:x,cy:y,r:5.5,stroke:'#a03d35','stroke-width':2.5,fill:'white'}));
+   });
+ }
+ function drawLine(){
+   const setup=$('lineSetup').value,m=+$('lineSlope').value,t0=+$('lineOffset').value;
+   $('lineSlopeText').textContent=fmt(m)+' ms/m';$('lineOffsetText').textContent=fmt(t0)+' ms';
+   const p=s=>`${graphX(s)} ${graphY(m*s+t0)}`;
+   $('labLine').setAttribute('d',`M${p(0)} L${p(1.2)}`);
+   $('labBeyond').setAttribute('d',`M${p(1.2)} L${p(1.6)}`);
+   $('labLine').setAttribute('stroke',setup==='A'?'#075f85':'#a03d35');$('labBeyond').setAttribute('stroke',setup==='A'?'#075f85':'#a03d35');
+   $('lineReadout').textContent=`Aufbau ${setup}: Deine Gerade Δt = ${fmt(m)} ms/m · s + ${fmt(t0)} ms. Bei 1,00 m sagt sie ${fmt(m+t0)} ms voraus. Ein größerer Offset verschiebt die ganze Gerade nach oben; eine größere Steigung vergrößert den Anstieg je Meter.`;
+ }
+ $('lineSetup').addEventListener('change',()=>{const m=$('lineSetup').value==='A'?A:B;$('lineSlope').value=String(m.m);$('lineOffset').value=String(m.t0);drawLine();});
+ ['lineSlope','lineOffset'].forEach(id=>$(id).addEventListener('input',drawLine));
+ $('lineReset').addEventListener('click',()=>{const m=$('lineSetup').value==='A'?A:B;$('lineSlope').value=String(m.m);$('lineOffset').value=String(m.t0);drawLine();});
+
+ const cases={B497:{setup:'B',dt:4.97},B614:{setup:'B',dt:6.14},A479:{setup:'A',dt:4.79}};
+ function drawOffset(){
+   const choice=cases[$('offsetCase').value],m=choice.setup==='A'?A:B,t0=+$('offsetSlider').value;
+   const corr=(choice.dt-t0)/m.m,naive=choice.dt/m.m,diff=naive-corr;
+   $('offsetSliderText').textContent=fmt(t0)+' ms';$('correctBar').style.width=(Math.min(100,corr/1.2*100))+'%';$('naiveBar').style.width=(Math.min(100,naive/1.2*100))+'%';
+   $('correctValue').textContent=fmt(corr,3)+' m';$('naiveValue').textContent=fmt(naive,3)+' m';
+   $('offsetReadout').textContent=`${choice.setup}: (${fmt(choice.dt)} − ${fmt(t0)}) ms / ${fmt(m.m)} ms/m = ${fmt(corr,3)} m korrigiert. Ohne Offset: ${fmt(naive,3)} m. Systematischer Mehrwert ohne Korrektur: ${fmt(diff*1000,1)} mm.`;
+ }
+ $('offsetCase').addEventListener('change',()=>{const choice=cases[$('offsetCase').value];$('offsetSlider').value=String((choice.setup==='A'?A:B).t0);drawOffset();});
+ $('offsetSlider').addEventListener('input',drawOffset);
+ $('offsetReset').addEventListener('click',()=>{const choice=cases[$('offsetCase').value];$('offsetSlider').value=String((choice.setup==='A'?A:B).t0);drawOffset();});
+
+ const resData={'140':{s:1.4,t:8.30,echo:'stable',min:8.15,max:8.55},'160':{s:1.6,t:9.66,echo:'weak',min:9.30,max:9.80}};
+ function resetResidual(){const point=resData[$('resCase').value];$('resTime').min=String(point.min);$('resTime').max=String(point.max);$('resTime').value=String(point.t);$('resEcho').value=point.echo;drawResidual();}
+ function drawResidual(){
+   const point=resData[$('resCase').value],t=+$('resTime').value,mod=A.m*point.s+A.t0,r=t-mod,okayNum=Math.abs(r)<=0.06000001,okayEcho=$('resEcho').value==='stable';
+   $('resTimeText').textContent=fmt(t)+' ms';$('resMarker').setAttribute('cx',String(Math.max(60,Math.min(560,310+1000*r))));$('resMarker').setAttribute('fill',okayNum?'#17644d':'#a03d35');
+   $('resReadout').textContent=`Bei ${fmt(point.s)} m: Modell ${fmt(mod,3)} ms; gemessen ${fmt(t)} ms; Residuum ${r>=0?'+':''}${fmt(r,3)} ms. Betrag ${okayNum?'innerhalb':'außerhalb'} 0,06 ms; Echo ${okayEcho?'stabil':'schwach'}. Lernregel insgesamt: ${okayNum&&okayEcho?'bestanden':'nicht bestanden'}. ${t!==point.t||$('resEcho').value!==point.echo?'Achtung: geändertes Gedankenexperiment.':'Originaler Prüfpunkt.'}`;
+ }
+ $('resCase').addEventListener('change',resetResidual);$('resTime').addEventListener('input',drawResidual);$('resEcho').addEventListener('change',drawResidual);$('resReset').addEventListener('click',resetResidual);
+ drawPulse();drawPoints();drawLine();drawOffset();resetResidual();
+})();
+</script>
+</body>
+</html>
