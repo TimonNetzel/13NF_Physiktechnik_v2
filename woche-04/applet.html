@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#16233a">
+<title>Simulation</title>
+<style>
+:root{
+  --bg:#eef1f5; --card:#ffffff; --ink:#15202e; --muted:#5b6778; --line:#d6dce4;
+  --acc:#e4572e; --acc-d:#b83f1c; --blue:#1f6f8b; --ok:#23915a; --okbg:#e3f5ea; --bad:#cf3b3b; --badbg:#fde8e8;
+  --gold:#f0b400; --nav:#16233a; --hint:#fff6d6; --hintb:#eed27a;
+  --scr:#07140f; --trace:#7dffa6; --grid:rgba(125,255,166,.16);
+  --r:16px; --sh:0 2px 10px rgba(20,32,46,.08);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:17px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;min-height:100vh;min-height:100dvh;-webkit-text-size-adjust:100%}
+button,input,select{font:inherit;color:inherit}
+button{touch-action:manipulation;cursor:pointer;user-select:none;-webkit-user-select:none}
+.hidden{display:none!important}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px}
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:var(--nav);color:#fff;padding:calc(env(safe-area-inset-top) + 8px) 0 8px}
+.top .wrap{display:flex;align-items:center;gap:8px}
+.top h1{font-size:17px;margin:0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{background:rgba(255,255,255,.12);border:0;border-radius:999px;padding:7px 12px;color:#fff;font-weight:600;font-size:15px;min-height:40px;display:inline-flex;align-items:center;gap:4px}
+.pill.gold{background:var(--gold);color:#241a00}
+.iconbtn{min-width:44px;justify-content:center}
+.dots{display:flex;gap:5px;padding:8px 0 2px;flex-wrap:wrap}
+.dots i{height:6px;flex:1;min-width:10px;border-radius:3px;background:rgba(255,255,255,.2)}
+.dots i.on{background:var(--gold)} .dots i.cur{background:#fff}
+/* home */
+.hero{background:linear-gradient(160deg,#16233a 0%,#24406a 100%);color:#fff;padding:22px 0 26px}
+.hero h2{margin:0 0 6px;font-size:26px;line-height:1.2}
+.hero p{margin:0;opacity:.9}
+.stats{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.stat{background:rgba(255,255,255,.1);border-radius:12px;padding:8px 12px;font-size:15px}
+.stat b{font-size:20px;display:block}
+.levels{display:grid;gap:12px;margin:18px auto 28px}
+@media(min-width:700px){.levels{grid-template-columns:1fr 1fr}}
+.lv{display:flex;gap:14px;align-items:center;background:var(--card);border:2px solid transparent;border-radius:var(--r);padding:14px;box-shadow:var(--sh);text-align:left;width:100%}
+.lv:disabled{opacity:.5;cursor:default}
+.lv.next{border-color:var(--acc)}
+.lv .num{flex:0 0 48px;height:48px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:20px;background:#e8edf3;color:var(--nav)}
+.lv.done .num{background:var(--ok);color:#fff}
+.lv.next .num{background:var(--acc);color:#fff}
+.lv .tx{flex:1;min-width:0}
+.lv .tag{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--blue);font-weight:700}
+.lv .tt{font-weight:700;font-size:17px}
+.lv .sub{font-size:14px;color:var(--muted)}
+.lv .st{font-size:22px}
+.badges{display:flex;flex-wrap:wrap;gap:8px}
+.bdg{background:#fff;border-radius:999px;padding:6px 12px;font-size:14px;box-shadow:var(--sh)}
+.bdg.off{opacity:.35;filter:grayscale(1)}
+/* step */
+.step{padding:16px 0 120px}
+.card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:14px}
+.card h3{margin:0 0 8px;font-size:20px;line-height:1.25}
+.kicker{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--acc);margin-bottom:2px}
+.task{background:#eaf4f8;border-left:5px solid var(--blue);border-radius:10px;padding:10px 12px;margin:10px 0}
+.task b:first-child{color:var(--blue)}
+.story{display:flex;gap:12px;align-items:flex-start}
+.ava{flex:0 0 54px;height:54px;border-radius:50%;background:#ffe2d6;display:grid;place-items:center;font-size:30px}
+.bubble{background:#fff;border-radius:4px 16px 16px 16px;padding:12px 14px;box-shadow:var(--sh);flex:1}
+.bubble .who{font-weight:700;font-size:14px;color:var(--acc-d)}
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:15;background:rgba(238,241,245,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:10px 0 calc(10px + env(safe-area-inset-bottom))}
+.foot .wrap{display:flex;gap:10px}
+.btn{border:0;border-radius:14px;min-height:52px;padding:10px 18px;font-weight:700;background:var(--acc);color:#fff;box-shadow:0 2px 0 var(--acc-d)}
+.btn:disabled{background:#b9c1cb;box-shadow:none;cursor:default}
+.btn.sec{background:#fff;color:var(--ink);box-shadow:0 0 0 2px var(--line) inset}
+.btn.blue{background:var(--blue);box-shadow:0 2px 0 #134a5d}
+.btn.wide{flex:1}
+.btn.small{min-height:44px;padding:8px 14px;font-size:15px}
+.hintbox{background:var(--hint);border:2px solid var(--hintb);border-radius:12px;padding:10px 12px;margin:8px 0;font-size:16px}
+/* mcq */
+.mcq .q{font-weight:700;margin:4px 0 10px}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 14px;min-height:54px;font-size:16px}
+.opt.ok{border-color:var(--ok);background:var(--okbg)}
+.opt.bad{border-color:var(--bad);background:var(--badbg);opacity:.75}
+.fb{margin-top:10px;border-radius:12px;padding:0;font-size:16px}
+.fb.ok{background:var(--okbg);padding:10px 12px;border:2px solid #9fd8b8}
+.fb.bad{background:var(--badbg);padding:10px 12px;border:2px solid #f0b0b0}
+.fb.info{background:#eaf4f8;padding:10px 12px;border:2px solid #b7d9e6}
+.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+/* pick */
+.grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.tile{background:#fff;border:3px solid var(--line);border-radius:14px;padding:10px 6px;text-align:center;font-size:14px;font-weight:600;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.tile svg{width:56px;height:56px}
+.tile.sel{border-color:var(--blue);background:#e6f3f8}
+.tile.good{border-color:var(--ok);background:var(--okbg)}
+.tile.wrong{border-color:var(--bad);background:var(--badbg)}
+/* place / seq */
+.fig{background:#f7f9fb;border-radius:12px;padding:8px;margin:8px 0}
+.fig svg{width:100%;height:auto;display:block}
+.slots{display:grid;gap:8px;margin:10px 0}
+.slot{display:flex;align-items:center;gap:10px;background:#fff;border:2px dashed #9fb0c2;border-radius:12px;padding:8px 10px;min-height:50px;text-align:left;width:100%}
+.slot .n{flex:0 0 30px;height:30px;border-radius:50%;background:var(--nav);color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px}
+.slot.filled{border-style:solid;border-color:var(--ok);background:var(--okbg)}
+.slot.act{border-color:var(--blue);background:#e6f3f8}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{background:#fff;border:2px solid var(--line);border-radius:999px;padding:9px 14px;min-height:46px;font-weight:600;font-size:15px}
+.chip.sel{border-color:var(--blue);background:var(--blue);color:#fff}
+.seqlist{display:grid;gap:8px}
+.seqitem{display:flex;gap:10px;align-items:center;text-align:left;background:#fff;border:2px solid var(--line);border-radius:12px;padding:10px 12px;min-height:52px;width:100%;font-size:16px}
+.seqitem .n{flex:0 0 30px;height:30px;border-radius:50%;background:#e8edf3;display:grid;place-items:center;font-weight:800}
+.seqitem.done{border-color:var(--ok);background:var(--okbg)} .seqitem.done .n{background:var(--ok);color:#fff}
+/* calc */
+.calc{display:grid;gap:10px}
+.crow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;background:#f7f9fb;border-radius:12px;padding:10px 12px;font-size:17px}
+.crow.given{background:#eef2f6;color:#334}
+.crow input{width:130px;min-height:46px;border:2px solid #9fb0c2;border-radius:10px;padding:6px 10px;font-size:18px;font-weight:700;text-align:right;background:#fff}
+.crow input.okI{border-color:var(--ok);background:var(--okbg)}
+.crow input.badI{border-color:var(--bad);background:var(--badbg)}
+.crow .u{font-weight:600;color:var(--muted)}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.92em;margin:0 3px}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 3px}
+.tip{font-size:14px;color:var(--muted)}
+/* scan */
+.scanwrap{background:#1c2733;border-radius:14px;padding:8px;margin:10px 0;color:#cfe}
+.scanhead{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 4px 6px;font-size:13px}
+.scanhead .t{font-weight:700;letter-spacing:.04em}
+canvas.scan{display:block;width:100%;height:auto;aspect-ratio:16/8.5;border-radius:8px;background:var(--scr);touch-action:manipulation}
+.seg{display:inline-flex;background:#2d3b4a;border-radius:10px;padding:3px}
+.seg button{border:0;background:transparent;color:#cfe;padding:6px 12px;border-radius:8px;min-height:36px;font-weight:700;font-size:14px}
+.seg button.on{background:var(--trace);color:#062}
+.readout{display:flex;flex-wrap:wrap;gap:6px 14px;padding:6px 4px 0;font-size:14px;font-variant-numeric:tabular-nums}
+.readout b{color:var(--trace)}
+/* controls */
+.ctrls{display:grid;gap:10px;margin-top:6px}
+.ctl{background:#f7f9fb;border-radius:12px;padding:10px 12px}
+.ctl .lab{display:flex;justify-content:space-between;font-weight:700;font-size:15px;margin-bottom:6px}
+.ctl .lab span{font-variant-numeric:tabular-nums;color:var(--blue)}
+.ctl .row{display:flex;gap:8px;align-items:center}
+.ctl input[type=range]{flex:1;min-width:0;height:36px;accent-color:var(--acc)}
+.btns4{display:grid!important;grid-template-columns:repeat(4,1fr);margin-top:6px}
+.sbtn{min-width:52px;min-height:46px;border:0;border-radius:12px;background:var(--nav);color:#fff;font-weight:800;font-size:16px}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+.btnrow .btn{flex:1;min-width:140px}
+.check{list-style:none;padding:0;margin:8px 0;display:grid;gap:4px;font-size:15px}
+.check li:before{content:"⬜ "} .check li.ok:before{content:"✅ "}
+/* scene */
+.scene{width:100%;max-height:200px;display:block}
+.wv{animation:wv 1.1s linear infinite;opacity:0}
+.wv:nth-child(2){animation-delay:.37s}.wv:nth-child(3){animation-delay:.74s}
+@keyframes wv{0%{transform:translateY(0);opacity:.9}100%{transform:translateY(62px);opacity:0}}
+.weak .wv{animation-name:wvw}
+@keyframes wvw{0%{transform:translateY(0);opacity:.25}30%{opacity:0}100%{transform:translateY(20px);opacity:0}}
+/* device (Gerätemenü im Hardware-Look) */
+.dev{background:#c8232c;border-radius:18px;padding:12px;box-shadow:0 4px 0 #8d141b}
+.dev .scr{background:#0b1a14;color:#bfffd3;border-radius:8px;padding:10px 12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:15px}
+.dev .scr .mrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px dashed rgba(191,255,211,.25)}
+.dev .scr .mrow:last-child{border:0}
+.dev .brand{color:#fff;font-weight:800;font-size:12px;letter-spacing:.12em;margin-top:8px;opacity:.9}
+.dev .keys{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.dev .keys button{flex:1 0 64px;min-height:46px;border:0;border-radius:10px;background:#f0f0f0;color:#222;font-weight:800}
+.dev .arrow{min-width:44px;min-height:40px;border:0;border-radius:8px;background:#2a4a3a;color:#bfffd3;font-weight:800}
+/* table */
+table.tb{border-collapse:collapse;width:100%;font-size:15px}
+.tb th,.tb td{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left}
+.tb th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+/* decide */
+.dcard{border:2px solid var(--line);border-radius:14px;padding:10px;margin:10px 0;background:#fff}
+.dcard.ok{border-color:var(--ok);background:var(--okbg)}
+.dcard h4{margin:0 0 4px}
+.dbtns{display:grid;grid-template-columns:1fr;gap:8px}
+@media(min-width:560px){.dbtns{grid-template-columns:1fr 1fr 1fr}}
+.dbtns button{min-height:50px;border-radius:12px;border:2px solid var(--line);background:#fff;font-weight:700;font-size:15px}
+.dbtns button.bad{border-color:var(--bad);background:var(--badbg)} .dbtns button.ok{border-color:var(--ok);background:var(--okbg)}
+/* cloze */
+.cloze p{margin:0 0 12px;line-height:2}
+.cloze select{min-height:44px;border:2px solid #9fb0c2;border-radius:10px;padding:4px 8px;max-width:100%;background:#fff;font-weight:600;font-size:16px}
+.cloze select.okI{border-color:var(--ok);background:var(--okbg)} .cloze select.badI{border-color:var(--bad);background:var(--badbg)}
+.doc{border:2px solid var(--nav);border-radius:12px;padding:16px;position:relative;background:#fffdf7;margin-top:12px}
+.doc h4{margin:0 0 8px;font-size:19px}
+.doc .stamp{position:absolute;right:12px;top:10px;border:3px solid var(--ok);color:var(--ok);font-weight:900;padding:4px 10px;border-radius:8px;transform:rotate(-8deg);letter-spacing:.08em}
+.doc dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:15px}
+.doc dt{font-weight:700;color:var(--muted)}
+.doc dd{margin:0}
+/* sheet */
+.shade{position:fixed;inset:0;background:rgba(10,18,30,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:88vh;overflow:auto;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
+.sheet h3{margin:0 0 10px}
+@media(min-width:700px){.shade{align-items:center}.sheet{border-radius:20px}}
+.calcdisp{background:#0b1a14;color:#bfffd3;font:600 24px/1.2 ui-monospace,Menlo,monospace;border-radius:12px;padding:12px;text-align:right;min-height:58px;word-break:break-all}
+.calckeys{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.calckeys button{min-height:54px;border:0;border-radius:12px;background:#e8edf3;font-size:20px;font-weight:700}
+.calckeys button.op{background:#d5e6ee}.calckeys button.eq{grid-column:span 4;background:var(--acc);color:#fff}
+.calckeys button.ex{font-size:16px}
+.term{border-bottom:2px dotted var(--blue);color:var(--blue);font-weight:600;cursor:pointer}
+.term:after{content:" ⓘ";font-size:.75em}
+/* overlay */
+.win{text-align:center;padding:10px 0}
+.win .big{font-size:64px;line-height:1}
+.float{position:fixed;z-index:60;font-weight:900;color:var(--gold);font-size:26px;text-shadow:0 1px 0 #7a5a00;pointer-events:none;animation:up 1.1s ease-out forwards}
+@keyframes up{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-70px)}}
+.conf{position:fixed;top:-10px;width:10px;height:14px;z-index:70;pointer-events:none;animation:fall 1.8s linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(540deg)}}
+/* cert */
+.cert{background:linear-gradient(145deg,#16233a,#2a4b7a);color:#fff;border-radius:22px;padding:22px;box-shadow:0 8px 30px rgba(0,0,0,.25);position:relative;overflow:hidden}
+.cert:after{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:rgba(240,180,0,.18)}
+.cert h2{margin:0;font-size:24px}
+.cert .nm{font-size:30px;font-weight:900;margin:14px 0 2px;color:var(--gold)}
+.cert .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.cert .row div{background:rgba(255,255,255,.12);border-radius:12px;padding:8px 12px}
+.stars{font-size:30px;letter-spacing:4px;margin-top:8px;color:var(--gold)}
+.bars{display:grid;gap:10px;margin:10px 0}
+.bar{background:#e8edf3;border-radius:10px;height:26px;position:relative;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--blue);border-radius:10px}
+.bar span{position:absolute;left:10px;top:3px;font-size:14px;font-weight:700}
+small.m{color:var(--muted)}
+input.name{width:100%;min-height:52px;border:2px solid #9fb0c2;border-radius:12px;padding:8px 12px;font-size:18px}
+@media (prefers-color-scheme: dark){
+ :root:not([data-theme="light"]){--bg:#0f1621;--card:#1a2433;--ink:#e8eef6;--muted:#9fb0c2;--line:#2f3d50;--okbg:#153a28;--badbg:#3d1c1c;--hint:#3a3317;--hintb:#6d5d1d}
+ :root:not([data-theme="light"]) .opt,:root:not([data-theme="light"]) .tile,:root:not([data-theme="light"]) .slot,:root:not([data-theme="light"]) .chip,:root:not([data-theme="light"]) .seqitem,:root:not([data-theme="light"]) .dcard,:root:not([data-theme="light"]) .dbtns button,:root:not([data-theme="light"]) .cloze select,:root:not([data-theme="light"]) .crow input,:root:not([data-theme="light"]) .bubble,:root:not([data-theme="light"]) .sheet,:root:not([data-theme="light"]) .bdg,:root:not([data-theme="light"]) input.name{background:#1f2b3c}
+ :root:not([data-theme="light"]) .crow,:root:not([data-theme="light"]) .ctl,:root:not([data-theme="light"]) .fig{background:#223044}
+ :root:not([data-theme="light"]) .fig{background:#e9eef4}
+ :root:not([data-theme="light"]) .task{background:#16303c}
+ :root:not([data-theme="light"]) .fb.info{background:#16303c;border-color:#24536a}
+ :root:not([data-theme="light"]) .foot{background:rgba(15,22,33,.94)}
+ :root:not([data-theme="light"]) .btn.sec{background:#1f2b3c}
+ :root:not([data-theme="light"]) .doc{background:#1f2b3c}
+ :root:not([data-theme="light"]) .calckeys button{background:#2a3a50}
+ :root:not([data-theme="light"]) .calckeys button.op{background:#24485a}
+ :root:not([data-theme="light"]) .lv .num{background:#2a3a50;color:#e8eef6}
+ :root:not([data-theme="light"]) .bar{background:#2a3a50}
+ :root:not([data-theme="light"]) .tile.sel,:root:not([data-theme="light"]) .slot.act{background:#16303c}
+}
+.sol h4{margin:16px 0 6px;font-size:17px;border-bottom:2px solid var(--line);padding-bottom:4px}
+.sol ol{margin:0;padding-left:22px}.sol li{margin:4px 0}
+.sol .a{color:var(--ok);font-weight:700}
+@media print{.top,.foot,.shade .btn{display:none!important}.shade{position:static;background:none}.sheet{max-height:none;box-shadow:none}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <button class="pill iconbtn" id="bHome" aria-label="Übersicht">🏠</button>
+  <h1 id="tTitle"></h1>
+  <button class="pill iconbtn" id="bCalc" aria-label="Taschenrechner">🧮</button>
+  <button class="pill iconbtn" id="bProto" aria-label="Messprotokoll">📋</button>
+  <span class="pill gold" id="tPts">⭐ 0</span>
+</div><div class="wrap"><div class="dots" id="dots"></div></div></header>
+<main id="home"></main>
+<main id="level" class="hidden"><div class="wrap step" id="stepBox"></div></main>
+<main id="certView" class="hidden"></main>
+<footer class="foot hidden" id="foot"><div class="wrap">
+  <button class="btn sec" id="bHint">💡 Hilfe</button>
+  <button class="btn wide" id="bNext" disabled>Weiter ▶</button>
+</div></footer>
+<script>
+"use strict";
+/* ===================== ENGINE (unverändert übernehmen) ===================== */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const fmt=(x,d=1)=>Number(x).toFixed(d).replace('.',',');
+const rand=(a,b)=>a+Math.random()*(b-a);
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function parseNum(s){
+  if(s==null)return NaN; s=String(s).trim().replace(/\s/g,'').replace(/[−–]/g,'-'); if(!s)return NaN;
+  s=s.replace(/·10\^?/g,'e').replace(/x10\^?/gi,'e');
+  if(s.includes(',')){s=s.replace(/\./g,'').replace(',','.')}
+  else if((s.match(/\./g)||[]).length>1){s=s.replace(/\./g,'')}
+  else if(/^\d{1,3}\.\d{3}$/.test(s)&&Number(s.replace('.',''))>=1000){return Number(s.replace('.',''))}
+  return Number(s);
+}
+function shake(el){if(!el)return;el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+const stripTags=h=>String(typeof h==='function'?h():h).replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+
+/* ---------- State ---------- */
+const S0={name:'',points:0,done:{},awarded:{},stepIdx:{},hints:0,proto:{},quiz:{},teacher:false,sim:{}};
+let state;
+function load(){try{const s=JSON.parse(localStorage.getItem(CONFIG.key));if(s)return Object.assign(JSON.parse(JSON.stringify(S0)),s)}catch(e){}return JSON.parse(JSON.stringify(S0))}
+function save(){try{localStorage.setItem(CONFIG.key,JSON.stringify(state))}catch(e){}}
+
+/* ---------- Glossar / Wort-Hilfe ---------- */
+const T=(k,txt)=>`<span class="term" data-g="${k}">${txt||(GL[k]?GL[k][0]:k)}</span>`;
+document.addEventListener('click',e=>{const t=e.target.closest('.term');if(t&&GL[t.dataset.g]){const g=GL[t.dataset.g];sheet(`<h3>📘 ${g[0]}</h3><p>${g[1]}</p><button class="btn wide" style="width:100%" data-close>Verstanden</button>`)}});
+
+/* ---------- Bottom-Sheet ---------- */
+function sheet(html,onOpen){
+  const sh=document.createElement('div');sh.className='shade';
+  sh.innerHTML=`<div class="sheet" role="dialog">${html}</div>`;
+  sh.addEventListener('click',e=>{if(e.target===sh||e.target.closest('[data-close]'))sh.remove()});
+  document.body.appendChild(sh); onOpen&&onOpen(sh.firstChild,()=>sh.remove()); return sh;
+}
+
+/* ---------- Taschenrechner ---------- */
+let cExpr='';
+function calcDisp(){return cExpr.replace(/\*1e-6/g,'×10⁻⁶').replace(/\*1e-3/g,'×10⁻³').replace(/\*1e3/g,'×10³').replace(/\*/g,'×').replace(/\//g,'÷').replace(/-/g,'−').replace(/\./g,',')||'0'}
+function openCalc(){
+  const keys=['C','⌫','(',')','7','8','9','÷','4','5','6','×','1','2','3','−','0',',','×10⁻⁶','+','×10⁻³','×10³','x²','√','='];
+  sheet(`<h3>🧮 Taschenrechner</h3><div class="calcdisp" id="cd"></div>
+  <div class="calckeys">${keys.map(k=>`<button class="${'÷×−+'.includes(k)?'op':''}${k==='='?' eq':''}${/10|x²|√/.test(k)?' ex op':''}" data-k="${k}">${k}</button>`).join('')}</div>
+  <p class="tip">Tipp: µ (Mikro) = ×10⁻⁶ · m (Milli) = ×10⁻³ · k (Kilo) = ×10³</p>
+  <button class="btn sec wide" style="width:100%" data-close>Schließen</button>`,(s)=>{
+    const d=$('#cd',s);const up=()=>d.textContent=calcDisp();up();
+    const ev=()=>{const js=cExpr;if(!/^[0-9+\-*/().e]+$/.test(js))return NaN;try{return Function('"use strict";return ('+js+')')()}catch(e){return NaN}};
+    $$('.calckeys button',s).forEach(b=>b.onclick=()=>{
+      const k=b.dataset.k;
+      if(k==='C')cExpr='';else if(k==='⌫'){const m=cExpr.match(/\*1e-?\d$/);cExpr=m?cExpr.slice(0,-m[0].length):cExpr.slice(0,-1)}
+      else if(k==='='||k==='x²'||k==='√'){let r=ev();if(k==='x²')r=r*r;if(k==='√')r=Math.sqrt(r);if(!isFinite(r)){d.textContent='Fehler';cExpr='';return}cExpr=String(Number(r.toPrecision(8)))}
+      else cExpr+=({'÷':'/','×':'*','−':'-',',':'.','×10⁻⁶':'*1e-6','×10⁻³':'*1e-3','×10³':'*1e3'})[k]||k;
+      up();
+    });
+  });
+}
+
+/* ---------- Messprotokoll ---------- */
+function openProto(){
+  const p=state.proto;
+  sheet(`<h3>📋 Mein Messprotokoll</h3><table class="tb"><tr><th>Größe</th><th>Wert</th></tr>
+  ${PROTO.map(r=>{const v=p[r.k];return `<tr><td>${r.label}</td><td>${v==null?'—':(typeof v==='number'?fmt(v,r.d??1)+' '+(r.u||''):esc(v))}</td></tr>`}).join('')}</table>
+  <p class="tip">Werte werden automatisch eingetragen, wenn du sie gemessen oder richtig berechnet hast.</p>
+  <button class="btn sec" style="width:100%" data-close>Schließen</button>`);
+}
+
+/* ---------- Messbild (Oszilloskop-/Gerätebildschirm) ---------- */
+function pulseShape(u){ if(u<0||u>5)return 0; const osc=.55+.45*Math.abs(Math.cos(u*6.5)); return (u<.3?u/.3:Math.exp(-(u-.3)*1.5))*osc; }
+/* o: {xmin,xmax,ymin=0,ymax=100, xdec, ylabels:[..], peaks:[{x,a}], pulse:x, ring, grass, curves:[{f:x=>y,color,w}], points:[{x,y}],
+       targets:[x], htargets:[y], marks:[{x,label,row}], hl:[gridIndex], strich:bool, corner:'Text' } */
+function drawScope(cv,o){
+  const r=cv.getBoundingClientRect(); if(r.width<10)return;
+  const dpr=window.devicePixelRatio||1, W=Math.round(r.width), H=Math.round(r.height);
+  if(cv.width!==W*dpr||cv.height!==H*dpr){cv.width=W*dpr;cv.height=H*dpr}
+  const c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0); c.clearRect(0,0,W,H);
+  const ymin=o.ymin??0, ymax=o.ymax??100, pl=38,pr=o.strich?30:10,pt=10,pb=26, gw=W-pl-pr, gh=H-pt-pb;
+  cv._lay={pl,pr,pt,pb,gw,gh,xmin:o.xmin,xmax:o.xmax,ymin,ymax};
+  const X=x=>pl+(x-o.xmin)/(o.xmax-o.xmin)*gw, Y=a=>pt+gh-(a-ymin)/(ymax-ymin)*gh;
+  c.fillStyle='#07140f';c.fillRect(0,0,W,H);
+  for(let i=0;i<=10;i++){const x=pl+i*gw/10,h=o.hl&&o.hl.includes(i);c.strokeStyle=h?'rgba(255,196,0,.95)':'rgba(125,255,166,.16)';c.lineWidth=h?2.5:1;c.beginPath();c.moveTo(x,pt);c.lineTo(x,pt+gh);c.stroke()}
+  c.lineWidth=1;c.strokeStyle='rgba(125,255,166,.16)';
+  for(let i=0;i<=10;i++){const y=pt+i*gh/10;c.beginPath();c.moveTo(pl,y);c.lineTo(pl+gw,y);c.stroke()}
+  if(ymin<0&&ymax>0){c.strokeStyle='rgba(125,255,166,.45)';c.beginPath();c.moveTo(pl,Y(0));c.lineTo(pl+gw,Y(0));c.stroke()}
+  c.textAlign='center';const step=W<420?2:1;
+  for(let i=0;i<=10;i+=(o.strich?1:step)){const x=pl+i*gw/10,h=o.hl&&o.hl.includes(i);
+    const xv=o.xmin+i*(o.xmax-o.xmin)/10,lab=o.strich?String(i+1):fmt(xv,o.xdec??(Math.abs(xv-Math.round(xv))<1e-6?0:1));
+    c.fillStyle=h?'#ffc400':'rgba(200,255,220,.75)';c.font=h?'bold 12px -apple-system,sans-serif':'11px -apple-system,sans-serif';c.fillText(lab,x,H-9)}
+  c.textAlign='right';c.fillStyle='rgba(200,255,220,.75)';c.font='11px -apple-system,sans-serif';
+  (o.ylabels||[ymin,(ymin+ymax)/2,ymax]).forEach(a=>c.fillText(fmt(a,o.ydec??(Math.abs(a-Math.round(a))<1e-6?0:1)),pl-5,Y(a)+4));
+  (o.targets||[]).forEach(t=>{const x=X(t);c.save();c.setLineDash([5,5]);c.strokeStyle='#ffc400';c.lineWidth=2;c.beginPath();c.moveTo(x,pt);c.lineTo(x,pt+gh);c.stroke();c.restore()});
+  (o.htargets||[]).forEach(t=>{const y=Y(t);c.save();c.setLineDash([5,5]);c.strokeStyle='#ffc400';c.lineWidth=2;c.beginPath();c.moveTo(pl,y);c.lineTo(pl+gw,y);c.stroke();c.restore()});
+  c.save();c.beginPath();c.rect(pl-1,pt-1,gw+pr,gh+2);c.clip();
+  const span=o.xmax-o.xmin;
+  if(o.peaks||o.pulse!=null){ // Impuls-/Echo-Darstellung (gleichgerichtet)
+    const ew=span*0.011, grass=(o.grass??2);c.beginPath();
+    for(let px=0;px<=gw+(o.strich?pr-4:0);px++){const x=o.xmin+px/gw*span;let v=Math.random()*grass;
+      if(o.pulse!=null)v=Math.max(v,Math.min(98,100*pulseShape((x-o.pulse)/(ew*(o.ring||2.4)))));
+      (o.peaks||[]).forEach(e=>{v=Math.max(v,e.a*pulseShape((x-e.x)/ew)*(1+Math.random()*.04))});
+      const y=Y(ymin+Math.min(v,99)/100*(ymax-ymin));px?c.lineTo(pl+px,y):c.moveTo(pl+px,y)}
+    c.strokeStyle='#7dffa6';c.lineWidth=1.6;c.shadowColor='#7dffa6';c.shadowBlur=4;c.stroke();c.shadowBlur=0;
+  }
+  (o.curves||[]).forEach(cu=>{c.beginPath();for(let px=0;px<=gw;px++){const x=o.xmin+px/gw*span;let y=cu.f(x)+(cu.noise?rand(-cu.noise,cu.noise):0);if(!isFinite(y))continue;y=Y(Math.max(ymin-1e9,Math.min(ymax+1e9,y)));px?c.lineTo(pl+px,y):c.moveTo(pl+px,y)}
+    c.strokeStyle=cu.color||'#7dffa6';c.lineWidth=cu.w||2;c.shadowColor=c.strokeStyle;c.shadowBlur=3;c.stroke();c.shadowBlur=0});
+  (o.points||[]).forEach(p=>{c.fillStyle=p.color||'#4fc3ff';c.beginPath();c.arc(X(p.x),Y(p.y),p.r||5,0,7);c.fill()});
+  c.restore();
+  (o.marks||[]).forEach(m=>{const x=X(m.x);c.strokeStyle='#4fc3ff';c.lineWidth=2;c.beginPath();c.moveTo(x,pt);c.lineTo(x,pt+gh);c.stroke();
+    c.font='bold 12px -apple-system,sans-serif';const w=c.measureText(m.label).width+10;let bx=Math.min(Math.max(x-w/2,pl),pl+gw-w);
+    c.fillStyle='#4fc3ff';c.fillRect(bx,pt+2+(m.row||0)*20,w,18);c.fillStyle='#021';c.textAlign='left';c.fillText(m.label,bx+5,pt+15+(m.row||0)*20)});
+  if(o.corner){c.textAlign='right';c.fillStyle='rgba(200,255,220,.9)';c.font='bold 12px -apple-system,sans-serif';c.fillText(o.corner,pl+gw-4,pt+14)}
+}
+function scopeToX(cv,clientX){const r=cv.getBoundingClientRect(),L=cv._lay;if(!L)return null;return L.xmin+(clientX-r.left-L.pl)/L.gw*(L.xmax-L.xmin)}
+/* makeScope(parent,{title, units:['µs','mm']}) → o.cv, o.ro (Anzeigezeile), o.unit, o.onUnit */
+function makeScope(parent,{title='Messbild',units=null}={}){
+  const w=document.createElement('div');w.className='scanwrap';
+  w.innerHTML=`<div class="scanhead"><span class="t">📟 ${title}</span>${units?`<div class="seg">${units.map(u=>`<button data-u="${u}">${u}</button>`).join('')}</div>`:''}</div><canvas class="scan"></canvas><div class="readout"></div>`;
+  parent.appendChild(w);
+  const o={cv:$('canvas',w),ro:$('.readout',w),unit:units?units[0]:null,wrap:w};
+  if(units){const bs=$$('.seg button',w);const mark=()=>bs.forEach(b=>b.classList.toggle('on',b.dataset.u===o.unit));mark();bs.forEach(b=>b.onclick=()=>{o.unit=b.dataset.u;mark();o.onUnit&&o.onUnit()})}
+  return o;
+}
+/* Live-Aktualisierung (~8 Hz) – wird bei jedem Schrittwechsel geleert */
+let loops=[];setInterval(()=>{loops.forEach(f=>{try{f()}catch(e){console.error(e)}})},120);
+function loop(f){loops.push(f);requestAnimationFrame(f)}
+window.addEventListener('resize',()=>loops.forEach(f=>f()));
+
+/* ---------- kleine Bausteine für Simulationen ---------- */
+function checklist(items){const u=document.createElement('ul');u.className='check';u.innerHTML=items.map(t=>`<li>${t}</li>`).join('');u.set=(i,ok)=>u.children[i].classList.toggle('ok',ok);return u}
+/* Regler: {label,min,max,step,val,fine,coarse,fmtV,onChange} → Element mit .set(v) */
+function ctlRow({label,min,max,step,val,fine,fmtV,onChange,coarse}){
+  const d=document.createElement('div');d.className='ctl';const f1=v=>fmt(v,v%1?1:0);
+  d.innerHTML=`<div class="lab">${label}<span></span></div>${coarse?`<input type="range" min="${min}" max="${max}" step="${step}" value="${val}" style="width:100%"><div class="row btns4"><button class="sbtn" data-d="-${coarse}">−${f1(coarse)}</button><button class="sbtn" data-d="-${fine}">−${f1(fine)}</button><button class="sbtn" data-d="${fine}">+${f1(fine)}</button><button class="sbtn" data-d="${coarse}">+${f1(coarse)}</button></div>`
+   :`<div class="row"><button class="sbtn" data-d="-${fine}">−</button><input type="range" min="${min}" max="${max}" step="${step}" value="${val}"><button class="sbtn" data-d="${fine}">+</button></div>`}`;
+  const r=$('input',d),sp=$('.lab span',d);
+  const set=v=>{v=Math.min(max,Math.max(min,Math.round(v/step)*step));v=Number(v.toFixed(4));r.value=v;sp.textContent=fmtV(v);onChange(v)};
+  r.oninput=()=>set(+r.value);$$('.sbtn',d).forEach(b=>b.onclick=()=>set(+r.value+ +b.dataset.d));
+  sp.textContent=fmtV(val);d.set=set;return d;
+}
+function statusFb(c){const f=document.createElement('div');f.className='fb';c.appendChild(f);return (cls,h)=>{f.className='fb '+cls;f.innerHTML=h}}
+const person=(txt)=>`<div class="story"><div class="ava">${CONFIG.person.ava}</div><div class="bubble"><div class="who">${CONFIG.person.name} · ${CONFIG.person.role}</div>${txt}</div></div>`;
+
+/* ---------- Navigation ---------- */
+let cur=null, ctx=null;
+function levelOpen(i){return state.teacher||i===0||state.done[i-1]}
+function updPts(){$('#tPts').textContent='⭐ '+state.points}
+function renderHome(){
+  loops=[];cur=null;
+  $('#level').classList.add('hidden');$('#certView').classList.add('hidden');$('#home').classList.remove('hidden');$('#foot').classList.add('hidden');
+  $('#tTitle').textContent=CONFIG.title;$('#dots').innerHTML='';$('#bHome').classList.add('hidden');updPts();
+  const N=LEVELS.length,nDone=LEVELS.filter((l,i)=>state.done[i]).length, nextI=LEVELS.findIndex((l,i)=>!state.done[i]);
+  $('#home').innerHTML=`<section class="hero"><div class="wrap">
+    <div class="kicker" style="color:#ffb199">${CONFIG.org}</div><h2>${CONFIG.mission}</h2>
+    <p>Hallo ${esc(state.name||CONFIG.defaultName)}! ${CONFIG.missionText}</p>
+    <div class="stats"><div class="stat"><b>${nDone}/${N}</b>Level</div><div class="stat"><b>⭐ ${state.points}</b>Punkte</div><div class="stat"><b>${nDone}</b>Abzeichen</div></div>
+  </div></section><div class="wrap">
+   ${nextI>=0?`<button class="btn wide" style="width:100%;margin-top:16px" id="goNext">▶ ${state.stepIdx[nextI]?'Weitermachen':'Starten'}: Level ${nextI+1}</button>`:`<button class="btn wide" style="width:100%;margin-top:16px" id="goCert">🪪 ${CONFIG.certButton}</button>`}
+   <div class="levels">${LEVELS.map((L,i)=>{const d=state.done[i],o=levelOpen(i);return `<button class="lv ${d?'done':''} ${i===nextI?'next':''}" data-l="${i}" ${o?'':'disabled'}>
+     <div class="num">${d?'✓':i+1}</div><div class="tx"><div class="tag">${L.tag}</div><div class="tt">${L.title}</div><div class="sub">${L.sub}</div></div><div class="st">${d?L.badge.split(' ')[0]:o?'▶':'🔒'}</div></button>`}).join('')}</div>
+   <h3 style="margin:0 0 8px">Deine Abzeichen</h3>
+   <div class="badges">${LEVELS.map((L,i)=>`<span class="bdg ${state.done[i]?'':'off'}">${L.badge}</span>`).join('')}</div>
+   <p style="margin:26px 0 30px;text-align:center"><button class="btn sec small" id="bSet">⚙️ Einstellungen</button></p></div>`;
+  $$('.lv').forEach(b=>b.onclick=()=>openLevel(+b.dataset.l));
+  const gn=$('#goNext');if(gn)gn.onclick=()=>openLevel(nextI);const gc=$('#goCert');if(gc)gc.onclick=renderCert;
+  $('#bSet').onclick=openSettings;window.scrollTo(0,0);
+}
+function openLevel(i){cur={li:i,si:state.done[i]?0:Math.min(state.stepIdx[i]||0,LEVELS[i].steps.length-1)};
+  $('#home').classList.add('hidden');$('#certView').classList.add('hidden');$('#level').classList.remove('hidden');$('#foot').classList.remove('hidden');$('#bHome').classList.remove('hidden');renderStep()}
+function renderStep(){
+  loops=[];
+  const L=LEVELS[cur.li], S=L.steps[cur.si];
+  $('#tTitle').textContent=`Level ${cur.li+1}: ${L.title}`;
+  $('#dots').innerHTML=L.steps.map((s,i)=>`<i class="${i<cur.si?'on':''} ${i===cur.si?'cur':''}"></i>`).join('');
+  const box=$('#stepBox');box.innerHTML='';
+  ctx={attempts:0,hint:0,solved:false,S,key:cur.li+'-'+cur.si,auto:null};
+  const next=$('#bNext');next.disabled=true;next.textContent=cur.si===L.steps.length-1?'Level abschließen 🏁':'Weiter ▶';
+  $('#bHint').classList.toggle('hidden',!(S.hints&&S.hints.length&&!S.quiz));$('#bHint').textContent='💡 Hilfe';
+  const card=document.createElement('div');card.className='card';box.appendChild(card);
+  if(S.type==='info'){card.innerHTML=S.html();solved(true)}
+  else{
+    const tt=S.title?`<div class="kicker">${L.tag}${S.bonus?' · Bonus':''}</div><h3>${S.title}</h3>`:(S.bonus?`<div class="kicker">Bonus</div>`:'');
+    card.innerHTML=tt+(S.text?`<p>${typeof S.text==='function'?S.text():S.text}</p>`:'')+(S.pre?S.pre():'');
+    const api={solved:()=>solved(),wrong:()=>{ctx.attempts++},card,setAuto:f=>ctx.auto=f};
+    W[S.type](card,S,api);
+    const hb=document.createElement('div');hb.id='hintArea';card.appendChild(hb);
+    if(S.bonus){next.disabled=false;next.textContent='Überspringen / Weiter ▶'}
+  }
+  if(!state.done[cur.li]){state.stepIdx[cur.li]=cur.si;save()}
+  window.scrollTo(0,0);
+}
+function solved(silent){
+  if(ctx.solved)return;ctx.solved=true;
+  const S=ctx.S,next=$('#bNext');next.disabled=false;if(S.bonus)next.textContent='Weiter ▶';
+  if(S.proto)state.proto[S.proto[0]]=S.proto[1];
+  if(!silent&&!state.awarded[ctx.key]){
+    const p=S.quiz?(ctx.attempts===0?10:0):(ctx.attempts===0?10:ctx.attempts===1?6:3)+(S.bonus?5:0);
+    state.awarded[ctx.key]=1;if(S.quiz)state.quiz[ctx.key]=ctx.attempts===0;
+    if(p>0){state.points+=p;updPts();floatPts('+'+p)}
+  }
+  save();
+}
+function floatPts(t){const e=document.createElement('div');e.className='float';e.textContent=t;const r=$('#tPts').getBoundingClientRect();e.style.left=r.left+'px';e.style.top=(r.bottom+4)+'px';document.body.appendChild(e);setTimeout(()=>e.remove(),1200)}
+function finishLevel(){
+  const i=cur.li,first=!state.done[i];state.done[i]=true;if(first){state.points+=20;updPts()}
+  state.stepIdx[i]=0;save();confetti();const last=i===LEVELS.length-1;
+  sheet(`<div class="win"><div class="big">${LEVELS[i].badge.split(' ')[0]}</div><h3 style="margin:10px 0 4px">Level ${i+1} geschafft!</h3>
+   <p>Neues Abzeichen: <b>${LEVELS[i].badge}</b>${first?'<br>Bonus: <b>+20 ⭐</b>':''}</p>
+   <button class="btn wide" style="width:100%" id="wNext">${last?'🪪 '+CONFIG.certButton:'Weiter zu Level '+(i+2)+' ▶'}</button>
+   <button class="btn sec" style="width:100%;margin-top:8px" id="wHome">Zur Übersicht</button></div>`,(s,close)=>{
+     $('#wNext',s).onclick=()=>{close();last?renderCert():openLevel(i+1)};$('#wHome',s).onclick=()=>{close();renderHome()}});
+}
+function confetti(){const cs=['#e4572e','#f0b400','#23915a','#1f6f8b','#7dffa6'];for(let k=0;k<40;k++){const c=document.createElement('div');c.className='conf';c.style.left=Math.random()*100+'vw';c.style.background=cs[k%5];c.style.animationDelay=Math.random()*.5+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),2600)}}
+function quizScore(){return Object.values(state.quiz).filter(Boolean).length}
+function renderCert(){
+  loops=[];$('#home').classList.add('hidden');$('#level').classList.add('hidden');$('#foot').classList.add('hidden');$('#certView').classList.remove('hidden');$('#bHome').classList.remove('hidden');
+  $('#tTitle').textContent=CONFIG.certTitle;$('#dots').innerHTML='';
+  const q=quizScore(),n=QUIZ.length,all=LEVELS.every((l,i)=>state.done[i]),stars=q>=n*.9?3:q>=n*.65?2:q>=n*.4?1:0;
+  $('#certView').innerHTML=`<div class="wrap" style="padding:18px 16px 40px">
+   <div class="cert"><div class="kicker" style="color:#ffb199">${CONFIG.org}</div><h2>🪪 ${CONFIG.certTitle}</h2><div style="opacity:.85">${CONFIG.certSub}</div>
+   <div class="nm">${esc(state.name||CONFIG.defaultName)}</div><div style="opacity:.85">${all?`hat alle ${LEVELS.length} Level erfolgreich abgeschlossen.`:'hat noch nicht alle Level abgeschlossen.'}</div>
+   <div class="stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+   <div class="row"><div>⭐ <b>${state.points}</b> Punkte</div><div>📝 Quiz: <b>${q}/${n}</b></div><div>💡 Hilfen: <b>${state.hints}</b></div><div>📅 ${new Date().toLocaleDateString('de-DE')}</div></div>
+   <div class="badges" style="margin-top:14px">${LEVELS.map((L,i)=>`<span class="bdg ${state.done[i]?'':'off'}" style="color:#15202e">${L.badge}</span>`).join('')}</div></div>
+   <p class="tip" style="margin-top:14px">📸 Mach einen Screenshot von deinem Ausweis und gib ihn bei deiner Lehrkraft ab.</p>
+   <p class="tip">${CONFIG.nextTime}</p><button class="btn wide" style="width:100%" id="cHome">Zur Übersicht</button></div>`;
+  $('#cHome').onclick=renderHome;window.scrollTo(0,0);
+}
+function openSettings(){
+  sheet(`<h3>⚙️ Einstellungen</h3><label><b>Dein Name</b><input class="name" id="sName" value="${esc(state.name)}" maxlength="30"></label>
+  <button class="btn blue" style="width:100%;margin-top:10px" id="sSave">Name speichern</button>
+  <hr style="margin:18px 0;border:0;border-top:1px solid var(--line)"><b>Für Lehrkräfte</b>
+  <p class="tip" style="margin:4px 0 8px">Code eingeben: schaltet alle Level frei und zeigt die Lösungsübersicht.</p>
+  <div style="display:flex;gap:8px"><input class="name" id="sPin" placeholder="Code" autocomplete="off"><button class="btn blue" id="sUnl">OK</button></div><div id="sMsg" class="tip"></div>
+  ${state.teacher?`<button class="btn sec" style="width:100%;margin-top:8px" id="sSol">📄 Lösungsübersicht anzeigen</button>`:''}
+  <hr style="margin:18px 0;border:0;border-top:1px solid var(--line)">
+  <button class="btn sec" style="width:100%" id="sReset">🗑️ Fortschritt löschen</button><button class="btn sec" style="width:100%;margin-top:8px" data-close>Schließen</button>`,(s,close)=>{
+   $('#sSave',s).onclick=()=>{state.name=$('#sName',s).value.trim();save();close();renderHome()};
+   $('#sUnl',s).onclick=()=>{if($('#sPin',s).value.trim().toUpperCase()===CONFIG.code.toUpperCase()){state.teacher=true;save();close();renderHome();openSettings()}else $('#sMsg',s).textContent='Code falsch.'};
+   const so=$('#sSol',s);if(so)so.onclick=()=>{close();sheet(solutionsHTML()+'<button class="btn sec" style="width:100%;margin-top:12px" data-close>Schließen</button>')};
+   $('#sReset',s).onclick=(e)=>{if(e.target.dataset.sure){const n=state.name;state=JSON.parse(JSON.stringify(S0));state.name=n;save();close();renderHome()}else{e.target.dataset.sure=1;e.target.textContent='Wirklich löschen? Nochmal tippen.'}};
+  });
+}
+function askName(){
+  sheet(`<div style="text-align:center"><div style="font-size:54px">${CONFIG.startEmoji}</div><h3>${CONFIG.title}</h3><p>${CONFIG.nameQuestion}</p></div>
+  <input class="name" id="nIn" placeholder="Vorname" maxlength="30" autocomplete="off"><button class="btn wide" style="width:100%;margin-top:10px" id="nGo">Los geht's ▶</button>`,(s,close)=>{
+   const go=()=>{state.name=$('#nIn',s).value.trim()||CONFIG.defaultName;save();close();renderHome()};$('#nGo',s).onclick=go;$('#nIn',s).addEventListener('keydown',e=>{if(e.key==='Enter')go()})});
+}
+
+/* ---------- Lösungsübersicht (aus den Level-Daten erzeugt) ---------- */
+function solutionsHTML(){
+  const one=S=>{const t=S.title?`<b>${stripTags(S.title)}</b>: `:'';
+    switch(S.type){
+     case 'mcq':return t+stripTags(S.q)+' → <span class="a">'+stripTags(S.o.find(o=>o.ok).t)+'</span>';
+     case 'pick':return t+'<span class="a">'+S.items.filter(i=>i.ok).map(i=>stripTags(i.t)).join(', ')+'</span>';
+     case 'place':return t+S.slots.map((a,i)=>`${i+1} = <span class="a">${stripTags(a)}</span>`).join(' · ');
+     case 'seq':return t+'<ol>'+S.items.map(x=>`<li class="a">${stripTags(x)}</li>`).join('')+'</ol>';
+     case 'calc':return t+'<ul>'+S.rows.filter(r=>!r.given).map(r=>`<li>${stripTags(r.pre)} <span class="a">${String(r.ans).replace('.',',')} ${r.u||''}</span></li>`).join('')+'</ul>';
+     case 'decide':return t+S.cards.map(c=>`${stripTags(c.title)} → <span class="a">${stripTags(S.actions[c.ans])}</span>`).join(' · ');
+     case 'cloze':return t+S.parts.map(p=>`<span class="a">${stripTags(p[1][p[2]])}</span>`).join(' | ');
+     case 'sim':return t+'<span class="a">'+(S.solution||'(siehe Simulation)')+'</span>';
+     default:return '';}};
+  return `<div class="sol"><h3>📄 Lösungsübersicht – ${CONFIG.title}</h3>`+LEVELS.map((L,i)=>`<h4>Level ${i+1}: ${L.title} <small class="m">(${L.tag})</small></h4><ol>`+L.steps.filter(s=>s.type!=='info'&&s.type!=='quizEnd').map(s=>`<li>${one(s)}</li>`).join('')+'</ol>').join('')+'</div>';
+}
+
+/* ---------- Widgets ---------- */
+function mcqW(container,S,onOk,onWrong){
+  const d=document.createElement('div');d.className='mcq';
+  d.innerHTML=`<p class="q">${typeof S.q==='function'?S.q():S.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const ob=$('.opts',d),fb=$('.fb',d);
+  (S.noShuffle?S.o:shuffle(S.o)).forEach(o=>{const b=document.createElement('button');b.className='opt';b.innerHTML=o.t;b._ok=!!o.ok;
+    b.onclick=()=>{if(d.dataset.done)return;
+      if(o.ok){b.classList.add('ok');d.dataset.done=1;fb.className='fb ok';fb.innerHTML='✅ '+(o.fb||'Richtig!');$$('.opt',ob).forEach(x=>x.disabled=true);onOk&&onOk()}
+      else{b.classList.add('bad');b.disabled=true;shake(b);fb.className='fb bad';fb.innerHTML='❌ '+(o.fb||'Noch nicht – versuch es nochmal.');onWrong&&onWrong();
+        if(S.quiz){$$('.opt',ob).forEach(x=>{x.disabled=true;if(x._ok)x.classList.add('ok')});d.dataset.done=1;onOk&&onOk()}}};
+    ob.appendChild(b)});
+  container.appendChild(d);return d;
+}
+const W={
+ mcq:(c,S,api)=>mcqW(c,S,api.solved,api.wrong),
+ pick:(c,S,api)=>{
+  const g=document.createElement('div');g.className='grid3';
+  shuffle(S.items).forEach(it=>{const t=document.createElement('button');t.className='tile';t.innerHTML=(ICON[it.k]||`<span style="font-size:40px">${it.e||'📦'}</span>`)+`<span>${it.t}</span>`;t._it=it;t.onclick=()=>{if(ctx.solved)return;t.classList.toggle('sel');t.classList.remove('wrong')};g.appendChild(t)});
+  c.appendChild(g);const b=document.createElement('button');b.className='btn blue';b.style.cssText='width:100%;margin-top:12px';b.textContent='Prüfen ✔';c.appendChild(b);
+  const fb=document.createElement('div');fb.className='fb';c.appendChild(fb);
+  b.onclick=()=>{if(ctx.solved)return;const tiles=$$('.tile',g);let wrong=[],miss=0;
+    tiles.forEach(t=>{const s=t.classList.contains('sel');if(s&&!t._it.ok){wrong.push(t);t.classList.add('wrong')}if(!s&&t._it.ok)miss++;if(s&&t._it.ok)t.classList.add('good')});
+    if(!wrong.length&&!miss){fb.className='fb ok';fb.innerHTML='✅ Perfekt – alles richtig ausgewählt!<br>'+S.items.filter(i=>i.ok&&i.fb).map(i=>'• '+i.fb).join('<br>');tiles.forEach(t=>t.disabled=true);api.solved()}
+    else{api.wrong();fb.className='fb bad';fb.innerHTML=wrong.map(t=>'❌ <b>'+stripTags(t._it.t)+':</b> '+(t._it.fb||'gehört nicht dazu.')).join('<br>')+(miss?`<br>🔍 Es fehlt noch ${miss===1?'ein Teil':miss+' Teile'}.`:'');shake(b)}};
+ },
+ place:(c,S,api)=>{
+  c.insertAdjacentHTML('beforeend',`<div class="fig">${S.svg}</div>`);
+  const sl=document.createElement('div');sl.className='slots';
+  S.slots.forEach((a,i)=>{const b=document.createElement('button');b.className='slot';b.innerHTML=`<span class="n">${i+1}</span><span class="dv">… antippen</span>`;b._ans=a;sl.appendChild(b)});
+  const ch=document.createElement('div');ch.className='chips';shuffle(S.labels).forEach(l=>{const b=document.createElement('button');b.className='chip';b.textContent=l;ch.appendChild(b)});
+  const fb=document.createElement('div');fb.className='fb';
+  c.appendChild(sl);c.insertAdjacentHTML('beforeend','<p class="tip" style="margin:8px 0 0">Begriffe:</p>');c.appendChild(ch);c.appendChild(fb);
+  let selC=null,selS=null;
+  const tryIt=()=>{if(!selC||!selS)return;
+    if(selC.textContent===selS._ans){selS.classList.add('filled');selS.classList.remove('act');$('.dv',selS).textContent=selC.textContent;selC.remove();fb.className='fb';fb.innerHTML='';selC=selS=null;
+      if($$('.slot',sl).every(s=>s.classList.contains('filled'))){fb.className='fb ok';fb.innerHTML='✅ Alles richtig zugeordnet!';api.solved()}}
+    else{api.wrong();shake(selS);fb.className='fb bad';fb.innerHTML=`❌ „${selC.textContent}“ passt nicht zu Nummer ${$$('.slot',sl).indexOf(selS)+1}.`;selC.classList.remove('sel');selS.classList.remove('act');selC=selS=null}};
+  $$('.slot',sl).forEach(s=>s.onclick=()=>{if(s.classList.contains('filled'))return;$$('.slot',sl).forEach(x=>x.classList.remove('act'));selS=s;s.classList.add('act');if(!selC){fb.className='fb info';fb.innerHTML='👇 Jetzt unten den passenden Begriff antippen.'}tryIt()});
+  ch.addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;$$('.chip',ch).forEach(x=>x.classList.remove('sel'));selC=b;b.classList.add('sel');if(!selS){fb.className='fb info';fb.innerHTML='👆 Jetzt die passende Nummer antippen.'}tryIt()});
+ },
+ seq:(c,S,api)=>{
+  const done=document.createElement('div');done.className='seqlist';const pool=document.createElement('div');pool.className='seqlist';pool.style.marginTop='12px';
+  const fb=document.createElement('div');fb.className='fb';let n=0;
+  c.insertAdjacentHTML('beforeend','<p class="tip" style="margin:0 0 6px">Deine Reihenfolge:</p>');c.appendChild(done);
+  c.insertAdjacentHTML('beforeend','<p class="tip" style="margin:12px 0 0">Tippe den nächsten Schritt an:</p>');c.appendChild(pool);c.appendChild(fb);
+  done.innerHTML=`<div class="tip" data-empty>— noch leer —</div>`;
+  shuffle(S.items.map((t,i)=>({t,i}))).forEach(it=>{const b=document.createElement('button');b.className='seqitem';b._i=it.i;b.innerHTML=`<span class="n">?</span><span>${it.t}</span>`;
+    b.onclick=()=>{if(it.i===n){n++;const e=$('[data-empty]',done);e&&e.remove();b.classList.add('done');$('.n',b).textContent=n;b.onclick=null;done.appendChild(b);fb.className='fb';fb.innerHTML='';
+        if(n===S.items.length){fb.className='fb ok';fb.innerHTML='✅ Super – die Reihenfolge stimmt!';api.solved()}}
+      else{api.wrong();shake(b);fb.className='fb bad';fb.innerHTML=`❌ Das kommt ${it.i>n?'später':'früher'}. Was muss <b>davor</b> passieren?`}};pool.appendChild(b)});
+ },
+ calc:(c,S,api)=>{
+  const w=document.createElement('div');w.className='calc';
+  S.rows.forEach(r=>{const d=document.createElement('div');d.className='crow'+(r.given?' given':'');
+    if(r.given)d.innerHTML=r.given;else{d.innerHTML=`<span>${r.pre}</span><input inputmode="decimal" autocomplete="off" style="${r.w?'width:'+r.w+'px':''}" aria-label="Ergebnis"><span class="u">${r.u||''}</span>`;$('input',d)._r=r}
+    w.appendChild(d)});
+  c.appendChild(w);c.insertAdjacentHTML('beforeend',`<p class="tip">🧮 Rechner oben rechts · Komma oder Punkt ist egal.</p>`);
+  const b=document.createElement('button');b.className='btn blue';b.style.cssText='width:100%';b.textContent='Prüfen ✔';c.appendChild(b);
+  const fb=document.createElement('div');fb.className='fb';c.appendChild(fb);
+  b.onclick=()=>{if(ctx.solved)return;let bad=0,empty=0;
+    $$('input',w).forEach(i=>{const v=parseNum(i.value);i.classList.remove('okI','badI');if(i.value.trim()===''){empty++;return}
+      const ok=Math.abs(v-i._r.ans)<=i._r.tol;i.classList.add(ok?'okI':'badI');if(!ok)bad++});
+    if(empty){fb.className='fb info';fb.innerHTML='✏️ Füll erst alle Kästchen aus.';return}
+    if(!bad){fb.className='fb ok';fb.innerHTML='✅ Richtig gerechnet!'+(S.after?'<br>'+S.after:'');$$('input',w).forEach(i=>i.disabled=true);S.rows.forEach(r=>{if(r.proto)state.proto[r.proto[0]]=r.proto[1]});api.solved()}
+    else{api.wrong();fb.className='fb bad';fb.innerHTML='❌ Die rot markierten Kästchen stimmen noch nicht. Tipp: 💡 Hilfe unten.';shake(b)}};
+ },
+ decide:(c,S,api)=>{let n=0;
+  S.cards.forEach(d=>{const card=document.createElement('div');card.className='dcard';card.innerHTML=`<h4>${d.title}</h4><div class="tip">${d.info||''}</div>`;c.appendChild(card);
+    if(d.draw){const o=makeScope(card,{title:d.title});loop(()=>d.draw(o))}
+    const bs=document.createElement('div');bs.className='dbtns';const fb=document.createElement('div');fb.className='fb';
+    S.actions.forEach((a,i)=>{const b=document.createElement('button');b.innerHTML=a;b._ok=i===d.ans;b.onclick=()=>{if(card.classList.contains('ok'))return;
+      if(i===d.ans){b.classList.add('ok');card.classList.add('ok');fb.className='fb ok';fb.innerHTML='✅ '+(d.okfb||'Richtig!');n++;if(n===S.cards.length)api.solved()}
+      else{b.classList.add('bad');shake(b);api.wrong();fb.className='fb bad';fb.innerHTML='❌ '+((d.fb&&d.fb[i])||'Noch nicht – schau nochmal genau hin.')}};bs.appendChild(b)});
+    card.appendChild(bs);card.appendChild(fb)});
+ },
+ cloze:(c,S,api)=>{const P=S.parts;
+  c.insertAdjacentHTML('beforeend',`<div class="cloze"><p>${P.map((p,i)=>`${p[0]}<select data-i="${i}"><option value="">— wählen —</option>${shuffle(p[1].map((t,j)=>({t,j}))).map(o=>`<option value="${o.j}">${o.t}</option>`).join('')}</select>${p[3]||''}`).join(' ')}</p></div>`);
+  const b=document.createElement('button');b.className='btn blue';b.style.width='100%';b.textContent='Prüfen ✔';c.appendChild(b);const say=statusFb(c);const out=document.createElement('div');c.appendChild(out);
+  b.onclick=()=>{if(ctx.solved)return;let bad=0,empty=0;$$('select',c).forEach(s=>{s.classList.remove('okI','badI');if(s.value===''){empty++;return}const ok=+s.value===P[+s.dataset.i][2];s.classList.add(ok?'okI':'badI');if(!ok)bad++});
+    if(empty){say('info','✏️ Bitte alle Felder auswählen.');return}
+    if(bad){api.wrong();say('bad',`❌ ${bad} Feld${bad>1?'er':''} stimmt noch nicht (rot). Schau in dein Protokoll 📋.`);return}
+    $$('select',c).forEach(s=>s.disabled=true);say('ok','✅ Alles richtig!');if(S.doc)out.innerHTML=S.doc();api.solved()};
+ },
+ sim:(c,S,api)=>S.run(c,api),
+ quizEnd:(c,S,api)=>{const q=quizScore(),n=QUIZ.length;
+  c.innerHTML=`<div class="win"><div class="big">${q>=n*.9?'🏆':q>=n*.65?'🥈':q>=n*.4?'🥉':'💪'}</div><h3>Du hast ${q} von ${n} Fragen beim ersten Versuch richtig!</h3>
+   <p>${q>=n*.65?'Stark – du bist bereit für den Einsatz!':'Gut gemacht! Schau dir die Level mit Fehlern nochmal an – du kannst sie jederzeit wiederholen.'}</p></div>`;api.solved()}
+};
+
+/* ---------- Start ---------- */
+function buildQuizLevel(){
+  const QL=LEVELS[LEVELS.length-1];
+  QL.steps=[{type:'info',html:()=>person(`<p style="margin:0">Letzte Hürde, ${esc(state.name||CONFIG.defaultName)}! ${QUIZ.length} Fragen. Für jede Frage, die du <b>beim ersten Versuch</b> richtig hast, gibt's Punkte. Keine Hilfen – du schaffst das! 💪</p>`)}]
+   .concat(QUIZ.map((q,i)=>({type:'mcq',quiz:1,q:`<small class="m">Frage ${i+1} von ${QUIZ.length}</small><br>${q.q}`,o:q.o.map(o=>Object.assign({},o,{fb:o.ok?q.why:'Leider nicht. '+q.why})),hints:[]})))
+   .concat([{type:'quizEnd'}]);
+}
+function start(){
+  state=load();document.title=CONFIG.title;buildQuizLevel();
+  $('#bNext').onclick=()=>{const L=LEVELS[cur.li];if(cur.si<L.steps.length-1){cur.si++;renderStep()}else finishLevel()};
+  $('#bHint').onclick=()=>{const S=ctx.S;if(!S.hints||!S.hints.length)return;const n=ctx.hint;if(n>=S.hints.length){shake($('#hintArea'));return}
+    const lbl=['💡 Denkanstoß','📘 Wort-Hilfe','✏️ Erster Schritt'][n]||'💡 Tipp';
+    const d=document.createElement('div');d.className='hintbox';d.innerHTML=`<b>${lbl}:</b> ${S.hints[n]}`;$('#hintArea').appendChild(d);
+    ctx.hint++;state.hints++;save();$('#bHint').textContent=ctx.hint>=S.hints.length?'💡 Alle Hilfen offen':`💡 Hilfe (${ctx.hint+1}/${S.hints.length})`;d.scrollIntoView({behavior:'smooth',block:'nearest'})};
+  $('#bHome').onclick=renderHome;$('#bCalc').onclick=openCalc;$('#bProto').onclick=openProto;
+  renderHome();if(!state.name)askName();
+}
+/* =================== ENDE ENGINE =================== */
+/* ==== INHALT START: Entfernungsmessung mit Ultraschall (Kap. 2) + Kalibriergerade (Woche 4) ==== */
+const CONFIG={
+  title:'US-Prüflabor: Abstand messen',
+  org:'ZfP-Prüflabor · Werkstoffprüfung',
+  mission:'Mission: Abstandssensor einmessen & freigeben',
+  missionText:'Bevor wir Bleche prüfen, muss ein Luftultraschall-Sensor den Abstand zur Prüftafel sicher messen. Du baust den Versuch auf, misst Laufzeiten und stellst am Ende die Freigabe KA-04 aus.',
+  person:{name:'Frau Yılmaz',role:'Prüfaufsicht',ava:'👩‍🔬'},
+  defaultName:'Azubi', startEmoji:'🦇📡', nameQuestion:'Du startest heute als Azubi im ZfP-Prüflabor. Wie heißt du?',
+  certTitle:'Prüf-Ausweis Ultraschall', certSub:'Stufe 1 · Entfernungsmessung (Impuls-Echo) & Kalibriergerade', certButton:'Meinen Prüf-Ausweis zeigen',
+  nextTime:'Nächstes Mal: Ultraschall im Stahl – mit dem Echograph und dem Kalibrierkörper K1. 🔩',
+  key:'sim-us-entfernung-13nf-v1',
+  code:'13NF'
+};
+const PROTO=[
+  {k:'pause',label:'t_Pause im Sketch',u:'ms',d:0},
+  {k:'temp',label:'Raumtemperatur ϑ',u:'°C',d:0},
+  {k:'cT',label:'c aus Temperatur',u:'m/s',d:1},
+  {k:'dt08',label:'Δt bei 0,80 m (Aufbau A)',u:'ms',d:2},
+  {k:'sNaiv',label:'s = c·Δt/2 (ohne Offset)',u:'m',d:3},
+  {k:'mA',label:'Steigung m_A',u:'ms/m',d:2},
+  {k:'t0A',label:'Offset t₀,A',u:'ms',d:2},
+  {k:'mB',label:'Steigung m_B',u:'ms/m',d:2},
+  {k:'t0B',label:'Offset t₀,B',u:'ms',d:2},
+  {k:'cA',label:'c_A = 2/m_A',u:'m/s',d:1},
+  {k:'cB',label:'c_B = 2/m_B',u:'m/s',d:1},
+  {k:'sB',label:'B bei 4,97 ms: s korrigiert',u:'m',d:3},
+  {k:'dt140',label:'A bei 1,40 m: Δt gemessen',u:'ms',d:2},
+  {k:'dt160',label:'A bei 1,60 m: Δt gemessen',u:'ms',d:2},
+  {k:'r140',label:'Residuum bei 1,40 m',u:'ms',d:3},
+  {k:'r160',label:'Residuum bei 1,60 m',u:'ms',d:3},
+  {k:'frei',label:'Freigabe KA-04'}
+];
+const GL={
+  tof:['Laufzeitverfahren (ToF)','„Time of Flight“: Man misst, wie lange ein Signal bis zum Ziel und zurück braucht. Aus Zeit und Geschwindigkeit folgt der Abstand.'],
+  burst:['Burst','Ein kurzes Paket aus vielen Rechteckpulsen (hier 40 kHz). Danach folgt eine Pause. So entsteht ein kurzer Ultraschall-„Ruf“.'],
+  echo:['Echo','Der Teil des Schalls, der am Reflektor zurückgeworfen wird und wieder beim Empfänger ankommt.'],
+  refl:['Reflektor','Eine glatte, feste Fläche (Schirm, Prüftafel), an der der Schall zurückgeworfen wird.'],
+  nenn:['Nennfrequenz','Die Frequenz, für die Sender und Empfänger gebaut sind (hier 40 kHz). Dort schwingen sie am stärksten.'],
+  div:['Skalenteil (Div)','Ein Kästchen auf dem Oszilloskop. Bei der Zeitbasis 1 ms/Div ist ein Kästchen nach rechts genau 1 ms.'],
+  kanal:['Kanal 1 / Kanal 2','Das Oszilloskop zeigt zwei Signale gleichzeitig: Kanal 1 (gelb) das Sendesignal, Kanal 2 (blau) das Echo.'],
+  dt:['Laufzeit Δt','Zeit vom Beginn des Sendeimpulses bis zum Beginn des Echos. Einheit: ms (Millisekunde, 1 ms = 0,001 s).'],
+  doppel:['Doppelweg','Der Schall läuft den Abstand s hin <b>und</b> zurück, also 2·s. Deshalb: s = c · Δt / 2.'],
+  c:['Schallgeschwindigkeit c','Wie schnell der Schall läuft, in m/s. In Luft ungefähr c ≈ 331,3 m/s + 0,6 m/s pro °C. Bei 18 °C: 342,1 m/s.'],
+  m:['Steigung m','Wie viel mehr Zeit pro Meter Abstand angezeigt wird. Einheit ms/m. Wegen des Doppelwegs gilt m = 2/c.'],
+  t0:['Offset t₀ (Systemzeit)','Eine feste Zusatzzeit der Messkette (Auslösen, Einschwingen, Verstärker). Sie ist eine <b>Zeit</b>, keine Entfernung. Einheit ms.'],
+  resid:['Residuum r','r = gemessene Zeit − Modellzeit. Zeigt, wie weit ein Messpunkt über (+) oder unter (−) der Geraden liegt.'],
+  kalib:['Kalibriergerade','Die Gerade Δt = m · s + t₀. Mit ihr rechnet man aus einer angezeigten Zeit den Abstand zurück: s = (Δt − t₀)/m.'],
+  oszi:['Oszilloskop','Messgerät, das Spannungen über der Zeit als Kurve zeigt. Waagerecht: Zeit, senkrecht: Spannung.'],
+  mc:['Microcontrollerboard','Kleiner Computer (z. B. Arduino). Er erzeugt nach einem Programm (Sketch) die Rechteckpulse für den Sender.']
+};
+const ICON={
+  send:`<svg viewBox="0 0 56 56"><rect x="8" y="20" width="12" height="16" fill="#9aa4ae" stroke="#333"/><path d="M20 20 L40 8 L40 48 L20 36 Z" fill="#c8232c" stroke="#333"/><path d="M46 20 q5 8 0 16" stroke="#4fb3ff" stroke-width="3" fill="none"/></svg>`,
+  recv:`<svg viewBox="0 0 56 56"><circle cx="30" cy="28" r="16" fill="#9aa4ae" stroke="#333" stroke-width="2"/><rect x="12" y="12" width="4" height="32" fill="#333"/><path d="M8 20 q-5 8 0 16" stroke="#4fb3ff" stroke-width="3" fill="none"/><rect x="40" y="40" width="12" height="8" fill="#222"/></svg>`,
+  bank:`<svg viewBox="0 0 56 56"><rect x="2" y="30" width="52" height="8" fill="#9aa4ae" stroke="#333"/><g stroke="#333">${[6,12,18,24,30,36,42,48].map(x=>`<line x1="${x}" y1="30" x2="${x}" y2="34"/>`).join('')}</g><rect x="12" y="18" width="8" height="12" fill="#555"/><rect x="36" y="18" width="8" height="12" fill="#555"/></svg>`,
+  refl:`<svg viewBox="0 0 56 56"><rect x="24" y="6" width="8" height="40" fill="#c9d2da" stroke="#333"/><g stroke="#333">${[10,16,22,28,34,40].map(y=>`<line x1="32" y1="${y}" x2="38" y2="${y-5}"/>`).join('')}</g><rect x="18" y="46" width="20" height="5" fill="#555"/></svg>`,
+  mc:`<svg viewBox="0 0 56 56"><rect x="6" y="12" width="44" height="32" rx="3" fill="#1f6f8b"/><rect x="22" y="22" width="14" height="12" fill="#222"/><g fill="#f0b400">${[10,15,20,25,30,35,40].map(x=>`<rect x="${x}" y="13" width="3" height="4"/>`).join('')}</g><rect x="6" y="30" width="8" height="10" fill="#bbb"/></svg>`,
+  osz:`<svg viewBox="0 0 56 56"><rect x="4" y="10" width="48" height="36" rx="4" fill="#3a3f47"/><rect x="8" y="14" width="30" height="22" fill="#07140f"/><path d="M9 30 h6 v-8 h2 v8 h8 q2 -6 4 0 h8" stroke="#ffd400" stroke-width="1.5" fill="none"/><circle cx="44" cy="20" r="3" fill="#bbb"/><circle cx="44" cy="30" r="3" fill="#bbb"/><circle cx="16" cy="41" r="2" fill="#ffd400"/><circle cx="24" cy="41" r="2" fill="#3ad0ff"/></svg>`,
+  nb:`<svg viewBox="0 0 56 56"><rect x="10" y="10" width="36" height="24" rx="2" fill="#333"/><rect x="13" y="13" width="30" height="18" fill="#dfe8ef"/><text x="28" y="26" font-size="8" text-anchor="middle" font-family="monospace" fill="#1f6f8b">.ino</text><path d="M4 38 h48 l-4 6 h-40 z" fill="#555"/></svg>`,
+  thermo:`<svg viewBox="0 0 56 56"><rect x="24" y="4" width="8" height="38" rx="4" fill="#fff" stroke="#333"/><rect x="26" y="20" width="4" height="24" fill="#e4572e"/><circle cx="28" cy="46" r="7" fill="#e4572e" stroke="#333"/></svg>`,
+  hv:`<svg viewBox="0 0 56 56"><rect x="6" y="12" width="44" height="32" rx="4" fill="#3a3f47"/><path d="M28 16 l-8 14 h7 l-3 12 l10 -16 h-7 l3 -10 z" fill="#f0b400"/><circle cx="12" cy="38" r="3" fill="#e33"/></svg>`
+};
+
+/* ---------- Grafiken ---------- */
+const SVG_ABB21=`<svg viewBox="0 0 400 250">
+ <line x1="70" y1="22" x2="340" y2="22" stroke="#b83f1c" stroke-width="1.5"/><text x="205" y="17" font-size="13" fill="#b83f1c" text-anchor="middle" font-style="italic">s</text>
+ <rect x="40" y="55" width="14" height="22" fill="#9aa4ae" stroke="#16233a" stroke-width="2"/><path d="M54 55 L74 42 L74 90 L54 77 Z" fill="#c8232c" stroke="#16233a" stroke-width="2"/>
+ <circle cx="62" cy="140" r="17" fill="#9aa4ae" stroke="#16233a" stroke-width="2"/><rect x="78" y="122" width="4" height="36" fill="#16233a"/>
+ <g stroke="#4fb3ff" stroke-width="2" fill="none">${[110,150,190,230,270,310].map(x=>`<path d="M${x} ${58+(x-110)*.12} v${22+(x-110)*.06}"/>`).join('')}${[300,260,220,180,140,100].map(x=>`<path d="M${x} ${120+(300-x)*.02} v${26}"/>`).join('')}</g>
+ <rect x="336" y="30" width="10" height="150" fill="#c9d2da" stroke="#16233a" stroke-width="2"/>
+ <g stroke="#16233a">${[40,55,70,85,100,115,130,145,160,175].map(y=>`<line x1="346" y1="${y}" x2="354" y2="${y-8}"/>`).join('')}</g>
+ <rect x="112" y="190" width="100" height="45" fill="#fff" stroke="#16233a" stroke-width="2"/>
+ <rect x="250" y="190" width="120" height="45" fill="#fff" stroke="#16233a" stroke-width="2"/><rect x="258" y="197" width="46" height="30" fill="#07140f"/><circle cx="330" cy="220" r="5" fill="#ffd400" stroke="#16233a"/><circle cx="352" cy="220" r="5" fill="#3ad0ff" stroke="#16233a"/>
+ <g stroke="#222" stroke-width="2" fill="none"><path d="M40 66 H25 V210 H112"/><path d="M50 140 H32 V242 H330 V225"/><path d="M212 210 H240 V180 H352 V215"/><path d="M40 72 H18"/></g>
+ <g font-weight="800" font-size="15" text-anchor="middle" fill="#fff">
+  <circle cx="95" cy="48" r="13" fill="#e4572e"/><text x="95" y="53">1</text>
+  <circle cx="105" cy="165" r="13" fill="#e4572e"/><text x="105" y="170">2</text>
+  <circle cx="375" cy="105" r="13" fill="#e4572e"/><text x="375" y="110">3</text>
+  <circle cx="162" cy="224" r="13" fill="#e4572e"/><text x="162" y="229">4</text>
+  <circle cx="282" cy="212" r="13" fill="#e4572e"/><text x="282" y="217">5</text></g></svg>`;
+
+function pulsesSVG(){let p='';const b=(x0)=>{for(let i=0;i<5;i++){const x=x0+i*9;p+=`M${x} 110 V60 H${x+5} V110 `}};b(60);b(300);
+ return `<svg viewBox="0 0 400 190"><line x1="40" y1="110" x2="390" y2="110" stroke="#16233a" stroke-width="2"/><line x1="40" y1="120" x2="40" y2="40" stroke="#16233a" stroke-width="2"/>
+ <text x="44" y="44" font-size="13" font-style="italic">u(t)</text><text x="384" y="126" font-size="13" font-style="italic">t</text>
+ <path d="${p}H390" stroke="#b83f1c" stroke-width="2" fill="none"/>
+ <g stroke="#16233a" stroke-width="1.5"><line x1="60" y1="118" x2="60" y2="175"/><line x1="105" y1="118" x2="105" y2="150"/><line x1="300" y1="118" x2="300" y2="175"/>
+ <line x1="60" y1="138" x2="105" y2="138"/><line x1="105" y1="138" x2="300" y2="138"/><line x1="60" y1="168" x2="300" y2="168"/></g>
+ <g font-weight="800" font-size="14" text-anchor="middle" fill="#fff"><circle cx="82" cy="138" r="12" fill="#e4572e"/><text x="82" y="143">1</text>
+ <circle cx="200" cy="138" r="12" fill="#e4572e"/><text x="200" y="143">2</text><circle cx="180" cy="168" r="12" fill="#e4572e"/><text x="180" y="173">3</text></g></svg>`}
+
+function thermoSVG(T){const y=t=>200-t*4;let ticks='';for(let t=0;t<=40;t++){const L=t%10===0?16:(t%5===0?11:6);ticks+=`<line x1="120" y1="${y(t)}" x2="${120+L}" y2="${y(t)}" stroke="#16233a" stroke-width="${t%10===0?2:1}"/>`;if(t%10===0)ticks+=`<text x="142" y="${y(t)+5}" font-size="14" font-weight="700">${t}</text>`}
+ return `<svg viewBox="0 0 260 240"><rect x="96" y="20" width="24" height="200" rx="12" fill="#fff" stroke="#16233a" stroke-width="2"/>
+ <rect x="102" y="${y(T)}" width="12" height="${216-y(T)}" fill="#e4572e"/><circle cx="108" cy="222" r="14" fill="#e4572e" stroke="#16233a" stroke-width="2"/>${ticks}<text x="180" y="30" font-size="14" font-weight="700">°C</text></svg>`}
+
+function benchSVG(s,opt={}){const X=v=>44+v/1.6*330, xr=X(s);let ticks='';
+ for(let v=0;v<=1.6001;v+=0.1){const big=Math.round(v*10)%2===0;ticks+=`<line x1="${X(v)}" y1="96" x2="${X(v)}" y2="${big?106:101}" stroke="#16233a"/>`+(big?`<text x="${X(v)}" y="118" font-size="10" text-anchor="middle">${fmt(v,1)}</text>`:'')}
+ const lab=opt.label||('s = '+fmt(s,2)+' m');
+ return `<svg class="scene" viewBox="0 0 400 124"><rect x="30" y="88" width="360" height="8" fill="#9aa4ae" stroke="#16233a"/>${ticks}
+ <rect x="10" y="30" width="10" height="16" fill="#9aa4ae" stroke="#16233a"/><path d="M20 30 L36 20 L36 56 L20 46 Z" fill="#c8232c" stroke="#16233a"/>
+ <circle cx="24" cy="70" r="11" fill="#9aa4ae" stroke="#16233a" stroke-width="1.5"/><rect x="36" y="58" width="3" height="24" fill="#16233a"/>
+ <line x1="44" y1="12" x2="${xr}" y2="12" stroke="#b83f1c" stroke-width="1.5"/><line x1="44" y1="7" x2="44" y2="17" stroke="#b83f1c"/><line x1="${xr}" y1="7" x2="${xr}" y2="17" stroke="#b83f1c"/>
+ <text x="${Math.min(Math.max((44+xr)/2,80),330)}" y="9" font-size="11" fill="#b83f1c" text-anchor="middle" font-weight="700">${lab}</text>
+ <rect x="${xr-3}" y="20" width="7" height="68" fill="#c9d2da" stroke="#16233a" stroke-width="1.5"/><rect x="${xr-9}" y="82" width="19" height="8" fill="#555"/>
+ ${opt.tag?`<text x="392" y="40" text-anchor="end" font-size="10" font-weight="700" fill="#1f6f8b">${opt.tag}</text>`:''}</svg>`}
+
+/* ---------- Zweikanal-Oszilloskop ---------- */
+const cAir=T=>331.3+0.6*T;
+const ampAt=s=>2.0/(1+Math.pow(s/0.9,2))+0.25;
+const DATA_A={0.2:1.29,0.4:2.46,0.6:3.62,0.8:4.79,1.0:5.96,1.2:7.13};
+const DATA_B={0.2:1.45,0.4:2.62,0.6:3.80,0.8:4.97,1.0:6.14,1.2:7.31};
+const EXTRA_A={0.3:1.87,0.5:3.04,0.7:4.21,0.9:5.38};
+const per=()=>1+(state.sim.pause||10);
+/* p: {x0,span,period,tS,echoes:[{t,a,d,j}],marks,targets,corner,xdec,noCH1} */
+function sc2(o,p){
+  const P=p.period, tS=p.tS??1, x0=p.x0||0;
+  (p.echoes||[]).forEach(e=>e._j=e.j?rand(-e.j,e.j):0);
+  const burst=x=>{if(x<0||p.noCH1)return 0;const u=x%P;return u<tS?(Math.random()<.5?2.4:0):0};
+  const ech=x=>{let v=0;(p.echoes||[]).forEach(e=>{const tt=e.t+e._j,d=e.d||1;for(let k=0;k*P<=x;k++){const u=x-k*P-tt;if(u>=0&&u<=d){v+=e.a*Math.pow(Math.sin(Math.PI*u/d),1.3)*(Math.random()*2-1)}}});return v+rand(-.06,.06)};
+  drawScope(o.cv,{xmin:x0,xmax:x0+p.span,ymin:0,ymax:10,ylabels:[],xdec:p.xdec,curves:[{f:x=>6.4+burst(x),color:'#ffd400',w:1.4},{f:x=>2.6+ech(x),color:'#3ad0ff',w:1.2}],marks:p.marks,targets:p.targets,corner:p.corner});
+  const L=o.cv._lay;if(!L)return;const c=o.cv.getContext('2d');c.font='bold 11px -apple-system,sans-serif';c.textAlign='left';
+  c.fillStyle='#ffd400';c.fillText('1▸',6,L.pt+L.gh-6.4/10*L.gh+4);c.fillStyle='#3ad0ff';c.fillText('2▸',6,L.pt+L.gh-2.6/10*L.gh+4);
+}
+function codeBox(rows){ // rows: [{k,label,fmt}]
+  const d=document.createElement('div');d.className='dev';d.style.cssText='background:#1f3b57;box-shadow:0 4px 0 #0f2233';
+  d.innerHTML=`<div class="scr"><div style="opacity:.7">#include &lt;Tone.h&gt; · Tone tone_US;<br>void setup() { tone_US.begin(13); }</div><div style="margin-top:6px">void loop() {<br>&nbsp;&nbsp;tone_US.play(<b>f</b>, <b>t_Sende</b>);<br>&nbsp;&nbsp;delay(<b>t_Pause</b>);</div>${rows.map(r=>`<div class="mrow"><span>${r.label}</span><span style="white-space:nowrap"><button class="arrow" data-k="${r.k}" data-d="-1">◀</button> <b data-v="${r.k}" style="display:inline-block;min-width:58px;text-align:center">?</b> <button class="arrow" data-k="${r.k}" data-d="1">▶</button></span></div>`).join('')}<div>}</div></div><div class="brand">ARDUINO-IDE · Sketch „ultraschall.ino“</div><div class="keys"><button data-up>⬆ Hochladen</button></div>`;
+  return d;
+}
+
+/* ---------- Simulationen ---------- */
+function simCode(c,api){
+  const F=[400,4000,40000,400000];const V={fi:1,ts:3,tp:2};let up=null;
+  c.insertAdjacentHTML('beforeend',`<div class="task"><b>Aus der Anleitung (2, Versuchsdurchführung):</b> Der Microcontroller erzeugt eine kurze Folge von Rechteckpulsen der ${T('nenn','Nennfrequenz')} des Senders. Lade ein geeignetes Programm (Listing 2.1).</div><p>Stelle mit ◀ ▶ die drei Werte wie im Listing ein und tippe auf <b>Hochladen</b>.</p>`);
+  const box=codeBox([{k:'f',label:'f in Hz'},{k:'ts',label:'t_Sende in ms'},{k:'tp',label:'t_Pause in ms'}]);c.appendChild(box);
+  const o=makeScope(c,{title:'Oszilloskop · Kanal 1 (Sendesignal)'});const say=statusFb(c);const q=document.createElement('div');c.appendChild(q);
+  const show=()=>{$('[data-v="f"]',box).textContent=F[V.fi];$('[data-v="ts"]',box).textContent=V.ts;$('[data-v="tp"]',box).textContent=V.tp};show();
+  $$('.arrow',box).forEach(b=>b.onclick=()=>{const k=b.dataset.k,d=+b.dataset.d;if(k==='f')V.fi=Math.max(0,Math.min(3,V.fi+d));if(k==='ts')V.ts=Math.max(1,Math.min(5,V.ts+d));if(k==='tp')V.tp=Math.max(1,Math.min(20,V.tp+d));show()});
+  $('[data-up]',box).onclick=()=>{if(ctx.solved||q.dataset.on)return;up={f:F[V.fi],ts:V.ts,tp:V.tp};
+    if(up.f!==40000){api.wrong();say('bad',up.f<40000?`❌ ${fmt(up.f/1000,1)} kHz liegt weit unter der Nennfrequenz: Der Sender schwingt kaum mit – und man könnte es sogar hören. Sender und Empfänger sind für <b>40 kHz</b> gebaut.`:'❌ 400 kHz ist zehnmal zu hoch – der Sender kann so schnell nicht schwingen. Nennfrequenz: <b>40 kHz = 40 000 Hz</b>.');return}
+    if(up.ts!==1){api.wrong();say('bad',`❌ t_Sende = ${up.ts} ms: Der Burst ist zu lang – ein langes Echo lässt sich schlecht zeitlich ablesen. Im Listing steht <b>1 ms</b>.`);return}
+    if(up.tp!==6){api.wrong();say('bad',`❌ Die Pause stimmt noch nicht mit dem Listing überein: dort steht <b>delay(6)</b>.`);return}
+    say('ok','✅ Hochgeladen! Auf Kanal 1 siehst du jetzt die Bursts: 1 ms senden, 6 ms Pause.');q.dataset.on=1;
+    mcqW(q,{q:'Wie lange dauert es vom Beginn eines Bursts bis zum Beginn des nächsten (t_gesamt)?',o:[
+      {t:'7 ms',ok:1,fb:'Genau: t_gesamt = t_Sende + t_Pause = 1 ms + 6 ms = 7 ms. Das sind 7 Kästchen bei 1 ms/Div.'},
+      {t:'6 ms',fb:'Das ist nur die Pause. Der Burst selbst (1 ms) gehört auch dazu.'},
+      {t:'1 ms',fb:'Das ist nur die Sendezeit t_Sende.'},
+      {t:'40 ms',fb:'40 steht für die Frequenz 40 kHz – das ist keine Zeit.'}]},api.solved,api.wrong)};
+  loop(()=>{if(!up){drawScope(o.cv,{xmin:0,xmax:10,ymin:0,ymax:10,ylabels:[],xdec:0,curves:[{f:()=>6.4+rand(-.04,.04),color:'#ffd400',w:1.4}],corner:'1 ms/Div · noch kein Programm'});o.ro.innerHTML='<span>Noch nichts hochgeladen.</span>';return}
+    sc2(o,{span:10,period:up.ts+up.tp,tS:up.ts,echoes:[],corner:'1 ms/Div'});o.ro.innerHTML=`<span>f = <b>${fmt(up.f/1000,0)} kHz</b></span><span>t_Sende = <b>${up.ts} ms</b></span><span>t_Pause = <b>${up.tp} ms</b></span>`});
+  api.setAuto(()=>{V.fi=2;V.ts=1;V.tp=6;show();$('[data-up]',box).click()});
+}
+
+function simMove(c,api){
+  let s=0.40;const P=7,flags=[0,0,0];
+  c.insertAdjacentHTML('beforeend',`<div class="task"><b>Auftrag:</b> Verschiebe den ${T('refl','Reflektor')} auf der optischen Bank. Beobachte das blaue ${T('echo','Echo')} auf Kanal 2. Die Pause steht noch auf 6 ms.</div>`);
+  const bw=document.createElement('div');bw.className='fig';c.appendChild(bw);
+  const o=makeScope(c,{title:'Oszilloskop · 1 ms/Div'});
+  const cl=checklist(['Reflektor nah: s ≤ 0,30 m','Reflektor weit: s ≥ 1,00 m','Echo trifft auf den nächsten Sendeimpuls (s ≥ 1,15 m)']);
+  const ctl=ctlRow({label:'Abstand Reflektor s',min:0.1,max:1.6,step:0.01,val:s,fine:0.05,coarse:0.2,fmtV:v=>fmt(v,2)+' m',onChange:v=>{s=v;bw.innerHTML=benchSVG(s);
+    if(s<=0.30)flags[0]=1;if(s>=1.0)flags[1]=1;if(s>=1.15)flags[2]=1;flags.forEach((f,i)=>cl.set(i,!!f));if(flags.every(Boolean))ask()}});
+  c.appendChild(ctl);c.appendChild(cl);bw.innerHTML=benchSVG(s);const q=document.createElement('div');c.appendChild(q);
+  const ask=()=>{if(q.dataset.on)return;q.dataset.on=1;mcqW(q,{q:'Was passiert mit dem Echo, wenn du den Reflektor weiter weg schiebst?',o:[
+    {t:'Es rutscht nach rechts – der Schall braucht für den längeren Weg mehr Zeit.',ok:1,fb:'Richtig! Doppelter Abstand → ungefähr doppelte Laufzeit. Und es wird etwas kleiner, weil sich der Schall verteilt.'},
+    {t:'Es wird nur kleiner, bleibt aber an derselben Stelle.',fb:'Kleiner wird es auch – aber schau auf die Zeitachse: Das Echo wandert.'},
+    {t:'Es rutscht nach links.',fb:'Links heißt „früher“. Ein längerer Weg braucht aber mehr Zeit.'},
+    {t:'Es wird schneller.',fb:'Die Schallgeschwindigkeit bleibt gleich – nur der Weg wird länger.'}]},api.solved,api.wrong)};
+  loop(()=>{const dt=5.84*s+0.12;sc2(o,{span:10,period:P,tS:1,echoes:[{t:dt,a:ampAt(s),d:1}],corner:'1 ms/Div · t_Pause = 6 ms'});
+    o.ro.innerHTML=`<span>s = <b>${fmt(s,2)} m</b></span><span>Echo beginnt nach ≈ <b>${fmt(dt,1)} Kästchen</b></span>${dt+1>P?'<span style="color:#ffb199">⚠️ Echo überlagert nächsten Sendeimpuls</span>':''}`});
+  api.setAuto(()=>{ctl.set(0.2);ctl.set(1.0);ctl.set(1.2)});
+}
+
+function simPause(c,api){
+  const s=1.6;let tp=6,up=6,span=20;
+  c.insertAdjacentHTML('beforeend',`<div class="task"><b>Auftrag:</b> Der Reflektor steht jetzt bei <b>1,60 m</b> – so weit wie später beim letzten Prüfpunkt. Ändere <b>delay( )</b> so, dass das ganze Echo <b>zwischen</b> zwei Sendeimpulsen liegt. Nimm den kleinsten Wert, der sicher reicht.</div>`);
+  const bw=document.createElement('div');bw.className='fig';bw.innerHTML=benchSVG(s);c.appendChild(bw);
+  const box=codeBox([{k:'tp',label:'t_Pause in ms'}]);c.appendChild(box);
+  const o=makeScope(c,{title:'Oszilloskop',units:['2 ms/Div','1 ms/Div']});o.onUnit=()=>{span=o.unit==='2 ms/Div'?20:10};
+  const say=statusFb(c);const show=()=>$('[data-v="tp"]',box).textContent=tp;show();
+  $$('.arrow',box).forEach(b=>b.onclick=()=>{tp=Math.max(1,Math.min(20,tp+ +b.dataset.d));show()});
+  $('[data-up]',box).onclick=()=>{if(ctx.solved)return;up=tp;
+    if(tp<7){api.wrong();say('bad',`❌ Mit ${tp} ms Pause kommt der nächste Sendeimpuls schon nach ${tp+1} ms. Das Echo (ab ≈ 9,7 ms) landet <b>hinter</b> dem nächsten Impuls – man ordnet es dem falschen Impuls zu.`);return}
+    if(tp<10){api.wrong();say('bad',`❌ Fast! Der nächste Impuls kommt nach ${tp+1} ms – aber das Echo beginnt bei ≈ 9,7 ms und dauert noch ≈ 1 ms. Es wird noch überdeckt.`);return}
+    state.sim.pause=tp;state.proto.pause=tp;save();
+    say('ok',tp===10?'✅ Perfekt: delay(10) → alle 11 ms ein Burst. Das Echo (≈ 9,7 bis 10,7 ms) passt komplett dazwischen.':`✅ Funktioniert: Das Echo liegt frei. (delay(10) hätte auch gereicht – eine längere Pause bedeutet weniger Messungen pro Sekunde.)`);api.solved()};
+  loop(()=>{const P=1+up;sc2(o,{span,period:P,tS:1,echoes:[{t:9.66,a:0.45,d:1,j:0.12}],xdec:0,corner:`${o.unit} · t_Pause = ${up} ms`});
+    o.ro.innerHTML=`<span>Burst alle <b>${P} ms</b></span><span>Echo-Beginn ≈ <b>9,7 ms</b></span>`});
+  api.setAuto(()=>{tp=10;show();$('[data-up]',box).click()});
+}
+
+function simTemp(c,api){
+  let T=18,A=60;const s=1.0,f=[0,0,0,0];
+  c.insertAdjacentHTML('beforeend',`<div class="task"><b>Gedankenexperiment:</b> Der Reflektor steht fest bei 1,00 m. Was wäre, wenn es im Labor kälter oder wärmer wäre? Und was, wenn der Sender lauter wäre? Die gelbe Linie zeigt das Echo bei 18 °C.</div>`);
+  const o=makeScope(c,{title:'Oszilloskop · Zoom 0,2 ms/Div'});
+  const cl=checklist(['Temperatur ≤ 5 °C ausprobiert','Temperatur ≥ 30 °C ausprobiert','Sendestärke 20 % ausprobiert','Sendestärke 100 % ausprobiert']);
+  const chk=()=>{f.forEach((v,i)=>cl.set(i,!!v));if(f.every(Boolean))ask()};
+  const c1=ctlRow({label:'Lufttemperatur ϑ',min:0,max:35,step:1,val:T,fine:1,coarse:5,fmtV:v=>fmt(v,0)+' °C',onChange:v=>{T=v;if(v<=5)f[0]=1;if(v>=30)f[1]=1;chk()}});
+  const c2=ctlRow({label:'Sendestärke (Lautstärke)',min:20,max:100,step:10,val:A,fine:10,fmtV:v=>fmt(v,0)+' %',onChange:v=>{A=v;if(v<=20)f[2]=1;if(v>=100)f[3]=1;chk()}});
+  c.appendChild(c1);c.appendChild(c2);c.appendChild(cl);const q=document.createElement('div');c.appendChild(q);let st=0;
+  const ask=()=>{if(q.dataset.on)return;q.dataset.on=1;
+    mcqW(q,{q:'Was passiert, wenn es wärmer wird?',o:[
+      {t:'Das Echo kommt früher – warme Luft leitet den Schall schneller.',ok:1,fb:'Richtig! c steigt pro °C um etwa 0,6 m/s. Mehr c → kürzere Laufzeit.'},
+      {t:'Das Echo kommt später.',fb:'Schau genau hin: Bei 30 °C liegt das Echo links von der gelben Linie – also früher.'},
+      {t:'Nichts – die Temperatur ist egal.',fb:'Klein, aber messbar: Zwischen 0 °C und 35 °C verschiebt sich das Echo um fast 0,4 ms. Das wären über 6 cm Abstand!'}]},
+      ()=>{mcqW(q,{q:'Und was ändert eine größere Sendestärke?',o:[
+        {t:'Das Echo wird höher, kommt aber zur gleichen Zeit.',ok:1,fb:'Genau. Lauter heißt nicht schneller: Die Laufzeit hängt nur von Weg und Schallgeschwindigkeit ab.'},
+        {t:'Das Echo kommt früher – lauter ist schneller.',fb:'Typische Fehlvorstellung! Die Amplitude ändert die Höhe, nicht die Zeit.'},
+        {t:'Das Echo wird breiter und kommt später.',fb:'Die Lage auf der Zeitachse bleibt gleich – schau auf den Beginn.'}]},api.solved,api.wrong)},api.wrong)};
+  loop(()=>{const dt=2/cAir(T)*1000+0.12;sc2(o,{x0:5,span:2,period:99,tS:1,echoes:[{t:dt,a:2.4*A/100,d:1}],targets:[2/cAir(18)*1000+0.12],xdec:1,corner:'0,2 ms/Div'});
+    o.ro.innerHTML=`<span>c = <b>${fmt(cAir(T),1)} m/s</b></span><span>Echo-Beginn = <b>${fmt(dt,2)} ms</b></span>`});
+  api.setAuto(()=>{c1.set(0);c1.set(35);c2.set(20);c2.set(100)});
+}
+
+function simCount(c,api){
+  c.insertAdjacentHTML('beforeend',`<div class="task"><b>Ablesen üben:</b> Der Reflektor steht bei 0,80 m. Zeitbasis: <b>1 ms/Div</b> – jedes ${T('div','Kästchen')} nach rechts ist 1 ms. Zähle vom Beginn des gelben Sendeimpulses bis zum <b>Beginn</b> des blauen Echos.</div>`);
+  const o=makeScope(c,{title:'Oszilloskop · 1 ms/Div'});
+  loop(()=>{sc2(o,{span:10,period:per(),tS:1,echoes:[{t:4.79,a:ampAt(0.8),d:1}],corner:'1 ms/Div'});o.ro.innerHTML='<span>Aufbau A · s = <b>0,80 m</b></span>'});
+  mcqW(c,{q:'Das Echo beginnt nach knapp 4,8 Kästchen. Wie groß ist die Laufzeit Δt?',o:[
+    {t:'Δt ≈ 4,8 ms',ok:1,fb:'Richtig: 4,8 Kästchen · 1 ms pro Kästchen = 4,8 ms.'},
+    {t:'Δt ≈ 0,48 ms',fb:'Ein Kästchen ist 1 ms, nicht 0,1 ms. Schau auf die Zeitbasis.'},
+    {t:'Δt ≈ 48 ms',fb:'Zehnmal zu viel – ein Kästchen ist 1 ms, nicht 10 ms.'},
+    {t:'Δt ≈ 2,4 ms – halbiert, weil hin und zurück',fb:'Das Oszilloskop zeigt die ganze Zeit für hin <b>und</b> zurück. Halbiert wird erst beim Weg: s = c·Δt/2.'}]},api.solved,api.wrong);
+  api.setAuto(()=>{});
+}
+
+function simMeasure(c,api){
+  const need=[0.2,0.4,0.6,0.8,1.0,1.2];let s=0.2,cur=null;const got={};
+  c.insertAdjacentHTML('beforeend',`<div class="task"><b>Aus der Anleitung (2, Aufgabe 3):</b> Messen Sie im Zweikanalbetrieb für mindestens zehn Abstände die Laufzeiten … <br>Du misst 6 Abstände mit Aufbau A. 4 weitere hat dein Kollege schon eingetragen.</div>
+  <p><b>So geht's:</b> Abstand wählen → auf den <b>Beginn</b> des blauen Echos tippen → übernehmen.</p>`);
+  const br=document.createElement('div');br.className='btnrow';br.innerHTML=need.map(v=>`<button class="btn sec small" data-s="${v}">${fmt(v,2)} m</button>`).join('');c.appendChild(br);
+  const bw=document.createElement('div');bw.className='fig';c.appendChild(bw);
+  const o=makeScope(c,{title:'Oszilloskop · 1 ms/Div · Cursor'});const say=statusFb(c);
+  const take=document.createElement('button');take.className='btn blue';take.style.width='100%';take.textContent='📥 In Tabelle übernehmen';take.disabled=true;c.appendChild(take);
+  const tb=document.createElement('div');c.appendChild(tb);
+  const table=()=>{const all=Object.keys(Object.assign({},DATA_A,EXTRA_A)).map(Number).sort((a,b)=>a-b);
+    tb.innerHTML=`<table class="tb" style="margin-top:10px"><tr><th>s in m</th><th>Δt in ms (A)</th><th>von</th></tr>${all.map(v=>{const own=need.includes(v);const val=own?got[v]:EXTRA_A[v];return `<tr><td>${fmt(v,2)}</td><td>${val==null?'—':'<b>'+fmt(val,2)+'</b>'}</td><td>${own?'dir':'Kollege'}</td></tr>`}).join('')}</table>`};
+  const pick=v=>{s=v;cur=null;take.disabled=true;bw.innerHTML=benchSVG(s,{tag:'Aufbau A'});$$('[data-s]',br).forEach(b=>{b.classList.toggle('blue',+b.dataset.s===v);b.classList.toggle('sec',+b.dataset.s!==v)});say('info','👆 Tippe jetzt auf den Anfang des blauen Echos.')};
+  $$('[data-s]',br).forEach(b=>b.onclick=()=>{if(!ctx.solved)pick(+b.dataset.s)});
+  const setCur=()=>{cur=DATA_A[s];take.disabled=false;say('info',`Cursor gesetzt: Δt = <b>${fmt(cur,2)} ms</b>. Jetzt übernehmen.`)};
+  o.cv.addEventListener('pointerdown',e=>{if(ctx.solved)return;const x=scopeToX(o.cv,e.clientX);if(x==null)return;const dt=DATA_A[s];
+    if(Math.abs(x-dt)<0.7)setCur();else if(x<1.3){api.wrong();say('bad','❌ Das ist der gelbe Sendeimpuls – dort startet die Zeitmessung (0 ms). Tippe auf den Beginn des <b>blauen</b> Echos.')}else say('bad','Nicht ganz – tippe genau auf den Anfang des blauen Echos.')});
+  take.onclick=()=>{if(cur==null||ctx.solved)return;got[s]=cur;table();cur=null;take.disabled=true;
+    const n=need.filter(v=>got[v]!=null).length;if(n<6){say('ok',`✅ Gespeichert (${n}/6). Nächsten Abstand wählen.`)}else{state.proto.dt08=4.79;say('ok','✅ Messreihe komplett – 10 Abstände! Je weiter, desto länger die Laufzeit: pro 0,20 m etwa 1,17 ms mehr.');api.solved()}};
+  loop(()=>{const dt=DATA_A[s];sc2(o,{span:10,period:per(),tS:1,echoes:[{t:dt,a:ampAt(s),d:1}],marks:cur!=null?[{x:cur,label:'Δt = '+fmt(cur,2)+' ms'}]:[],corner:'1 ms/Div'});
+    o.ro.innerHTML=`<span>Aufbau A · s = <b>${fmt(s,2)} m</b></span><span>Cursor: <b>${cur!=null?fmt(cur,2)+' ms':'—'}</b></span>`});
+  pick(0.2);table();
+  api.setAuto(()=>{need.forEach(v=>{pick(v);setCur();take.click()})});
+}
+
+function simPlot(c,api){
+  const f={a:0,b:0,g:0,z:0};let zoom=false;
+  c.insertAdjacentHTML('beforeend',`<div class="task"><b>Auftrag:</b> Trage beide Messreihen ins Δt-s-Diagramm ein, zeichne die Geraden durch die Endpunkte und schau mit der Lupe, wo sie bei s = 0 landen.</div>`);
+  const br=document.createElement('div');br.className='btnrow';br.innerHTML=`<button class="btn sec small" data-b="a">✕ A eintragen</button><button class="btn sec small" data-b="b">○ B eintragen</button><button class="btn sec small" data-b="g">📏 Geraden</button><button class="btn sec small" data-b="z">🔍 Lupe bei s = 0</button>`;c.appendChild(br);
+  const o=makeScope(c,{title:'Δt-s-Diagramm'});
+  const cl=checklist(['Messreihe A eingetragen','Messreihe B eingetragen','Geraden durch die Endpunkte gezeichnet','Mit der Lupe den Bereich bei s = 0 angesehen']);c.appendChild(cl);const q=document.createElement('div');c.appendChild(q);
+  const press=k=>{if(k==='g'&&!(f.a&&f.b))return;f[k]=1;if(k==='z')zoom=!zoom;['a','b','g','z'].forEach((x,i)=>cl.set(i,!!f[x]));const b=$(`[data-b="${k}"]`,br);b.classList.remove('sec');b.classList.add('blue');if(f.a&&f.b&&f.g&&f.z)ask()};
+  $$('[data-b]',br).forEach(b=>b.onclick=()=>press(b.dataset.b));
+  const ask=()=>{if(q.dataset.on)return;q.dataset.on=1;
+    mcqW(q,{q:'Wo trifft die Gerade von A die senkrechte Achse (bei s = 0)?',o:[
+      {t:'Knapp über null – bei etwa 0,1 ms.',ok:1,fb:'Richtig! Bei s = 0 bleibt ein Zeitrest: die Systemzeit t₀. Sie steckt in jeder angezeigten Zeit.'},
+      {t:'Genau im Ursprung (0 | 0).',fb:'Schau mit der Lupe: Die Gerade geht nicht durch (0|0). Es bleibt ein kleiner Zeitrest.'},
+      {t:'Bei 1,29 ms.',fb:'1,29 ms ist der erste Messpunkt bei s = 0,20 m – nicht bei s = 0.'},
+      {t:'Unter null – bei einer negativen Entfernung.',fb:'Die Gerade trifft die Zeitachse oberhalb von 0. Und t₀ ist eine Zeit, keine Entfernung.'}]},
+      ()=>mcqW(q,{q:'Wie liegt B im Vergleich zu A?',o:[
+        {t:'B liegt überall etwas höher – fast parallel zu A.',ok:1,fb:'Genau: ähnliche Steigung, aber anderer Zeitnullpunkt.'},
+        {t:'B liegt genau auf A.',fb:'Schau auf die roten Punkte: Sie liegen etwas über den blauen, bei 0,20 m schon 0,16 ms.'},
+        {t:'B ist viel steiler als A.',fb:'Die Geraden sind fast parallel – der Unterschied ist vor allem eine Verschiebung.'}]},api.solved,api.wrong),api.wrong)};
+  loop(()=>{const pts=[];if(f.a)Object.entries(DATA_A).forEach(([s,t])=>pts.push({x:+s,y:t,color:'#4fc3ff',r:4}));if(f.b)Object.entries(DATA_B).forEach(([s,t])=>pts.push({x:+s,y:t,color:'#ff6b6b',r:4}));
+    const cu=f.g?[{f:x=>5.84*x+0.12,color:'#4fc3ff',w:1.6},{f:x=>5.86*x+0.28,color:'#ff6b6b',w:1.6}]:[];
+    drawScope(o.cv,zoom?{xmin:0,xmax:0.5,ymin:0,ymax:2.5,xdec:2,ylabels:[0,0.5,1,1.5,2,2.5],ydec:1,points:pts,curves:cu,corner:'Lupe · x: s in m · y: Δt in ms'}:{xmin:0,xmax:2,ymin:0,ymax:10,xdec:1,ylabels:[0,2,4,6,8,10],points:pts,curves:cu,corner:'x: s in m · y: Δt in ms'});
+    o.ro.innerHTML='<span style="color:#4fc3ff">● A (blau)</span><span style="color:#ff6b6b">● B (rot)</span>'});
+  api.setAuto(()=>{press('a');press('b');press('g');press('z')});
+}
+
+function simSlider(c,api){
+  let m=5.40,t0=0.60;const f=[0,0,0];
+  c.insertAdjacentHTML('beforeend',`<div class="task"><b>Gedankenexperiment:</b> Verändere erst nur den Offset t₀, dann nur die Steigung m. Bring die Gerade auf die blauen A-Punkte.</div>`);
+  const o=makeScope(c,{title:'Geraden-Labor'});
+  const cl=checklist(['Nur den Offset t₀ verändert','Nur die Steigung m verändert','Gerade passt auf die A-Punkte']);
+  const fit=()=>{if(Math.abs(m-5.84)<=0.03&&Math.abs(t0-0.12)<=0.03)f[2]=1;f.forEach((v,i)=>cl.set(i,!!v));if(f.every(Boolean))ask()};
+  const c1=ctlRow({label:'Offset t₀',min:-0.4,max:0.8,step:0.02,val:t0,fine:0.02,coarse:0.2,fmtV:v=>fmt(v,2)+' ms',onChange:v=>{t0=v;f[0]=1;fit()}});
+  const c2=ctlRow({label:'Steigung m',min:5.0,max:6.6,step:0.02,val:m,fine:0.02,coarse:0.2,fmtV:v=>fmt(v,2)+' ms/m',onChange:v=>{m=v;f[1]=1;fit()}});
+  c.appendChild(c1);c.appendChild(c2);c.appendChild(cl);const q=document.createElement('div');c.appendChild(q);
+  const ask=()=>{if(q.dataset.on)return;q.dataset.on=1;
+    mcqW(q,{q:'Welcher Regler verschiebt die Gerade fast parallel nach oben oder unten?',o:[
+      {t:'Der Offset t₀',ok:1,fb:'Richtig: t₀ verschiebt die ganze Gerade, m dreht sie.'},
+      {t:'Die Steigung m',fb:'Die Steigung dreht die Gerade – sie wird steiler oder flacher.'},
+      {t:'Beide gleich',fb:'Probier nochmal einzeln: Einer verschiebt, einer dreht.'}]},
+      ()=>mcqW(q,{q:'Ein Kollege sagt: „5,84 und 5,86 ms/m sind fast gleich – also reicht eine Formel für A und B.“ Stimmt das?',o:[
+        {t:'Nein – die Offsets unterscheiden sich um 0,16 ms. Jeder Aufbau braucht seine eigene Formel.',ok:1,fb:'Genau. Gleiche Steigung heißt nur gleiche Zeitänderung pro Meter – nicht gleicher Startpunkt.'},
+        {t:'Ja – die Steigungen sind fast gleich, also auch der Rest.',fb:'Gleiche Steigung sagt nichts über den Offset. B liegt überall ≈ 0,16 ms höher.'},
+        {t:'Ja – 0,16 ms sind so wenig, das ist egal.',fb:'0,16 ms entsprechen rund 27 mm Abstand – zu viel für eine Prüfung.'}]},api.solved,api.wrong),api.wrong)};
+  loop(()=>{drawScope(o.cv,{xmin:0,xmax:2,ymin:0,ymax:10,xdec:1,ylabels:[0,2,4,6,8,10],points:Object.entries(DATA_A).map(([s,t])=>({x:+s,y:t,color:'#4fc3ff',r:4})),curves:[{f:x=>m*x+t0,color:'#7dffa6',w:2}],corner:'Δt = m·s + t₀'});
+    o.ro.innerHTML=`<span>Δt = <b>${fmt(m,2)}</b> ms/m · s + <b>${fmt(t0,2)}</b> ms</span>`});
+  api.setAuto(()=>{c1.set(0.12);c2.set(5.84)});
+}
+
+function simJustage(c,api){
+  let t0=0;
+  c.insertAdjacentHTML('beforeend',`<div class="task"><b>Justage:</b> Die Prüftafel steht laut Wegskala bei <b>0,800 m</b>. Aufbau B zeigt Δt = 4,97 ms. Stelle im Auswerteprogramm den Offset t₀ so ein, dass die Anzeige stimmt.</div>`);
+  const bw=document.createElement('div');bw.className='fig';bw.innerHTML=benchSVG(0.8,{tag:'Aufbau B',label:'Wegskala: 0,800 m'});c.appendChild(bw);
+  const d=document.createElement('div');d.className='dev';d.innerHTML=`<div class="scr"><div class="mrow"><span>Δt angezeigt</span><b>4,97 ms</b></div><div class="mrow"><span>Steigung m_B</span><b>5,86 ms/m</b></div><div class="mrow"><span>Offset t₀</span><b data-t></b></div><div class="mrow"><span>Abstand s = (Δt − t₀)/m</span><b data-s style="font-size:19px"></b></div></div><div class="brand">AUSWERTUNG · SENSOR B</div>`;c.appendChild(d);
+  const bars=document.createElement('div');bars.className='bars';c.appendChild(bars);
+  const upd=()=>{const s=(4.97-t0)/5.86;$('[data-t]',d).textContent=fmt(t0,2)+' ms';$('[data-s]',d).textContent=fmt(s,3)+' m';
+    bars.innerHTML=`<div class="bar"><i style="width:${Math.min(100,0.8/0.9*100)}%;background:#23915a"></i><span style="color:#fff">Wegskala 0,800 m</span></div><div class="bar"><i style="width:${Math.min(100,s/0.9*100)}%"></i><span style="color:#fff">Anzeige ${fmt(s,3)} m</span></div>`};
+  const ctl=ctlRow({label:'Offset t₀ im Programm',min:0,max:0.5,step:0.01,val:0,fine:0.01,coarse:0.1,fmtV:v=>fmt(v,2)+' ms',onChange:v=>{t0=v;upd()}});c.appendChild(ctl);upd();
+  const b=document.createElement('button');b.className='btn blue';b.style.width='100%';b.textContent='✓ Offset speichern';c.appendChild(b);const say=statusFb(c);const q=document.createElement('div');c.appendChild(q);
+  b.onclick=()=>{if(ctx.solved||q.dataset.on)return;const s=(4.97-t0)/5.86;
+    if(Math.abs(t0-0.28)<0.005){say('ok','✅ Justiert! Mit t₀ = 0,28 ms zeigt B 0,800 m – genau der Wert, den du vorhin berechnet hast.');q.dataset.on=1;
+      mcqW(q,{q:'Jetzt steht die Tafel bei 1,00 m, B zeigt 6,14 ms. Wie groß ist jetzt der Unterschied zwischen s ohne Offset und s mit Offset?',o:[
+        {t:'Wieder ≈ 48 mm – ein fester Zeitoffset macht einen festen Wegfehler t₀/m.',ok:1,fb:'Richtig: 6,14/5,86 = 1,048 m, (6,14 − 0,28)/5,86 = 1,000 m. Unterschied 0,28/5,86 m ≈ 48 mm – immer gleich.'},
+        {t:'Mehr als 48 mm – der Fehler wächst mit dem Abstand.',fb:'Der Offset ist eine feste Zeit. Geteilt durch m ergibt er immer denselben Weg: 0,28/5,86 m ≈ 48 mm.'},
+        {t:'0 mm – bei großen Abständen ist der Offset egal.',fb:'Der Offset steckt in jeder Messung – auch bei 1,00 m.'}]},api.solved,api.wrong)}
+    else{api.wrong();say('bad',s>0.8?`❌ Anzeige ${fmt(s,3)} m ist zu weit – es ist noch zu wenig Systemzeit abgezogen.`:`❌ Anzeige ${fmt(s,3)} m ist zu kurz – du ziehst zu viel ab.`)}};
+  api.setAuto(()=>{ctl.set(0.28);b.click()});
+}
+
+function simValid(c,api){
+  let s=1.4,cur=null;const got={};
+  c.insertAdjacentHTML('beforeend',`<div class="task"><b>Prüfpunkte:</b> Die Referenzen gingen nur bis 1,20 m. Miss mit Aufbau A zwei zusätzliche Prüfpunkte: 1,40 m und 1,60 m. Achte auch darauf, <b>wie</b> das Echo aussieht.</div>`);
+  const br=document.createElement('div');br.className='btnrow';br.innerHTML=`<button class="btn blue small" data-s="1.4">1,40 m</button><button class="btn sec small" data-s="1.6">1,60 m</button>`;c.appendChild(br);
+  const bw=document.createElement('div');bw.className='fig';c.appendChild(bw);const o=makeScope(c,{title:'Oszilloskop · 1 ms/Div · Cursor'});const say=statusFb(c);
+  const take=document.createElement('button');take.className='btn blue';take.style.width='100%';take.textContent='📥 Messwert übernehmen';take.disabled=true;c.appendChild(take);const q=document.createElement('div');c.appendChild(q);
+  const E={1.4:{t:8.30,a:ampAt(1.4),j:0},1.6:{t:9.66,a:0.45,j:0.12}};
+  const pick=v=>{s=v;cur=null;take.disabled=true;bw.innerHTML=benchSVG(s,{tag:'Aufbau A'});$$('[data-s]',br).forEach(b=>{b.classList.toggle('blue',+b.dataset.s===v);b.classList.toggle('sec',+b.dataset.s!==v)});say('info','👆 Tippe auf den Beginn des blauen Echos.')};
+  $$('[data-s]',br).forEach(b=>b.onclick=()=>{if(!q.dataset.on)pick(+b.dataset.s)});
+  const setCur=()=>{cur=E[s].t;take.disabled=false;say('info',s===1.6?'Cursor gesetzt – aber das Echo ist schwach und die Auslösezeit springt hin und her (≈ 9,5 … 9,8 ms). Mittelwert: <b>9,66 ms</b>.':'Cursor gesetzt: <b>8,30 ms</b>, das Echo steht ruhig.')};
+  o.cv.addEventListener('pointerdown',e=>{if(q.dataset.on)return;const x=scopeToX(o.cv,e.clientX);if(x!=null&&Math.abs(x-E[s].t)<0.7)setCur();else say('bad','Tippe genau auf den Anfang des blauen Echos.')});
+  take.onclick=()=>{if(cur==null)return;got[s]=cur;state.proto[s===1.4?'dt140':'dt160']=cur;take.disabled=true;cur=null;
+    if(got[1.4]!=null&&got[1.6]!=null){say('ok','✅ Beide Prüfpunkte gemessen.');q.dataset.on=1;
+      mcqW(q,{q:'Wie beurteilst du die beiden Echos?',o:[
+        {t:'1,40 m: stabil · 1,60 m: schwach, Zeit schwankt',ok:1,fb:'Genau. Das notierst du im Protokoll – die Echoqualität zählt später bei der Freigabe mit.'},
+        {t:'Beide stabil',fb:'Schau nochmal auf 1,60 m: Das Echo ist klein und springt hin und her.'},
+        {t:'1,40 m: schwach · 1,60 m: stabil',fb:'Andersherum: Je weiter weg, desto schwächer das Echo.'}]},api.solved,api.wrong)}
+    else{say('ok','✅ Gespeichert. Jetzt den anderen Prüfpunkt messen.');pick(s===1.4?1.6:1.4)}};
+  loop(()=>{const e=E[s];const jit=e.j?rand(-e.j,e.j):0;sc2(o,{span:10,period:per(),tS:1,echoes:[{t:e.t,a:e.a,d:1,j:e.j}],marks:cur!=null?[{x:e.t+(s===1.6?jit:0),label:'Δt ≈ '+fmt(e.t+(s===1.6?jit:0),2)+' ms'}]:[],corner:'1 ms/Div'});
+    o.ro.innerHTML=`<span>Aufbau A · s = <b>${fmt(s,2)} m</b></span><span>Gemessen: ${got[1.4]!=null?'1,40 m ✓ ':''}${got[1.6]!=null?'1,60 m ✓':''}</span>`});
+  pick(1.4);
+  api.setAuto(()=>{pick(1.4);setCur();take.click();pick(1.6);setCur();take.click()});
+}
+
+/* ---------- Level ---------- */
+const LEVELS=[
+{title:'Messplatz aufbauen',tag:'Versuchsaufbau',sub:'Material, Aufbau, Messkette',badge:'🔧 Aufbau-Profi',steps:[
+ {type:'info',html:()=>person(`<p style="margin:0 0 8px">Willkommen im Prüflabor, <b>${esc(state.name||CONFIG.defaultName)}</b>! Bevor wir Bleche prüfen, soll ein Luftultraschall-Sensor den Abstand zur Prüftafel messen. Dafür baust du heute den Versuch aus Kapitel 2 nach.</p><p style="margin:0">Das Prinzip kennst du aus der Natur: Fledermäuse fliegen im Dunkeln – mit Ultraschall. 🦇</p>`)+`<div class="task"><b>Aus der Anleitung (2, Versuchsziel):</b> Das aus der Biologie bekannte Verfahren soll technisch nachgebildet werden, es ist die Grundlage des Reflexions- bzw. Impuls-Echo-Verfahrens in der Werkstoffprüfung. Mit elektromagnetischen Wellen oder Teilchen umgesetzt, heißt es ${T('tof','Laufzeitverfahren (Time of Flight, ToF)')}.</div>`},
+ {type:'mcq',q:'Eine Fledermaus fliegt im Dunkeln auf eine Wand zu. Wie erkennt sie, wie weit die Wand weg ist?',o:[
+   {t:'Sie misst die Zeit vom Ruf bis zum Echo.',ok:1,fb:'Genau! Lange Zeit = weit weg, kurze Zeit = nah. Das ist das Laufzeitverfahren.'},
+   {t:'Sie hört, wie laut das Echo ist.',fb:'Die Lautstärke hängt auch von Größe und Material der Wand ab. Entscheidend ist die Laufzeit.'},
+   {t:'Sie sieht die Wand mit sehr guten Augen.',fb:'Im Dunkeln hilft das nicht – sie nutzt Schall.'},
+   {t:'Sie hört, wie hoch der Ton des Echos ist.',fb:'Die Tonhöhe bleibt bei einer ruhenden Wand gleich. Gemessen wird die Zeit.'}],
+  hints:['Was ändert sich, wenn die Wand weiter weg ist?','Der Schall braucht für einen längeren Weg länger.','Es geht um die Zeit zwischen Ruf und Echo.']},
+ {type:'pick',title:'Pack den Messplatz',text:'Tippe alles an, was du laut Materialliste (Kapitel 2) brauchst. Achtung, es sind Fallen dabei!',items:[
+   {k:'send',t:'Ultraschallsender 40 kHz (4-mm-Stecker)',ok:1},{k:'recv',t:'Ultraschallempfänger 40 kHz (BNC)',ok:1},
+   {k:'bank',t:'Optische Bank mit Wegskala + Reiter',ok:1},{k:'refl',t:'Reflektor / Schirm',ok:1},
+   {k:'mc',t:'Microcontrollerboard',ok:1},{k:'nb',t:'Notebook mit Arduino-IDE',ok:1},
+   {k:'osz',t:'2-Kanal-Oszilloskop',ok:1},{k:'thermo',t:'Thermometer',ok:1,fb:'Thermometer: für Aufgabe 2 (Raumtemperatur → Schallgeschwindigkeit).'},
+   {k:'hv',t:'Hochspannungsnetzteil',fb:'Sicherheitsfalle! Die Anleitung warnt: niemals eine Signalquelle mit einem Hochspannungsnetzteil (Power Supply) verwechseln. Die Pulse kommen hier vom Microcontroller.'},
+   {e:'🧴',t:'Koppelgel',fb:'Koppelmittel brauchst du erst bei Prüfköpfen auf Stahl (Kapitel 3). Hier läuft der Schall durch Luft.'},
+   {e:'🧱',t:'Kalibrierkörper K1',fb:'Der K1 ist für das Ultraschallprüfgerät in Kapitel 3 – nicht für die Luftstrecke.'}],
+  hints:['Du brauchst: etwas zum Senden, Empfangen, Anzeigen, Programmieren – und ein Ziel.','Die Pulse erzeugt ein kleiner Computer, den du vom Notebook aus programmierst.','Richtig sind 8 Teile. Hochspannung, Gel und K1 gehören nicht dazu.']},
+ {type:'place',title:'Versuchsaufbau beschriften (Abb. 2.1)',text:'Tippe eine Nummer an und dann den passenden Begriff.',svg:SVG_ABB21,
+  slots:['Sender','Empfänger','Reflektor','Microcontrollerboard','Oszilloskop'],labels:['Sender','Empfänger','Reflektor','Microcontrollerboard','Oszilloskop','Funktionsgenerator','Prüfkopf'],
+  hints:['Der Trichter sendet, das runde Mikrofon empfängt.','Die schraffierte Wand wirft den Schall zurück.','1 Sender · 2 Empfänger · 3 Reflektor · 4 Microcontroller · 5 Oszilloskop.']},
+ {type:'mcq',q:()=>`Welches Signal kommt auf welchen ${T('kanal','Kanal')} des Oszilloskops?`,o:[
+   {t:'Kanal 1: Sendesignal vom Microcontroller · Kanal 2: Echo vom Empfänger',ok:1,fb:'Richtig – so steht es in der Anleitung. Der Sendeimpuls auf Kanal 1 ist der Startpunkt der Zeitmessung.'},
+   {t:'Kanal 1: Echo · Kanal 2: Sendesignal',fb:'Technisch ginge das, aber die Anleitung legt fest: Sendesignal auf Kanal 1. Darauf wird getriggert – jedes Bild startet mit dem Sendeimpuls.'},
+   {t:'Nur das Echo auf Kanal 1 – ein Kanal reicht.',fb:'Ohne Sendesignal fehlt der Startpunkt. Dann kannst du keine Laufzeit messen.'},
+   {t:'Beide Kanäle an den Sender.',fb:'Dann siehst du kein Echo.'}],
+  hints:['Für eine Zeitmessung brauchst du Start und Ziel.','Start = Senden, Ziel = Echo kommt an.','Anleitung: „Sendesignal auf Kanal 1 und Echosignal auf Kanal 2“.']},
+ {type:'seq',title:'Die Messkette',text:'Tippe die Schritte in der richtigen Reihenfolge an.',items:['Microcontroller erzeugt Rechteckpulse (40 kHz)','Sender wandelt die Pulse in Ultraschall um','Schall läuft durch die Luft zum Reflektor','Echo läuft zurück zum Empfänger','Empfänger wandelt das Echo in Spannung um','Oszilloskop zeigt das Echo auf Kanal 2'],
+  hints:['Am Anfang steht das Programm, am Ende die Anzeige.','Erst hin zum Reflektor, dann zurück.','Microcontroller → Sender → Luft → Echo → Empfänger → Oszilloskop.']}
+]},
+{title:'Microcontroller programmieren',tag:'Durchführung',sub:'Bursts: 40 kHz, t_Sende, t_Pause',badge:'💾 Code-Profi',steps:[
+ {type:'info',html:()=>person(`<p style="margin:0">Der Sender braucht kurze Pakete aus Rechteckpulsen, sogenannte ${T('burst','Bursts')}. Nach jedem Burst kommt eine Pause, in der das Echo zurückkommen kann. Die Bursts erzeugt das ${T('mc','Microcontrollerboard')} mit einem kleinen Arduino-Sketch.</p>`)+`<div class="fig">${pulsesSVG()}</div><p class="tip">Abb. 2.2: Rechteckimpulse zur Ansteuerung des Senders</p>`},
+ {type:'place',title:'Zeiten im Pulsbild (Abb. 2.2)',text:'Welche Zeit ist welche?',svg:pulsesSVG(),slots:['t_Sende','t_Pause','t_gesamt'],labels:['t_Sende','t_Pause','t_gesamt','Laufzeit Δt','Frequenz f'],
+  hints:['Wo sind die Pulse – und wo ist Ruhe?','t_gesamt reicht von einem Burst-Beginn bis zum nächsten.','1 = t_Sende · 2 = t_Pause · 3 = t_gesamt.']},
+ {type:'sim',title:'Sketch einstellen und hochladen',run:simCode,solution:'tone_US.play(40000, 1); delay(6); → Burst alle 7 ms (t_gesamt = 1 ms + 6 ms).',
+  hints:['Die Werte stehen im Listing 2.1 der Anleitung.','f in Hz: 40 kHz = 40 000 Hz. t_Sende in ms, delay in ms.','40000 · 1 · 6 einstellen, dann Hochladen.']},
+ {type:'mcq',q:'Warum 40 000 Hz und nicht zum Beispiel 4000 Hz?',o:[
+   {t:'40 kHz ist die Nennfrequenz von Sender und Empfänger – dort ist das Signal am stärksten. Und man hört es nicht.',ok:1,fb:'Richtig. Über 20 kHz ist Ultraschall – für Menschen unhörbar.'},
+   {t:'Bei höherer Frequenz ist der Schall schneller.',fb:'Fehlvorstellung! Die Schallgeschwindigkeit hängt nicht von der Frequenz ab. Nach c = λ·f wird nur die Wellenlänge kleiner.'},
+   {t:'4000 Hz wäre für Menschen zu leise.',fb:'Umgekehrt: 4 kHz hört man sehr gut. 40 kHz ist Ultraschall.'},
+   {t:'Der Microcontroller kann nur 40 kHz.',fb:'Er kann viele Frequenzen – wir wählen die, für die Sender und Empfänger gebaut sind.'}],
+  hints:['Auf Sender und Empfänger steht „Nennfrequenz 40 kHz“.','Nennfrequenz = Frequenz, bei der das Bauteil am besten schwingt.','Ab 20 kHz spricht man von Ultraschall.']},
+ {type:'mcq',bonus:1,q:'Profi-Frage: Wie viele Rechteckpulse stecken in einem Burst von 1 ms bei 40 kHz?',o:[
+   {t:'40',ok:1,fb:'40 000 pro Sekunde · 0,001 s = 40 Pulse.'},{t:'4',fb:'40 000 · 0,001 – rechne nochmal.'},{t:'400',fb:'Das wäre bei 10 ms.'},{t:'40 000',fb:'Das sind die Pulse in einer ganzen Sekunde.'}],
+  hints:['40 kHz = 40 000 Pulse pro Sekunde.','1 ms = 0,001 s.','40 000 · 0,001 = ?']}
+]},
+{title:'Echo beobachten',tag:'Durchführung',sub:'Reflektor verschieben, Pause anpassen',badge:'📡 Echo-Jäger*in',steps:[
+ {type:'info',html:()=>person(`<p style="margin:0">Jetzt das ${T('oszi','Oszilloskop')}: Sendesignal auf Kanal 1 (<b style="color:#b8960b">gelb</b>), Echo auf Kanal 2 (<b style="color:#1f8fb8">blau</b>). Zeitbasis 1 ms pro ${T('div','Kästchen')}. Schieb den Reflektor und schau, was passiert!</p>`)+`<div class="task"><b>Aus der Anleitung (2):</b> Zwischen zwei Sendesignalen sollte das Echosignal liegen, welches sich auf dem Schirm durch Bewegen des Reflektors verschiebt (Abbildung 2.3).</div>`},
+ {type:'sim',title:'Reflektor verschieben',run:simMove,solution:'Nah (≤ 0,30 m), weit (≥ 1,00 m) und ≥ 1,15 m einstellen; das Echo wandert nach rechts und trifft bei 1,20 m den nächsten Burst.',
+  hints:['Nutze die ±-Tasten oder den Schieberegler.','Probiere 0,20 m, dann 1,00 m, dann 1,20 m.','Achte darauf, wo das blaue Echo im Vergleich zum zweiten gelben Burst liegt.']},
+ {type:'mcq',q:'Bei s = 1,20 m liegt das Echo im nächsten gelben Sendeimpuls. Warum ist das ein Problem?',o:[
+   {t:'Das Echo wird überdeckt, und man kann nicht mehr sicher sagen, zu welchem Sendeimpuls es gehört.',ok:1,fb:'Genau. Deshalb muss die Pause länger sein als die längste Laufzeit plus Echodauer.'},
+   {t:'Kein Problem – man misst einfach ab dem zweiten Impuls.',fb:'Dann misst du ≈ 0,13 ms statt 7,13 ms – und berechnest einen völlig falschen Abstand!'},
+   {t:'Das Echo ist schneller geworden.',fb:'Die Schallgeschwindigkeit hat sich nicht geändert – nur der nächste Burst kommt zu früh.'},
+   {t:'Der Reflektor ist zu klein.',fb:'Die Größe ist nicht das Problem, sondern die zu kurze Pause.'}],
+  hints:['Welcher gelbe Impuls ist der „Start“ für dieses Echo?','Wenn das Echo erst nach dem nächsten Burst ankommt, wird es falsch zugeordnet.','Die Pause ist zu kurz.']},
+ {type:'sim',title:'Pause anpassen',run:simPause,solution:'delay(10) oder mehr: Burst alle 11 ms, Echo (≈ 9,7–10,7 ms) liegt frei. Kleinster sicherer Wert: 10 ms.',
+  hints:['Das Echo bei 1,60 m beginnt bei ≈ 9,7 ms und dauert ≈ 1 ms.','Der nächste Burst kommt nach t_Sende + t_Pause = 1 ms + delay.','1 + delay muss größer als 10,7 ms sein → delay = 10.']}
+]},
+{title:'Temperatur & Schallgeschwindigkeit',tag:'Durchführung',sub:'Aufgabe 2: c aus der Raumtemperatur',badge:'🌡️ Klima-Check',steps:[
+ {type:'info',html:()=>person(`<p style="margin:0">Schall ist in warmer Luft schneller als in kalter. Bevor du Abstände berechnest, brauchst du deshalb die ${T('c','Schallgeschwindigkeit')} bei unserer Raumtemperatur.</p>`)+`<div class="task"><b>Aus der Anleitung (2, Aufgabe 2):</b> Messen Sie die Raumtemperatur und berechnen Sie die Schallgeschwindigkeit.</div>`},
+ {type:'mcq',proto:['temp',18],pre:()=>`<div class="fig" style="max-width:260px;margin:auto">${thermoSVG(18)}</div>`,q:'Lies das Thermometer im Labor ab.',o:[
+   {t:'18 °C',ok:1,fb:'Richtig: zwei Striche unter der 20.'},{t:'22 °C',fb:'Die Säule endet unter der 20, nicht darüber.'},{t:'28 °C',fb:'Schau auf die Beschriftung: Die Säule liegt zwischen 10 und 20.'},{t:'16 °C',fb:'Fast – zähl von der 20 aus nach unten: zwei kleine Striche.'}],
+  hints:['Suche die beiden beschrifteten Zahlen, zwischen denen die Säule endet.','Zwischen 10 und 20 liegen 10 kleine Striche, jeder ist 1 °C.','Die Säule endet 2 Striche unter der 20.']},
+ {type:'calc',title:'Schallgeschwindigkeit berechnen',text:()=>`Für Luft gilt näherungsweise: c = 331,3 m/s + 0,6 m/s pro °C · ϑ`,rows:[
+   {given:'ϑ = 18 °C'},
+   {pre:'Zuschlag: 0,6 · 18 =',ans:10.8,tol:0.05,u:'m/s'},
+   {pre:'c = 331,3 + 10,8 =',ans:342.1,tol:0.15,u:'m/s',proto:['cT',342.1]}],
+  after:'Das ist unsere Schallgeschwindigkeit für heute. Sie steht jetzt im Protokoll 📋.',
+  hints:['Erst den Zuschlag für die Temperatur rechnen, dann addieren.','0,6 mal 18 – der Taschenrechner hilft (🧮 oben).','0,6 · 18 = 10,8 → 331,3 + 10,8 = …']},
+ {type:'sim',title:'Was wäre, wenn …?',run:simTemp,solution:'Wärmer → Echo früher (c größer); größere Sendestärke → Echo höher, aber gleiche Laufzeit.',
+  hints:['Schiebe die Temperatur ganz nach links und ganz nach rechts.','Vergleiche den Beginn des Echos mit der gelben Linie.','Die Lautstärke ändert die Höhe, nicht die Lage auf der Zeitachse.']}
+]},
+{title:'Laufzeiten messen',tag:'Auswertung',sub:'Aufgabe 3: Δt ablesen, s berechnen',badge:'⏱️ Laufzeit-Profi',steps:[
+ {type:'info',html:()=>person(`<p style="margin:0">Jetzt wird gemessen! Wir nennen unser Sensorpaar <b>Aufbau A</b>. Die Pause steht auf ${state.sim.pause||10} ms, damit auch weite Echos frei liegen. Du liest die ${T('dt','Laufzeit Δt')} ab – vom Beginn des Sendeimpulses bis zum Beginn des Echos.</p>`)},
+ {type:'sim',title:'Kästchen zählen',run:simCount,solution:'Echo beginnt nach ≈ 4,8 Div → Δt ≈ 4,8 ms (genau 4,79 ms).',
+  hints:['Die Zeitmessung startet am Anfang des gelben Impulses (0 ms).','Zähle die Kästchen bis zum Anfang des blauen Echos.','4,8 Kästchen · 1 ms pro Kästchen.']},
+ {type:'sim',title:'Messreihe aufnehmen',run:simMeasure,solution:'A: 0,20 m → 1,29 ms · 0,40 → 2,46 · 0,60 → 3,62 · 0,80 → 4,79 · 1,00 → 5,96 · 1,20 → 7,13 ms (+ 4 Kollegenwerte).',
+  hints:['Erst einen Abstand oben antippen.','Dann im Bildschirm genau auf den Anfang des blauen Echos tippen.','Nach „übernehmen“ den nächsten Abstand wählen – 6 Stück.']},
+ {type:'calc',title:'Abstand wie in der Anleitung berechnen',text:()=>`Aus der Anleitung (Aufgabe 3): „… berechnen Sie mit Hilfe der Schallgeschwindigkeit die Abstände.“ Wegen des ${T('doppel','Doppelwegs')} gilt s = c · Δt / 2. Beispiel: Δt = 4,79 ms, c = 342,1 m/s.`,rows:[
+   {pre:'Δt = 4,79 ms =',ans:0.00479,tol:0.000005,u:'s',w:150},
+   {pre:'c · Δt = 342,1 m/s · 0,00479 s =',ans:1.639,tol:0.003,u:'m'},
+   {pre:'s = 1,639 m : 2 =',ans:0.819,tol:0.0015,u:'m',proto:['sNaiv',0.819]}],
+  after:'Aber Achtung: Laut Wegskala steht der Reflektor bei <b>0,80 m</b>. Die Rechnung liegt ≈ 19 mm zu weit. 🤔',
+  hints:['Zuerst ms in s umrechnen: durch 1000 teilen.','Dann c mal Δt, danach durch 2 (hin und zurück).','4,79 ms = 0,00479 s; 342,1 · 0,00479 ≈ 1,639; : 2 ≈ 0,819.']},
+ {type:'mcq',q:'Die Rechnung ergibt 0,819 m, die Wegskala zeigt 0,80 m. Woher kommen die 19 mm?',o:[
+   {t:'Die angezeigte Zeit enthält eine kleine Systemzeit der Messkette (Auslösen, Einschwingen, Verstärker).',ok:1,fb:'Genau! Diese Zusatzzeit heißt Offset t₀. Im nächsten Level bestimmst du sie.'},
+   {t:'Der Schall ist in Wirklichkeit viel langsamer.',fb:'Dann wären alle Abstände um denselben Faktor falsch. Hier steckt ein fester Zeitrest dahinter – das zeigt das nächste Level.'},
+   {t:'Das Teilen durch 2 war falsch.',fb:'Ohne ÷ 2 kämen 1,64 m heraus – doppelt so weit wie die Bank. Der Doppelweg stimmt.'},
+   {t:'Die Wegskala der Bank ist kaputt.',fb:'Die Wegskala ist unsere Referenz. Der Fehler steckt in der gemessenen Zeit.'}],
+  hints:['Die Rechnung nimmt an: Die ganze Zeit ist Schallweg.','Stimmt das? Auch Elektronik braucht etwas Zeit.','Es gibt eine kleine Zusatzzeit in der Messkette.']}
+]},
+{title:'Kalibriergerade',tag:'Auswertung',sub:'Δt-s-Diagramm, m und t₀ für A und B',badge:'📈 Geraden-Profi',steps:[
+ {type:'info',html:()=>person(`<p style="margin:0">Am Nachbarplatz steht <b>Aufbau B</b> – gleiche Bauart, aber ein anderes Empfänger-Modul. Beide messen dieselben Abstände zur selben Tafel. Meine Frage an dich: <b>Reicht eine gemeinsame Formel für A und B?</b> Dafür brauchst du die ${T('kalib','Kalibriergerade')}.</p>`)+`<table class="tb" style="margin-top:10px"><tr><th>s in m</th><th>A: Δt in ms</th><th>B: Δt in ms</th></tr>${Object.keys(DATA_A).map(s=>`<tr><td>${fmt(+s,2)}</td><td>${fmt(DATA_A[s],2)}</td><td>${fmt(DATA_B[s],2)}</td></tr>`).join('')}</table>`},
+ {type:'sim',title:'Messpunkte ins Diagramm',run:simPlot,solution:'A und B eintragen, Geraden zeichnen, Lupe: Die A-Gerade trifft die Zeitachse bei ≈ 0,12 ms; B liegt fast parallel ≈ 0,16 ms höher.',
+  hints:['Tippe die vier Knöpfe nacheinander.','Die Geraden gibt es erst, wenn A und B eingetragen sind.','Mit der Lupe siehst du den Bereich nahe s = 0 vergrößert.']},
+ {type:'calc',title:T('m','Steigung m')+' aus den Endpunkten',text:'Endpunkte A: (0,20 m | 1,29 ms) und (1,20 m | 7,13 ms) · B: (0,20 m | 1,45 ms) und (1,20 m | 7,31 ms)',rows:[
+   {pre:'Zeitdifferenz A: 7,13 − 1,29 =',ans:5.84,tol:0.005,u:'ms'},
+   {pre:'Abstandsdifferenz: 1,20 − 0,20 =',ans:1.00,tol:0.001,u:'m'},
+   {pre:'m_A = 5,84 ms : 1,00 m =',ans:5.84,tol:0.005,u:'ms/m',proto:['mA',5.84]},
+   {pre:'m_B = (7,31 − 1,45) ms : 1,00 m =',ans:5.86,tol:0.005,u:'ms/m',proto:['mB',5.86]}],
+  after:'Die Steigungen sind fast gleich – aber reicht das?',
+  hints:['Steigung = Zeitänderung geteilt durch Abstandsänderung.','Zweite Zeit minus erste Zeit, zweiter Abstand minus erster Abstand.','A: 7,13 − 1,29 = 5,84; B: 7,31 − 1,45 = 5,86 – jeweils durch 1,00 m.']},
+ {type:'calc',title:T('t0','Offset t₀')+' bestimmen',text:'Modell: Δt = m · s + t₀ → t₀ = Δt − m · s. Nimm den Punkt bei s = 0,20 m.',rows:[
+   {pre:'Laufzeitanteil A: 5,84 ms/m · 0,20 m =',ans:1.168,tol:0.002,u:'ms'},
+   {pre:'t₀,A = 1,29 − 1,168 ≈',ans:0.12,tol:0.0025,u:'ms',proto:['t0A',0.12]},
+   {pre:'Laufzeitanteil B: 5,86 ms/m · 0,20 m =',ans:1.172,tol:0.002,u:'ms'},
+   {pre:'t₀,B = 1,45 − 1,172 ≈',ans:0.28,tol:0.0025,u:'ms',proto:['t0B',0.28]}],
+  after:'Ab jetzt rechnen wir mit den gerundeten Werten t₀,A = 0,12 ms und t₀,B = 0,28 ms. Der Rest ist eine <b>Zeit</b> der Messkette – keine negative Entfernung.',
+  hints:['„Gemessene Zeit minus Laufzeitanteil ergibt Systemzeit.“','Erst m · 0,20 rechnen, dann von der gemessenen Zeit abziehen.','A: 5,84 · 0,20 = 1,168 → 1,29 − 1,168 = 0,122 ≈ 0,12.']},
+ {type:'calc',title:'Schallgeschwindigkeit aus der Steigung',text:()=>`Wegen des Doppelwegs gilt m = 2/c, also c = 2/m. Vorher umrechnen: 1 ms = 0,001 s.`,rows:[
+   {pre:'m_A = 5,84 ms/m =',ans:0.00584,tol:0.000005,u:'s/m',w:150},
+   {pre:'c_A = 2 m : 0,00584 s =',ans:342.5,tol:0.6,u:'m/s',proto:['cA',342.5]},
+   {pre:'c_B = 2 m : 0,00586 s =',ans:341.3,tol:0.5,u:'m/s',proto:['cB',341.3]}],
+  hints:['ms/m in s/m: durch 1000 teilen.','Dann 2 durch diese Zahl teilen.','2 : 0,00584 ≈ 342,5 und 2 : 0,00586 ≈ 341,3.']},
+ {type:'mcq',q:'c_A ≈ 342,5 m/s, aus dem Thermometer kam c = 342,1 m/s. Was folgt daraus?',o:[
+   {t:'Passt gut: Die Steigung beschreibt den Schallweg in Luft bei ca. 18 °C. Die 19 mm Abweichung kamen vom Offset.',ok:1,fb:'Genau. Die Steigung „stimmt“ – das Problem war nur der Zeitnullpunkt.'},
+   {t:'Die Steigung m ist die Schallgeschwindigkeit.',fb:'Schau auf die Einheiten: m hat ms/m, c hat m/s. Es gilt c = 2/m.'},
+   {t:'Die Temperaturmessung war falsch.',fb:'Die Werte passen doch fast perfekt zusammen (Unterschied nur ≈ 0,1 %).'}],
+  hints:['Vergleiche die beiden Zahlen.','Wenn c stimmt, woher kam dann der Fehler bei 0,80 m?','Der Fehler steckt im Offset, nicht in c.']},
+ {type:'sim',title:'Geraden-Labor',run:simSlider,solution:'t₀ verschiebt parallel, m dreht. Passend: m = 5,84 ms/m, t₀ = 0,12 ms. Gleiche Steigung ≠ gleicher Offset → zwei Formeln.',
+  hints:['Bewege erst nur den oberen Regler.','Dann nur den unteren.','Ziel: t₀ = 0,12 ms und m = 5,84 ms/m.']}
+]},
+{title:'Offset & Prüfpunkte',tag:'Auswertung',sub:'Korrigieren, justieren, validieren',badge:'🎯 Korrektur-Profi',steps:[
+ {type:'info',html:()=>person(`<p style="margin:0">Aufbau B zeigt an der Prüftafel Δt = 4,97 ms. Wer ohne Offset rechnet, liegt daneben. Rechne beides und vergleiche!</p>`)+`<div class="task"><b>Umgestellt:</b> Δt = m · s + t₀ → s = (Δt − t₀) / m<br>Reihenfolge: <b>erst t₀ abziehen, dann durch m teilen.</b></div>`},
+ {type:'calc',title:'Mit und ohne Offset',text:'Aufbau B: m_B = 5,86 ms/m, t₀,B = 0,28 ms, angezeigt Δt = 4,97 ms. (ms kürzt sich weg.)',rows:[
+   {pre:'Δt_akustisch = 4,97 − 0,28 =',ans:4.69,tol:0.005,u:'ms'},
+   {pre:'s_korr = 4,69 ms : 5,86 ms/m =',ans:0.800,tol:0.0015,u:'m',proto:['sB',0.800]},
+   {pre:'s_naiv = 4,97 ms : 5,86 ms/m =',ans:0.848,tol:0.0015,u:'m'},
+   {pre:'Unterschied: 0,848 m − 0,800 m ≈',ans:48,tol:1,u:'mm'}],
+  after:'Fast 5 cm Fehler – nur weil 0,28 ms nicht abgezogen wurden.',
+  hints:['Erst den Offset abziehen.','Dann durch die Steigung teilen. Für „naiv“ ohne Abzug teilen.','Unterschied in m mal 1000 = mm: 0,048 m = 48 mm.']},
+ {type:'sim',title:'Offset justieren',run:simJustage,solution:'t₀ = 0,28 ms einstellen → Anzeige 0,800 m. Bei 6,14 ms bleibt der Unterschied ≈ 48 mm (t₀/m).',
+  hints:['Die Anzeige soll 0,800 m zeigen.','Zu weit? Dann mehr Offset abziehen.','Du hast t₀,B schon berechnet: 0,28 ms.']},
+ {type:'sim',title:'Zwei Prüfpunkte messen',run:simValid,solution:'1,40 m → 8,30 ms, Echo stabil · 1,60 m → 9,66 ms (schwankend), Echo schwach.',
+  hints:['Beide Abstände nacheinander messen.','Auf den Anfang des blauen Echos tippen, dann übernehmen.','Bei 1,60 m springt das Echo – das ist ein Qualitätsmerkmal!']},
+ {type:'calc',title:T('resid','Residuen')+' berechnen',text:'Modell A: Δt_Modell = 5,84 ms/m · s + 0,12 ms · Residuum r = Δt_gemessen − Δt_Modell (Vorzeichen stehen lassen!)',rows:[
+   {pre:'1,40 m: Δt_Modell = 5,84 · 1,40 + 0,12 =',ans:8.296,tol:0.0015,u:'ms'},
+   {pre:'r = 8,30 − 8,296 =',ans:0.004,tol:0.0015,u:'ms',proto:['r140',0.004]},
+   {pre:'1,60 m: Δt_Modell = 5,84 · 1,60 + 0,12 =',ans:9.464,tol:0.0015,u:'ms'},
+   {pre:'r = 9,66 − 9,464 =',ans:0.196,tol:0.0015,u:'ms',proto:['r160',0.196]}],
+  after:'Beide Residuen sind positiv: Die Messung liegt etwas <b>über</b> der Geraden.',
+  hints:['Erst m · s, dann t₀ dazu.','r = gemessen minus Modell – nicht umgekehrt.','5,84 · 1,40 = 8,176; + 0,12 = 8,296.']}
+]},
+{title:'Freigabe KA-04',tag:'Anwendung / Freigabe',sub:'Prüfpunkte bewerten, Freigabe ausstellen',badge:'📜 Freigabe-Profi',steps:[
+ {type:'info',html:()=>person(`<p style="margin:0">Letzter Schritt: die Freigabekarte <b>KA-04</b>. Aber Achtung: Wir geben nur frei, was wir auch geprüft haben!</p>`)+`<div class="task"><b>Lernregel (didaktisch festgelegt, keine Norm):</b> Ein Prüfpunkt ist bestanden, wenn |r| ≤ 0,06 ms <b>UND</b> das Echo stabil ist. Freigegeben wird vom kleinsten Referenzabstand bis zum letzten bestandenen Prüfpunkt.</div>`},
+ {type:'decide',title:'Prüfpunkte bewerten',text:'Entscheide für jede Karte.',actions:['✅ bestanden','❌ nicht bestanden','🔍 keine Daten'],cards:[
+   {title:'A · 1,40 m',info:'Δt = 8,30 ms · Modell 8,296 ms · r = +0,004 ms · Echo stabil',ans:0,okfb:'|r| = 0,004 ms ≤ 0,06 ms und Echo stabil → bestanden.',fb:[null,'Beide Bedingungen sind erfüllt: r ist winzig, das Echo steht ruhig.','Hier wurde gemessen – bewerte die Daten.'],draw:o=>sc2(o,{x0:6,span:5,period:per(),tS:1,echoes:[{t:8.30,a:ampAt(1.4),d:1}],noCH1:1,xdec:1,corner:'0,5 ms/Div'})},
+   {title:'A · 1,60 m',info:'Δt = 9,66 ms · r = +0,196 ms · Echo schwach, Auslösezeit schwankt',ans:1,okfb:'Zwei Gründe: |r| = 0,196 ms > 0,06 ms UND Echo schwach.',fb:['r = 0,196 ms ist mehr als dreimal so groß wie 0,06 ms – und das Echo ist schwach.',null,'Es gibt Daten – sie zeigen: durchgefallen.'],draw:o=>sc2(o,{x0:6,span:5,period:per(),tS:1,echoes:[{t:9.66,a:0.45,d:1,j:0.12}],noCH1:1,xdec:1,corner:'0,5 ms/Div'})},
+   {title:'Gedankenversuch · A · 1,60 m',info:'Angenommen r = +0,02 ms – das Echo bleibt aber schwach.',ans:1,okfb:'Richtig: Die Regel verlangt UND. Eine gute Zahl allein reicht nicht.',fb:['Die Zahl passt – aber das Echo ist schwach. Die Regel verlangt beides.',null,'Die Werte sind (angenommen) gegeben – bewerte sie mit der Regel.']},
+   {title:'B · 1,40 m',info:'Für Aufbau B wurde bei 1,40 m nicht gemessen. Man könnte die Gerade verlängern …',ans:2,okfb:'Genau: Eine verlängerte Gerade ist nur eine Vorhersage – kein Prüfergebnis.',fb:['Ohne Messung gibt es nichts zu bestehen. Eine verlängerte Gerade ist keine Prüfung.','„Nicht bestanden“ hieße: gemessen und durchgefallen. Hier gibt es gar keine Messung.',null]}],
+  hints:['Prüfe bei jeder Karte zwei Kästchen: |r| ≤ 0,06 ms? Echo stabil?','Nur zweimal „Ja“ ergibt bestanden.','Wo gar nicht gemessen wurde, gibt es keine Daten.']},
+ {type:'mcq',q:'Welche Bereiche darfst du freigeben?',o:[
+   {t:'A: 0,20 m bis 1,40 m · B: 0,20 m bis 1,20 m',ok:1,fb:'Richtig. A hat einen bestandenen Prüfpunkt bei 1,40 m, B nur die Referenzen bis 1,20 m.'},
+   {t:'A und B: 0,20 m bis 1,60 m',fb:'1,60 m ist durchgefallen – und für B gibt es dort gar keine Messung.'},
+   {t:'A: 0,20 m bis 1,40 m · B: 0,20 m bis 1,40 m',fb:'Für B gibt es keinen Prüfpunkt über 1,20 m. Die verlängerte Gerade ist nur eine Vorhersage.'},
+   {t:'A: 0 m bis 1,40 m · B: 0 m bis 1,20 m',fb:'Bei s = 0 gibt es keinen Messpunkt. Der kleinste Referenzabstand ist 0,20 m.'}],
+  hints:['Wo beginnen die Referenzmessungen?','Welcher Prüfpunkt von A hat bestanden?','Für B gibt es nur die sechs Referenzen.']},
+ {type:'seq',title:'Umrechnen im Prüfalltag',text:'Ein Sensor zeigt eine Zeit an. In welcher Reihenfolge kommst du zum Abstand?',items:['Aufbau erkennen (A oder B)','Passenden Offset t₀ wählen','t₀ von der angezeigten Zeit Δt abziehen','Durch die passende Steigung m teilen','Prüfen: Liegt s im freigegebenen Bereich?'],
+  hints:['Ohne zu wissen, welcher Sensor, kennst du t₀ nicht.','Erst abziehen, dann teilen.','Am Ende kontrollieren, ob du den Wert überhaupt verwenden darfst.']},
+ {type:'mcq',q:'Die Messungen sind fertig. Was tust du, bevor du den Versuch abbaust?',o:[
+   {t:'Das handschriftliche Messprotokoll von der Lehrkraft unterschreiben lassen.',ok:1,fb:'Richtig – Aufgabe 1 der Anleitung. Das unterschriebene Protokoll kommt in den Bericht.'},
+   {t:'Alles abbauen – das Protokoll schreibe ich zu Hause.',fb:'Die Anleitung verlangt: Protokoll während der Messung schreiben und unterschreiben lassen, bevor du abbaust.'},
+   {t:'Nur Fotos vom Oszilloskop machen.',fb:'Schirmbilder helfen, ersetzen aber nicht das unterschriebene Protokoll.'},
+   {t:'Den Arduino-Sketch löschen.',fb:'Das hat mit der Dokumentation nichts zu tun.'}],
+  hints:['Schau in Aufgabe 1 der Anleitung.','„… lassen Sie es sich von der Lehrkraft unterschreiben, bevor Sie abbauen.“','Protokoll + Unterschrift.']},
+ {type:'cloze',title:'Freigabekarte KA-04 ausfüllen',proto:['frei','A 0,20–1,40 m · B 0,20–1,20 m'],parts:[
+   ['Aufbau A: Δt = ',['5,84','5,86','342'],0,' ms/m · s +'],
+   ['',['0,12','0,28','0'],0,' ms, gültig von 0,20 m bis'],
+   ['',['1,40 m','1,20 m','1,60 m'],0,'.'],
+   ['<br>Aufbau B: Δt = ',['5,86','5,84','341'],0,' ms/m · s +'],
+   ['',['0,28','0,12','0'],0,' ms, gültig von 0,20 m bis'],
+   ['',['1,20 m','1,40 m','1,60 m'],0,'.'],
+   ['<br>Umrechnung: Δt →',['erst t₀ abziehen, dann durch m teilen','erst durch m teilen, dann t₀ abziehen','nur durch m teilen'],0,'→ s.'],
+   ['<br>Eine gemeinsame Formel für A und B ist',['nicht zulässig','zulässig'],0,', weil sich die Offsets unterscheiden.'],
+   ['<br>Bedingung: gleicher Aufbau, gleiche Triggerdefinition, ebene Prüftafel und',['stabiles Echo','beliebige Temperatur','möglichst lauter Sender'],0,'.']],
+  doc:()=>`<div class="doc"><div class="stamp">FREIGEGEBEN</div><h4>Kalibrierfreigabe KA-04</h4><dl>
+   <dt>Aufbau A</dt><dd>Δt = 5,84 ms/m · s + 0,12 ms · 0,20–1,40 m</dd><dt>Aufbau B</dt><dd>Δt = 5,86 ms/m · s + 0,28 ms · 0,20–1,20 m</dd>
+   <dt>Umrechnung</dt><dd>s = (Δt − t₀) / m</dd><dt>Prüfpunkte</dt><dd>A 1,40 m bestanden · A 1,60 m nicht bestanden</dd>
+   <dt>Bedingungen</dt><dd>gleicher Aufbau, gleiche Triggerung, ebene Tafel, stabiles Echo, ϑ ≈ 18 °C</dd>
+   <dt>Prüfer*in</dt><dd>${esc(state.name||CONFIG.defaultName)} · ${new Date().toLocaleDateString('de-DE')}</dd></dl>
+   <p class="tip" style="margin:8px 0 0">Lernmodell im Unterricht – keine reale Gerätefreigabe.</p></div>`,
+  hints:['Alle Zahlen stehen in deinem Protokoll 📋.','A: 5,84 / 0,12 / bis 1,40 m. B: 5,86 / 0,28 / bis 1,20 m.','Erst abziehen, dann teilen. Eine Formel für beide geht nicht.']}
+]},
+{title:'Abschlussquiz',tag:'Quiz',sub:'Zeig, was du kannst',badge:'🏅 US-Prüfer*in',steps:[]}
+];
+
+const QUIZ=[
+ {q:'Wofür steht „ToF“?',o:[{t:'Time of Flight – Laufzeitverfahren',ok:1},{t:'Tone of Frequency – Tonhöhenmessung'},{t:'Test of Force – Kraftmessung'}],why:'ToF = Time of Flight: Man misst die Laufzeit eines Signals hin und zurück.'},
+ {q:'Welches Signal liegt laut Anleitung auf Kanal 1 des Oszilloskops?',o:[{t:'Das Sendesignal',ok:1},{t:'Das Echo'},{t:'Die Temperatur'}],why:'Kanal 1: Sendesignal (Startpunkt der Zeitmessung), Kanal 2: Echo.'},
+ {q:'Zeitbasis 1 ms/Div. Das Echo beginnt 3,6 Kästchen nach dem Sendeimpuls. Wie groß ist Δt?',o:[{t:'3,6 ms',ok:1},{t:'0,36 ms'},{t:'1,8 ms'},{t:'36 ms'}],why:'3,6 Kästchen · 1 ms pro Kästchen = 3,6 ms. Halbiert wird erst beim Weg.'},
+ {q:'Warum steht in s = c · Δt / 2 das „/ 2“?',o:[{t:'Der Schall läuft den Abstand hin und zurück.',ok:1},{t:'Weil zwei Kanäle benutzt werden.'},{t:'Weil der Schall in Luft halb so schnell ist.'}],why:'Doppelweg: Die Zeit gilt für 2 · s.'},
+ {q:'Wie groß ist c in Luft bei 25 °C (c = 331,3 m/s + 0,6 m/s pro °C · ϑ)?',o:[{t:'≈ 346 m/s',ok:1},{t:'≈ 331 m/s'},{t:'≈ 356 m/s'},{t:'≈ 15 m/s'}],why:'0,6 · 25 = 15 → 331,3 + 15 = 346,3 m/s.'},
+ {q:'Es wird wärmer im Labor. Was passiert mit dem Echo bei gleichem Abstand?',o:[{t:'Es kommt etwas früher.',ok:1},{t:'Es kommt später.'},{t:'Es wird nur lauter.'}],why:'Wärmere Luft → größeres c → kürzere Laufzeit.'},
+ {q:'Die Kalibriergerade hat m = 5,84 ms/m. Wie groß ist c?',o:[{t:'≈ 342 m/s',ok:1},{t:'5,84 m/s'},{t:'≈ 171 m/s'},{t:'≈ 0,342 m/s'}],why:'c = 2/m = 2 m : 0,00584 s ≈ 342 m/s. Nicht vergessen: ms → s.'},
+ {q:'Was ist der Offset t₀?',o:[{t:'Eine feste Zusatzzeit der Messkette',ok:1},{t:'Eine negative Entfernung vor dem Sensor'},{t:'Die Schallgeschwindigkeit bei 0 °C'}],why:'t₀ ist eine Zeit (Auslösen, Einschwingen, Verstärker) – keine Entfernung.'},
+ {q:'Aufbau B (m = 5,86 ms/m, t₀ = 0,28 ms) zeigt 6,14 ms. Wie weit ist die Tafel weg?',o:[{t:'1,00 m',ok:1},{t:'1,05 m'},{t:'0,95 m'},{t:'2,10 m'}],why:'(6,14 − 0,28) : 5,86 = 5,86 : 5,86 = 1,00 m. Ohne Offset kämen 1,05 m heraus.'},
+ {q:'Bei 1,60 m ist r = 0,196 ms und das Echo schwach. Warum ist der Punkt nicht bestanden?',o:[{t:'|r| > 0,06 ms UND Echo schwach – schon ein Grund reicht.',ok:1},{t:'Weil r positiv ist.'},{t:'Er ist bestanden, weil 0,196 ms sehr wenig ist.'}],why:'Die Regel verlangt |r| ≤ 0,06 ms UND stabiles Echo. Hier sind beide verletzt.'},
+ {q:'Das Echo liegt im nächsten Sendeimpuls. Was änderst du im Sketch?',o:[{t:'delay( ) vergrößern – längere Pause',ok:1},{t:'Die Frequenz auf 4000 Hz senken'},{t:'t_Sende vergrößern'}],why:'Die Pause muss länger sein als Laufzeit + Echodauer, sonst wird das Echo überdeckt oder falsch zugeordnet.'},
+ {q:'Sicherheit: Womit darfst du eine Signalquelle im Praktikum auf keinen Fall verwechseln?',o:[{t:'Mit einem Hochspannungsnetzteil (Power Supply)',ok:1},{t:'Mit einem Thermometer'},{t:'Mit der optischen Bank'}],why:'Die Anleitung warnt in Rot: Funktionsgenerator nie mit einem Hochspannungsnetzteil verwechseln!'}
+];
+/* ==== INHALT ENDE ==== */
+
+start();
+</script>
+</body>
+</html>
