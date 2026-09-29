@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#16233a">
+<title>Ultraschall-Prüfplatz</title>
+<style>
+:root{
+  --bg:#eef1f5; --card:#ffffff; --ink:#15202e; --muted:#5b6778; --line:#d6dce4;
+  --acc:#e4572e; --acc-d:#b83f1c; --blue:#1f6f8b; --ok:#23915a; --okbg:#e3f5ea; --bad:#cf3b3b; --badbg:#fde8e8;
+  --gold:#f0b400; --nav:#16233a; --hint:#fff6d6; --hintb:#eed27a;
+  --scr:#07140f; --trace:#7dffa6; --grid:rgba(125,255,166,.16);
+  --r:16px; --sh:0 2px 10px rgba(20,32,46,.08);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:17px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;min-height:100vh;min-height:100dvh;-webkit-text-size-adjust:100%}
+button,input,select{font:inherit;color:inherit}
+button{touch-action:manipulation;cursor:pointer;user-select:none;-webkit-user-select:none}
+.hidden{display:none!important}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px}
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:var(--nav);color:#fff;padding:calc(env(safe-area-inset-top) + 8px) 0 8px}
+.top .wrap{display:flex;align-items:center;gap:8px}
+.top h1{font-size:17px;margin:0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{background:rgba(255,255,255,.12);border:0;border-radius:999px;padding:7px 12px;color:#fff;font-weight:600;font-size:15px;min-height:40px;display:inline-flex;align-items:center;gap:4px}
+.pill.gold{background:var(--gold);color:#241a00}
+.iconbtn{min-width:44px;justify-content:center}
+.dots{display:flex;gap:5px;padding:8px 0 2px;flex-wrap:wrap}
+.dots i{height:6px;flex:1;min-width:10px;border-radius:3px;background:rgba(255,255,255,.2)}
+.dots i.on{background:var(--gold)} .dots i.cur{background:#fff}
+/* home */
+.hero{background:linear-gradient(160deg,#16233a 0%,#24406a 100%);color:#fff;padding:22px 0 26px}
+.hero h2{margin:0 0 6px;font-size:26px;line-height:1.2}
+.hero p{margin:0;opacity:.9}
+.stats{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.stat{background:rgba(255,255,255,.1);border-radius:12px;padding:8px 12px;font-size:15px}
+.stat b{font-size:20px;display:block}
+.levels{display:grid;gap:12px;margin:18px auto 28px}
+@media(min-width:700px){.levels{grid-template-columns:1fr 1fr}}
+.lv{display:flex;gap:14px;align-items:center;background:var(--card);border:2px solid transparent;border-radius:var(--r);padding:14px;box-shadow:var(--sh);text-align:left;width:100%}
+.lv:disabled{opacity:.5;cursor:default}
+.lv.next{border-color:var(--acc)}
+.lv .num{flex:0 0 48px;height:48px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:20px;background:#e8edf3;color:var(--nav)}
+.lv.done .num{background:var(--ok);color:#fff}
+.lv.next .num{background:var(--acc);color:#fff}
+.lv .tx{flex:1;min-width:0}
+.lv .tag{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--blue);font-weight:700}
+.lv .tt{font-weight:700;font-size:17px}
+.lv .sub{font-size:14px;color:var(--muted)}
+.lv .st{font-size:22px}
+.badges{display:flex;flex-wrap:wrap;gap:8px}
+.bdg{background:#fff;border-radius:999px;padding:6px 12px;font-size:14px;box-shadow:var(--sh)}
+.bdg.off{opacity:.35;filter:grayscale(1)}
+/* step */
+.step{padding:16px 0 120px}
+.card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:14px}
+.card h3{margin:0 0 8px;font-size:20px;line-height:1.25}
+.kicker{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--acc);margin-bottom:2px}
+.task{background:#eaf4f8;border-left:5px solid var(--blue);border-radius:10px;padding:10px 12px;margin:10px 0}
+.task b:first-child{color:var(--blue)}
+.story{display:flex;gap:12px;align-items:flex-start}
+.ava{flex:0 0 54px;height:54px;border-radius:50%;background:#ffe2d6;display:grid;place-items:center;font-size:30px}
+.bubble{background:#fff;border-radius:4px 16px 16px 16px;padding:12px 14px;box-shadow:var(--sh);flex:1}
+.bubble .who{font-weight:700;font-size:14px;color:var(--acc-d)}
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:15;background:rgba(238,241,245,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:10px 0 calc(10px + env(safe-area-inset-bottom))}
+.foot .wrap{display:flex;gap:10px}
+.btn{border:0;border-radius:14px;min-height:52px;padding:10px 18px;font-weight:700;background:var(--acc);color:#fff;box-shadow:0 2px 0 var(--acc-d)}
+.btn:disabled{background:#b9c1cb;box-shadow:none;cursor:default}
+.btn.sec{background:#fff;color:var(--ink);box-shadow:0 0 0 2px var(--line) inset}
+.btn.blue{background:var(--blue);box-shadow:0 2px 0 #134a5d}
+.btn.wide{flex:1}
+.btn.small{min-height:44px;padding:8px 14px;font-size:15px}
+.hintbox{background:var(--hint);border:2px solid var(--hintb);border-radius:12px;padding:10px 12px;margin:8px 0;font-size:16px}
+/* mcq */
+.mcq .q{font-weight:700;margin:4px 0 10px}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 14px;min-height:54px;font-size:16px}
+.opt.ok{border-color:var(--ok);background:var(--okbg)}
+.opt.bad{border-color:var(--bad);background:var(--badbg);opacity:.75}
+.fb{margin-top:10px;border-radius:12px;padding:0;font-size:16px}
+.fb.ok{background:var(--okbg);padding:10px 12px;border:2px solid #9fd8b8}
+.fb.bad{background:var(--badbg);padding:10px 12px;border:2px solid #f0b0b0}
+.fb.info{background:#eaf4f8;padding:10px 12px;border:2px solid #b7d9e6}
+.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+/* pick */
+.grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.tile{background:#fff;border:3px solid var(--line);border-radius:14px;padding:10px 6px;text-align:center;font-size:14px;font-weight:600;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.tile svg{width:56px;height:56px}
+.tile.sel{border-color:var(--blue);background:#e6f3f8}
+.tile.good{border-color:var(--ok);background:var(--okbg)}
+.tile.wrong{border-color:var(--bad);background:var(--badbg)}
+/* place / seq */
+.fig{background:#f7f9fb;border-radius:12px;padding:8px;margin:8px 0}
+.fig svg{width:100%;height:auto;display:block}
+.slots{display:grid;gap:8px;margin:10px 0}
+.slot{display:flex;align-items:center;gap:10px;background:#fff;border:2px dashed #9fb0c2;border-radius:12px;padding:8px 10px;min-height:50px;text-align:left;width:100%}
+.slot .n{flex:0 0 30px;height:30px;border-radius:50%;background:var(--nav);color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px}
+.slot.filled{border-style:solid;border-color:var(--ok);background:var(--okbg)}
+.slot.act{border-color:var(--blue);background:#e6f3f8}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{background:#fff;border:2px solid var(--line);border-radius:999px;padding:9px 14px;min-height:46px;font-weight:600;font-size:15px}
+.chip.sel{border-color:var(--blue);background:var(--blue);color:#fff}
+.seqlist{display:grid;gap:8px}
+.seqitem{display:flex;gap:10px;align-items:center;text-align:left;background:#fff;border:2px solid var(--line);border-radius:12px;padding:10px 12px;min-height:52px;width:100%;font-size:16px}
+.seqitem .n{flex:0 0 30px;height:30px;border-radius:50%;background:#e8edf3;display:grid;place-items:center;font-weight:800}
+.seqitem.done{border-color:var(--ok);background:var(--okbg)} .seqitem.done .n{background:var(--ok);color:#fff}
+/* calc */
+.calc{display:grid;gap:10px}
+.crow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;background:#f7f9fb;border-radius:12px;padding:10px 12px;font-size:17px}
+.crow.given{background:#eef2f6;color:#334}
+.crow input{width:130px;min-height:46px;border:2px solid #9fb0c2;border-radius:10px;padding:6px 10px;font-size:18px;font-weight:700;text-align:right;background:#fff}
+.crow input.okI{border-color:var(--ok);background:var(--okbg)}
+.crow input.badI{border-color:var(--bad);background:var(--badbg)}
+.crow .u{font-weight:600;color:var(--muted)}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.92em;margin:0 3px}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 3px}
+.tip{font-size:14px;color:var(--muted)}
+/* scan */
+.scanwrap{background:#1c2733;border-radius:14px;padding:8px;margin:10px 0;color:#cfe}
+.scanhead{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 4px 6px;font-size:13px}
+.scanhead .t{font-weight:700;letter-spacing:.04em}
+canvas.scan{display:block;width:100%;height:auto;aspect-ratio:16/8.5;border-radius:8px;background:var(--scr);touch-action:manipulation}
+.seg{display:inline-flex;background:#2d3b4a;border-radius:10px;padding:3px}
+.seg button{border:0;background:transparent;color:#cfe;padding:6px 12px;border-radius:8px;min-height:36px;font-weight:700;font-size:14px}
+.seg button.on{background:var(--trace);color:#062}
+.readout{display:flex;flex-wrap:wrap;gap:6px 14px;padding:6px 4px 0;font-size:14px;font-variant-numeric:tabular-nums}
+.readout b{color:var(--trace)}
+/* controls */
+.ctrls{display:grid;gap:10px;margin-top:6px}
+.ctl{background:#f7f9fb;border-radius:12px;padding:10px 12px}
+.ctl .lab{display:flex;justify-content:space-between;font-weight:700;font-size:15px;margin-bottom:6px}
+.ctl .lab span{font-variant-numeric:tabular-nums;color:var(--blue)}
+.ctl .row{display:flex;gap:8px;align-items:center}
+.ctl input[type=range]{flex:1;min-width:0;height:36px;accent-color:var(--acc)}
+.btns4{display:grid!important;grid-template-columns:repeat(4,1fr);margin-top:6px}
+.sbtn{min-width:52px;min-height:46px;border:0;border-radius:12px;background:var(--nav);color:#fff;font-weight:800;font-size:16px}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+.btnrow .btn{flex:1;min-width:140px}
+.check{list-style:none;padding:0;margin:8px 0;display:grid;gap:4px;font-size:15px}
+.check li:before{content:"⬜ "} .check li.ok:before{content:"✅ "}
+/* scene */
+.scene{width:100%;max-height:200px;display:block}
+.wv{animation:wv 1.1s linear infinite;opacity:0}
+.wv:nth-child(2){animation-delay:.37s}.wv:nth-child(3){animation-delay:.74s}
+@keyframes wv{0%{transform:translateY(0);opacity:.9}100%{transform:translateY(62px);opacity:0}}
+.weak .wv{animation-name:wvw}
+@keyframes wvw{0%{transform:translateY(0);opacity:.25}30%{opacity:0}100%{transform:translateY(20px);opacity:0}}
+/* device */
+.dev{background:#c8232c;border-radius:18px;padding:12px;box-shadow:0 4px 0 #8d141b}
+.dev .scr{background:#0b1a14;color:#bfffd3;border-radius:8px;padding:10px 12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:15px}
+.dev .scr .mrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px dashed rgba(191,255,211,.25)}
+.dev .scr .mrow:last-child{border:0}
+.dev .brand{color:#fff;font-weight:800;font-size:12px;letter-spacing:.12em;margin-top:8px;opacity:.9}
+.dev .keys{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.dev .keys button{flex:1 0 64px;min-height:46px;border:0;border-radius:10px;background:#f0f0f0;color:#222;font-weight:800}
+.dev .arrow{min-width:44px;min-height:40px;border:0;border-radius:8px;background:#2a4a3a;color:#bfffd3;font-weight:800}
+/* table */
+table.tb{border-collapse:collapse;width:100%;font-size:15px}
+.tb th,.tb td{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left}
+.tb th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+/* decide */
+.dcard{border:2px solid var(--line);border-radius:14px;padding:10px;margin:10px 0;background:#fff}
+.dcard.ok{border-color:var(--ok);background:var(--okbg)}
+.dcard h4{margin:0 0 4px}
+.dbtns{display:grid;grid-template-columns:1fr;gap:8px}
+@media(min-width:560px){.dbtns{grid-template-columns:1fr 1fr 1fr}}
+.dbtns button{min-height:50px;border-radius:12px;border:2px solid var(--line);background:#fff;font-weight:700;font-size:15px}
+.dbtns button.bad{border-color:var(--bad);background:var(--badbg)} .dbtns button.ok{border-color:var(--ok);background:var(--okbg)}
+/* cloze */
+.cloze p{margin:0 0 12px;line-height:2}
+.cloze select{min-height:44px;border:2px solid #9fb0c2;border-radius:10px;padding:4px 8px;max-width:100%;background:#fff;font-weight:600;font-size:16px}
+.cloze select.okI{border-color:var(--ok);background:var(--okbg)} .cloze select.badI{border-color:var(--bad);background:var(--badbg)}
+.doc{border:2px solid var(--nav);border-radius:12px;padding:16px;position:relative;background:#fffdf7;margin-top:12px}
+.doc h4{margin:0 0 8px;font-size:19px}
+.doc .stamp{position:absolute;right:12px;top:10px;border:3px solid var(--ok);color:var(--ok);font-weight:900;padding:4px 10px;border-radius:8px;transform:rotate(-8deg);letter-spacing:.08em}
+.doc dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:15px}
+.doc dt{font-weight:700;color:var(--muted)}
+.doc dd{margin:0}
+/* sheet */
+.shade{position:fixed;inset:0;background:rgba(10,18,30,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:88vh;overflow:auto;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
+.sheet h3{margin:0 0 10px}
+@media(min-width:700px){.shade{align-items:center}.sheet{border-radius:20px}}
+.calcdisp{background:#0b1a14;color:#bfffd3;font:600 24px/1.2 ui-monospace,Menlo,monospace;border-radius:12px;padding:12px;text-align:right;min-height:58px;word-break:break-all}
+.calckeys{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.calckeys button{min-height:54px;border:0;border-radius:12px;background:#e8edf3;font-size:20px;font-weight:700}
+.calckeys button.op{background:#d5e6ee}.calckeys button.eq{grid-column:span 4;background:var(--acc);color:#fff}
+.calckeys button.ex{font-size:16px}
+.term{border-bottom:2px dotted var(--blue);color:var(--blue);font-weight:600;cursor:pointer}
+.term:after{content:" ⓘ";font-size:.75em}
+/* overlay */
+.win{text-align:center;padding:10px 0}
+.win .big{font-size:64px;line-height:1}
+.float{position:fixed;z-index:60;font-weight:900;color:var(--gold);font-size:26px;text-shadow:0 1px 0 #7a5a00;pointer-events:none;animation:up 1.1s ease-out forwards}
+@keyframes up{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-70px)}}
+.conf{position:fixed;top:-10px;width:10px;height:14px;z-index:70;pointer-events:none;animation:fall 1.8s linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(540deg)}}
+/* cert */
+.cert{background:linear-gradient(145deg,#16233a,#2a4b7a);color:#fff;border-radius:22px;padding:22px;box-shadow:0 8px 30px rgba(0,0,0,.25);position:relative;overflow:hidden}
+.cert:after{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:rgba(240,180,0,.18)}
+.cert h2{margin:0;font-size:24px}
+.cert .nm{font-size:30px;font-weight:900;margin:14px 0 2px;color:var(--gold)}
+.cert .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.cert .row div{background:rgba(255,255,255,.12);border-radius:12px;padding:8px 12px}
+.stars{font-size:30px;letter-spacing:4px;margin-top:8px;color:var(--gold)}
+.bars{display:grid;gap:10px;margin:10px 0}
+.bar{background:#e8edf3;border-radius:10px;height:26px;position:relative;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--blue);border-radius:10px}
+.bar span{position:absolute;left:10px;top:3px;font-size:14px;font-weight:700}
+small.m{color:var(--muted)}
+input.name{width:100%;min-height:52px;border:2px solid #9fb0c2;border-radius:12px;padding:8px 12px;font-size:18px}
+@media (prefers-color-scheme: dark){
+ :root:not([data-theme="light"]){--bg:#0f1621;--card:#1a2433;--ink:#e8eef6;--muted:#9fb0c2;--line:#2f3d50;--okbg:#153a28;--badbg:#3d1c1c;--hint:#3a3317;--hintb:#6d5d1d}
+ :root:not([data-theme="light"]) .opt,:root:not([data-theme="light"]) .tile,:root:not([data-theme="light"]) .slot,:root:not([data-theme="light"]) .chip,:root:not([data-theme="light"]) .seqitem,:root:not([data-theme="light"]) .dcard,:root:not([data-theme="light"]) .dbtns button,:root:not([data-theme="light"]) .cloze select,:root:not([data-theme="light"]) .crow input,:root:not([data-theme="light"]) .bubble,:root:not([data-theme="light"]) .sheet,:root:not([data-theme="light"]) .bdg,:root:not([data-theme="light"]) input.name{background:#1f2b3c}
+ :root:not([data-theme="light"]) .crow,:root:not([data-theme="light"]) .ctl,:root:not([data-theme="light"]) .fig{background:#223044}
+ :root:not([data-theme="light"]) .fig{background:#e9eef4}
+ :root:not([data-theme="light"]) .task{background:#16303c}
+ :root:not([data-theme="light"]) .fb.info{background:#16303c;border-color:#24536a}
+ :root:not([data-theme="light"]) .foot{background:rgba(15,22,33,.94)}
+ :root:not([data-theme="light"]) .btn.sec{background:#1f2b3c}
+ :root:not([data-theme="light"]) .doc{background:#1f2b3c}
+ :root:not([data-theme="light"]) .calckeys button{background:#2a3a50}
+ :root:not([data-theme="light"]) .calckeys button.op{background:#24485a}
+ :root:not([data-theme="light"]) .lv .num{background:#2a3a50;color:#e8eef6}
+ :root:not([data-theme="light"]) .bar{background:#2a3a50}
+ :root:not([data-theme="light"]) .tile.sel,:root:not([data-theme="light"]) .slot.act{background:#16303c}
+}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <button class="pill iconbtn" id="bHome" aria-label="Übersicht">🏠</button>
+  <h1 id="tTitle">Ultraschall-Prüfplatz</h1>
+  <button class="pill iconbtn" id="bCalc" aria-label="Taschenrechner">🧮</button>
+  <button class="pill iconbtn" id="bProto" aria-label="Messprotokoll">📋</button>
+  <span class="pill gold" id="tPts">⭐ 0</span>
+</div><div class="wrap"><div class="dots" id="dots"></div></div></header>
+
+<main id="home"></main>
+<main id="level" class="hidden"><div class="wrap step" id="stepBox"></div></main>
+<main id="certView" class="hidden"></main>
+
+<footer class="foot hidden" id="foot"><div class="wrap">
+  <button class="btn sec" id="bHint">💡 Hilfe</button>
+  <button class="btn wide" id="bNext" disabled>Weiter ▶</button>
+</div></footer>
+
+<script>
+"use strict";
+/* ============ Helpers ============ */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const fmt=(x,d=1)=>Number(x).toFixed(d).replace('.',',');
+const rand=(a,b)=>a+Math.random()*(b-a);
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function parseNum(s){
+  if(s==null)return NaN; s=String(s).trim().replace(/\s/g,'').replace(/[−–]/g,'-');
+  if(!s)return NaN;
+  s=s.replace(/·10\^?/g,'e').replace(/x10\^?/gi,'e');
+  if(s.includes(',')){s=s.replace(/\./g,'').replace(',','.')}
+  else if((s.match(/\./g)||[]).length>1){s=s.replace(/\./g,'')}
+  else if(/^\d{1,3}\.\d{3}$/.test(s) && Number(s.replace('.',''))>=1000){ /* kann 5.917 = 5917 sein */ s=s.replace('.','')+'#'}
+  if(s.endsWith('#')){return Number(s.slice(0,-1))}
+  return Number(s);
+}
+function shake(el){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+/* ============ State ============ */
+const KEY='us-pruefplatz-13nf-v1';
+const S0={name:'',points:0,done:{},awarded:{},stepIdx:{},hints:0,proto:{},quiz:{},teacher:false,sim:{}};
+let state=load();
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s)return Object.assign(JSON.parse(JSON.stringify(S0)),s)}catch(e){}return JSON.parse(JSON.stringify(S0))}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+
+/* ============ Glossar ============ */
+const GL={
+ abild:['A-Bild','Die Anzeige am Prüfgerät. <b>Nach rechts</b> (x-Achse): Laufzeit bzw. Schallweg – also <i>wie tief</i> etwas liegt. <b>Nach oben</b> (y-Achse): Echohöhe (Amplitude) – also <i>wie stark</i> das Echo ist.'],
+ amp:['Amplitude','Die Höhe eines Echos im A-Bild. Angabe in % der Bildschirmhöhe (%BSH). Sie sagt, wie viel Schall zurückkommt – <b>nicht</b>, wie tief etwas liegt.'],
+ kopp:['Koppelmittel','Ein Gel oder Öl zwischen Prüfkopf und Bauteil. Es verdrängt die Luft, damit der Schall ins Bauteil kommt.'],
+ npk:['Normalprüfkopf','Prüfkopf, der den Schall <b>senkrecht</b> (= „normal“, wie die Normale in Mathe) ins Bauteil schickt. Er ist Sender und Empfänger zugleich.'],
+ k1:['Kalibrierkörper K1','Ein genormter Stahlblock (DIN EN ISO 2400) mit genau bekannten Maßen. Damit stellt man das Prüfgerät richtig ein. Die Dicke an der Messstelle: 100 mm.'],
+ rwe:['Rückwandecho','Das Echo von der Unterseite (Rückwand) des Bauteils. Beim K1 kommt es mehrmals: 1. Echo, 2. Echo, … – jedes Mal einmal mehr hin und her.'],
+ us:['µs (Mikrosekunde)','1 µs = 1 Millionstel Sekunde = 0,000001 s = 10⁻⁶ s. Im Taschenrechner: <b>×10⁻⁶</b>.'],
+ imp:['Akustische Impedanz Z','Z = ρ · c (Dichte mal Schallgeschwindigkeit). Sie sagt, wie „hart“ ein Stoff für Schall ist. Großer Unterschied zwischen zwei Stoffen → fast alles wird zurückgeworfen.'],
+ null:['Nullpunkt (Offset)','Der Startpunkt der Zeitmessung. Ist er verschoben, rutschen <b>alle</b> Echos gleich weit – der Abstand der Echos bleibt gleich.'],
+ just:['Justieren','Das Prüfgerät so einstellen, dass die x-Achse den richtigen Weg in mm zeigt. Das macht man an einem bekannten Körper (K1).'],
+ skt:['Skalenteil (SkT)','Ein Kästchen auf dem Bildschirm in x-Richtung. Der Bildschirm hat 10 SkT und 11 Teilstriche.'],
+ bsh:['%BSH','Prozent der Bildschirmhöhe. 100 %BSH = Echo reicht bis ganz oben.'],
+ radsatz:['Radsatzwelle','Die Achse eines Zugs, auf der die beiden Räder sitzen. Sie trägt viele Tonnen und wird regelmäßig mit Ultraschall auf Risse geprüft.']
+};
+const T=(k,txt)=>`<span class="term" data-g="${k}">${txt||GL[k][0]}</span>`;
+document.addEventListener('click',e=>{const t=e.target.closest('.term');if(t){const g=GL[t.dataset.g];sheet(`<h3>📘 ${g[0]}</h3><p>${g[1]}</p><button class="btn wide" style="width:100%" data-close>Verstanden</button>`)}});
+
+/* ============ Sheet ============ */
+function sheet(html,onOpen){
+  const sh=document.createElement('div');sh.className='shade';
+  sh.innerHTML=`<div class="sheet" role="dialog">${html}</div>`;
+  sh.addEventListener('click',e=>{if(e.target===sh||e.target.closest('[data-close]'))sh.remove()});
+  document.body.appendChild(sh); onOpen&&onOpen(sh.firstChild,()=>sh.remove()); return sh;
+}
+
+/* ============ Rechner ============ */
+let cExpr='';
+function calcDisp(){return cExpr.replace(/\*1e-6/g,'×10⁻⁶').replace(/\*/g,'×').replace(/\//g,'÷').replace(/-/g,'−').replace(/\./g,',')||'0'}
+function openCalc(){
+  sheet(`<h3>🧮 Taschenrechner</h3><div class="calcdisp" id="cd"></div>
+  <div class="calckeys">${['C','⌫','(',')','7','8','9','÷','4','5','6','×','1','2','3','−','0',',','×10⁻⁶','+','='].map(k=>`<button class="${'÷×−+'.includes(k)?'op':''}${k==='='?' eq':''}${k==='×10⁻⁶'?' ex op':''}" data-k="${k}">${k}</button>`).join('')}</div>
+  <p class="tip">Tipp: µs eingeben mit <b>×10⁻⁶</b>. Beispiel: 33,8 µs → 33,8 ×10⁻⁶</p>
+  <button class="btn sec wide" style="width:100%" data-close>Schließen</button>`,(s)=>{
+    const d=$('#cd',s);const up=()=>d.textContent=calcDisp();up();
+    $$('.calckeys button',s).forEach(b=>b.onclick=()=>{
+      const k=b.dataset.k;
+      if(k==='C')cExpr='';else if(k==='⌫'){cExpr=cExpr.endsWith('*1e-6')?cExpr.slice(0,-5):cExpr.slice(0,-1)}
+      else if(k==='='){const js=cExpr;if(/^[0-9+\-*/().e]+$/.test(js)){try{const r=Function('"use strict";return ('+js+')')();cExpr=isFinite(r)?String(Number(r.toPrecision(8))):''; if(!isFinite(r)){d.textContent='Fehler';return}}catch(e){d.textContent='Fehler';return}}}
+      else cExpr+=({'÷':'/','×':'*','−':'-',',':'.','×10⁻⁶':'*1e-6'})[k]||k;
+      up();
+    });
+  });
+}
+
+/* ============ Protokoll ============ */
+function openProto(){
+  const p=state.proto, v=(k,u,d)=>p[k]!=null?(typeof p[k]==='number'?fmt(p[k],d)+' '+u:p[k]):'—';
+  sheet(`<h3>📋 Mein Messprotokoll</h3>
+  <table class="tb"><tr><th>Größe</th><th>Wert</th></tr>
+  <tr><td>Prüfkopf</td><td>${v('probe')}</td></tr>
+  <tr><td>Material / c eingestellt</td><td>${v('cset','m/s',0)}</td></tr>
+  <tr><td>Koppelung</td><td>${v('kopp')}</td></tr>
+  <tr><td>1. Rückwandecho t₁ (K1)</td><td>${v('t1','µs',1)}</td></tr>
+  <tr><td>2. Rückwandecho t₂ (K1)</td><td>${v('t2','µs',1)}</td></tr>
+  <tr><td>Echoabstand Δt</td><td>${v('dt','µs',1)}</td></tr>
+  <tr><td>c berechnet</td><td>${v('cber','m/s',0)}</td></tr>
+  <tr><td>Nullpunktversatz t₀</td><td>${v('t0','µs',1)}</td></tr>
+  <tr><td>Justierbereich</td><td>${v('range','mm',1)}</td></tr>
+  <tr><td>Verschieben</td><td>${v('delay','mm',1)}</td></tr>
+  </table><p class="tip">Werte werden automatisch eingetragen, wenn du sie gemessen oder richtig berechnet hast.</p>
+  <button class="btn sec" style="width:100%" data-close>Schließen</button>`);
+}
+
+/* ============ A-Bild (Canvas) ============ */
+function echoShape(u){ if(u<0||u>5)return 0; const osc=.55+.45*Math.abs(Math.cos(u*6.5)); return (u<.3?u/.3:Math.exp(-(u-.3)*1.5))*osc; }
+function drawScan(cv,o){
+  const r=cv.getBoundingClientRect(); if(r.width<10)return;
+  const dpr=window.devicePixelRatio||1, W=Math.round(r.width), H=Math.round(r.height);
+  if(cv.width!==W*dpr||cv.height!==H*dpr){cv.width=W*dpr;cv.height=H*dpr}
+  const c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0); c.clearRect(0,0,W,H);
+  const pl=34,pr=o.strich?30:10,pt=10,pb=26, gw=W-pl-pr, gh=H-pt-pb;
+  cv._lay={pl,pr,pt,pb,gw,gh,xmin:o.xmin,xmax:o.xmax};
+  const X=x=>pl+(x-o.xmin)/(o.xmax-o.xmin)*gw, Y=a=>pt+gh-a/100*gh;
+  c.fillStyle='#07140f';c.fillRect(0,0,W,H);
+  // grid
+  c.lineWidth=1;
+  for(let i=0;i<=10;i++){const x=pl+i*gw/10;c.strokeStyle=(o.hl&&o.hl.includes(i))?'rgba(255,196,0,.95)':'rgba(125,255,166,.16)';c.lineWidth=(o.hl&&o.hl.includes(i))?2.5:1;c.beginPath();c.moveTo(x,pt);c.lineTo(x,pt+gh);c.stroke()}
+  c.lineWidth=1;c.strokeStyle='rgba(125,255,166,.16)';
+  for(let i=0;i<=10;i++){const y=pt+i*gh/10;c.beginPath();c.moveTo(pl,y);c.lineTo(pl+gw,y);c.stroke()}
+  // labels
+  c.fillStyle='rgba(200,255,220,.75)';c.font='11px -apple-system,Segoe UI,sans-serif';c.textAlign='center';
+  const step=W<420?2:1;
+  for(let i=0;i<=10;i+=(o.strich?1:step)){const x=pl+i*gw/10;let lab;
+    if(o.strich)lab=String(i+1);else{const v=o.xmin+i*(o.xmax-o.xmin)/10;lab=fmt(v,Math.abs(v)<10&&v%1?1:0)}
+    if(o.hl&&o.hl.includes(i)){c.fillStyle='#ffc400';c.font='bold 12px -apple-system,sans-serif'}else{c.fillStyle='rgba(200,255,220,.75)';c.font='11px -apple-system,sans-serif'}
+    c.fillText(lab,x,H-9)}
+  c.textAlign='right';c.fillStyle='rgba(200,255,220,.75)';c.font='11px -apple-system,sans-serif';
+  [0,50,100].forEach(a=>c.fillText(a,pl-5,Y(a)+4));
+  // targets
+  (o.targets||[]).forEach(t=>{const x=X(t);c.save();c.setLineDash([5,5]);c.strokeStyle='#ffc400';c.lineWidth=2;c.beginPath();c.moveTo(x,pt);c.lineTo(x,pt+gh);c.stroke();c.restore()});
+  // trace
+  const span=o.xmax-o.xmin, ew=span*0.011, grass=(o.grass==null?2:o.grass);
+  c.beginPath();
+  for(let px=0;px<=gw+(o.strich?pr-4:0);px++){
+    const x=o.xmin+px/gw*span;let v=Math.random()*grass;
+    if(o.send!=null){v=Math.max(v,Math.min(98,100*echoShape((x-o.send)/(ew*(o.ring||2.4)))))}
+    (o.echoes||[]).forEach(e=>{v=Math.max(v,e.a*echoShape((x-e.x)/ew)*(1+Math.random()*.04))});
+    v=Math.min(v,99);const y=Y(v);px?c.lineTo(pl+px,y):c.moveTo(pl+px,y);
+  }
+  c.strokeStyle='#7dffa6';c.lineWidth=1.6;c.shadowColor='#7dffa6';c.shadowBlur=4;c.stroke();c.shadowBlur=0;
+  // marks
+  (o.marks||[]).forEach(m=>{const x=X(m.x);c.strokeStyle='#4fc3ff';c.lineWidth=2;c.beginPath();c.moveTo(x,pt);c.lineTo(x,pt+gh);c.stroke();
+    c.font='bold 12px -apple-system,sans-serif';const w=c.measureText(m.label).width+10;let bx=Math.min(Math.max(x-w/2,pl),pl+gw-w);
+    c.fillStyle='#4fc3ff';c.fillRect(bx,pt+2+(m.row||0)*20,w,18);c.fillStyle='#021';c.textAlign='left';c.fillText(m.label,bx+5,pt+15+(m.row||0)*20)});
+  if(o.corner){c.textAlign='right';c.fillStyle='rgba(200,255,220,.9)';c.font='bold 12px -apple-system,sans-serif';c.fillText(o.corner,pl+gw-4,pt+14)}
+}
+function scanToX(cv,clientX){const r=cv.getBoundingClientRect(),L=cv._lay;if(!L)return null;return L.xmin+(clientX-r.left-L.pl)/L.gw*(L.xmax-L.xmin)}
+const MMUS=2.96; // mm pro µs Schallweg bei c=5920 m/s (s=c·t/2)
+function makeScan(parent,{title='A-Bild',toggle=false,unit='µs'}={}){
+  const w=document.createElement('div');w.className='scanwrap';
+  w.innerHTML=`<div class="scanhead"><span class="t">📟 ${title}</span>${toggle?`<div class="seg"><button data-u="µs">µs</button><button data-u="mm">mm</button></div>`:''}</div><canvas class="scan"></canvas><div class="readout"></div>`;
+  parent.appendChild(w);
+  const o={cv:$('canvas',w),ro:$('.readout',w),unit,wrap:w};
+  if(toggle){const bs=$$('.seg button',w);const mark=()=>bs.forEach(b=>b.classList.toggle('on',b.dataset.u===o.unit));mark();bs.forEach(b=>b.onclick=()=>{o.unit=b.dataset.u;mark();o.onUnit&&o.onUnit()})}
+  return o;
+}
+// zeichnet Zeitdaten (µs) wahlweise in µs oder mm
+function drawT(o,d){
+  const mm=o.unit==='mm', f=mm?MMUS:1, cv=v=>v*f;
+  drawScan(o.cv,{xmin:0,xmax:mm?240:80,echoes:(d.echoes||[]).map(e=>({x:cv(e.x),a:e.a})),send:d.send!=null?cv(d.send):null,ring:d.ring,grass:d.grass,
+    targets:(d.targets||[]).map(cv),marks:(d.marks||[]).map(m=>({x:cv(m.x),label:m.label?m.label:(m.name+' = '+(mm?fmt(cv(m.x),1)+' mm':fmt(m.x,1)+' µs')),row:m.row})),
+    corner:mm?'x: Schallweg s in mm':'x: Laufzeit t in µs'});
+}
+const REC={
+  K0:()=>({send:-3.2,ring:3.4,grass:7,echoes:[{x:33.8,a:rand(18,46)},{x:67.6,a:rand(0,5)}]}),
+  K1:()=>({send:0,grass:2,echoes:[{x:37.0,a:78+rand(-1,1)},{x:70.8,a:52+rand(-1,1)}]}),
+  K2:()=>({send:-3.2,grass:2,echoes:[{x:33.8,a:76+rand(-1,1)},{x:67.6,a:50+rand(-1,1)}]})
+};
+
+/* ticker */
+let loops=[];setInterval(()=>{loops.forEach(f=>{try{f()}catch(e){console.error(e)}})},120);
+function loop(f){loops.push(f);requestAnimationFrame(f)}
+window.addEventListener('resize',()=>loops.forEach(f=>f()));
+
+/* ============ SVG-Bausteine ============ */
+const ICON={
+ dev:`<svg viewBox="0 0 56 56"><rect x="3" y="10" width="50" height="36" rx="7" fill="#c8232c"/><rect x="15" y="15" width="34" height="22" rx="2" fill="#0b1a14"/><path d="M17 33h6l1-14 1 14h8l1-8 1 8h12" stroke="#7dffa6" stroke-width="1.6" fill="none"/><circle cx="9" cy="20" r="2.5" fill="#fff"/><circle cx="9" cy="28" r="2.5" fill="#fff"/></svg>`,
+ npk:`<svg viewBox="0 0 56 56"><path d="M28 4c0 8 14 4 18 10" stroke="#222" stroke-width="3" fill="none"/><rect x="18" y="10" width="20" height="32" rx="4" fill="#cfd6dd" stroke="#555" stroke-width="2"/><rect x="19" y="40" width="18" height="6" fill="#333"/><path d="M24 50h8M22 53h12" stroke="#1f6f8b" stroke-width="2"/></svg>`,
+ k1:`<svg viewBox="0 0 56 56"><rect x="3" y="16" width="50" height="26" rx="2" fill="#9aa4ae" stroke="#5b6570" stroke-width="2"/><path d="M12 16a14 14 0 0 1 14 14" stroke="#5b6570" stroke-width="2" fill="none"/><circle cx="42" cy="26" r="6" fill="none" stroke="#5b6570" stroke-width="2"/><circle cx="20" cy="36" r="2" fill="#b5651d"/><circle cx="33" cy="20" r="1.6" fill="#b5651d"/><circle cx="46" cy="37" r="1.8" fill="#b5651d"/></svg>`,
+ gel:`<svg viewBox="0 0 56 56"><rect x="18" y="12" width="20" height="36" rx="5" fill="#4fb3ff"/><rect x="22" y="5" width="12" height="8" rx="2" fill="#1f6f8b"/><path d="M22 28h12" stroke="#fff" stroke-width="3"/><circle cx="28" cy="52" r="3" fill="#4fb3ff"/></svg>`,
+ tuch:`<svg viewBox="0 0 56 56"><path d="M8 14c8-4 12 4 20 0s12-4 20 0v30c-8-4-12 4-20 0s-12-4-20 0z" fill="#8fd3c6" stroke="#3f8f80" stroke-width="2"/></svg>`,
+ hv:`<svg viewBox="0 0 56 56"><rect x="5" y="12" width="46" height="34" rx="4" fill="#3a3f47"/><path d="M30 16l-10 14h8l-4 12 12-16h-8l4-10z" fill="#ffd400"/><circle cx="12" cy="40" r="3" fill="#e33"/><circle cx="44" cy="40" r="3" fill="#222" stroke="#999"/></svg>`,
+ wpk:`<svg viewBox="0 0 56 56"><path d="M20 4c0 8 14 4 18 10" stroke="#222" stroke-width="3" fill="none"/><rect x="12" y="10" width="20" height="26" rx="3" fill="#cfd6dd" stroke="#555" stroke-width="2"/><path d="M8 36h32l8 12H8z" fill="#e8a33c" stroke="#8a5a14" stroke-width="2"/></svg>`,
+ tauch:`<svg viewBox="0 0 56 56"><path d="M6 18v28h44V18" stroke="#555" stroke-width="3" fill="none"/><rect x="8" y="26" width="40" height="18" fill="#6ec1ff" opacity=".7"/><rect x="24" y="8" width="8" height="24" fill="#cfd6dd" stroke="#555"/></svg>`,
+ hammer:`<svg viewBox="0 0 56 56"><rect x="25" y="18" width="7" height="34" rx="3" fill="#a0692e"/><rect x="12" y="8" width="32" height="12" rx="3" fill="#6b737c"/></svg>`
+};
+const RADSATZ=`<svg viewBox="0 0 330 160" role="img" aria-label="Radsatz mit Prüfkopf">
+ <rect x="30" y="72" width="270" height="16" rx="4" fill="#8b949e" stroke="#4b535c" stroke-width="2"/>
+ <rect x="70" y="18" width="18" height="124" rx="6" fill="#2d3540"/><rect x="66" y="24" width="4" height="112" rx="2" fill="#2d3540"/>
+ <rect x="242" y="18" width="18" height="124" rx="6" fill="#2d3540"/><rect x="260" y="24" width="4" height="112" rx="2" fill="#2d3540"/>
+ <rect x="8" y="68" width="18" height="24" rx="3" fill="#cfd6dd" stroke="#555" stroke-width="2"/>
+ <g stroke="#1f6f8b" stroke-width="2.5" fill="none"><path d="M34 70q8 10 0 20"/><path d="M44 66q10 14 0 28"/><path d="M54 62q12 18 0 36"/></g>
+ <path d="M178 72l4 6-5 4 5 6" stroke="#e33" stroke-width="3" fill="none"/>
+ <text x="190" y="62" font-size="13" font-weight="700" fill="#e33">Riss?</text>
+ <text x="150" y="108" font-size="13" fill="#4b535c" text-anchor="middle">Radsatzwelle</text>
+ <text x="79" y="155" font-size="12" fill="#4b535c" text-anchor="middle">Rad</text>
+ <text x="17" y="60" font-size="11" fill="#1f6f8b" text-anchor="middle">Prüfkopf</text>
+</svg>`;
+function sceneSVG(){return `<svg class="scene" viewBox="0 0 320 170">
+ <rect x="30" y="80" width="260" height="72" rx="3" fill="#9aa4ae" stroke="#5b6570" stroke-width="2"/>
+ <circle cx="60" cy="130" r="3" fill="#b5651d" opacity=".7"/><circle cx="250" cy="96" r="2.5" fill="#b5651d" opacity=".7"/><circle cx="220" cy="140" r="2" fill="#b5651d" opacity=".7"/>
+ <text x="100" y="124" font-size="12" fill="#2d3540">K1 · Stahl</text>
+ <path d="M300 80v72" stroke="#e4572e" stroke-width="2"/><path d="M295 80h10M295 152h10" stroke="#e4572e" stroke-width="2"/><text x="308" y="120" font-size="12" fill="#e4572e" transform="rotate(90 308 120)" text-anchor="middle">d = 100 mm</text>
+ <g class="gel" opacity="0"><ellipse cx="160" cy="80" rx="28" ry="4.5" fill="#4fb3ff"/></g>
+ <g class="waves"><g class="wvg" transform="translate(0,86)"><path class="wv" d="M146 0q14 6 28 0" stroke="#1f6f8b" stroke-width="3" fill="none"/><path class="wv" d="M146 0q14 6 28 0" stroke="#1f6f8b" stroke-width="3" fill="none"/><path class="wv" d="M146 0q14 6 28 0" stroke="#1f6f8b" stroke-width="3" fill="none"/></g></g>
+ <g class="probe" style="transition:transform .35s" transform="translate(0,-30)">
+  <path d="M160 36 C160 10, 250 6, 318 14" stroke="#222" stroke-width="3" fill="none"/>
+  <rect x="145" y="34" width="30" height="40" rx="4" fill="#cfd6dd" stroke="#555" stroke-width="2"/>
+  <rect x="147" y="72" width="26" height="6" fill="#333"/><text x="160" y="58" font-size="10" text-anchor="middle" fill="#333">NPK</text>
+ </g>
+ <text x="316" y="10" font-size="10" text-anchor="end" fill="#555">→ zum Prüfgerät</text>
+</svg>`}
+const AUFBAU=`<svg viewBox="0 0 400 290">
+ <rect x="20" y="16" width="150" height="92" rx="10" fill="#c8232c"/><rect x="36" y="28" width="118" height="68" rx="4" fill="#0b1a14"/>
+ <path d="M42 86h14l2-44 2 44h30l2-26 2 26h52" stroke="#7dffa6" stroke-width="2" fill="none"/>
+ <path d="M170 60H330V132" stroke="#222" stroke-width="3" fill="none"/>
+ <rect x="315" y="132" width="30" height="44" rx="4" fill="#cfd6dd" stroke="#555" stroke-width="2"/>
+ <ellipse cx="330" cy="180" rx="26" ry="5" fill="#4fb3ff"/>
+ <rect x="100" y="184" width="285" height="76" rx="3" fill="#9aa4ae" stroke="#5b6570" stroke-width="2"/>
+ <path d="M322 190v62M338 252v-62" stroke="#1f6f8b" stroke-width="2.5"/><path d="M318 246l4 8 4-8M334 196l4-8 4 8" fill="#1f6f8b"/>
+ <g font-weight="800" font-size="16" fill="#fff" text-anchor="middle">
+  <circle cx="95" cy="124" r="15" fill="#16233a"/><text x="95" y="130">1</text>
+  <circle cx="370" cy="150" r="15" fill="#16233a"/><text x="370" y="156">2</text>
+  <circle cx="265" cy="170" r="15" fill="#16233a"/><text x="265" y="176">3</text>
+  <circle cx="190" cy="225" r="15" fill="#16233a"/><text x="190" y="231">4</text>
+ </g>
+ <path d="M280 172L302 178" stroke="#16233a" stroke-width="2"/>
+</svg>`;
+const ACHSEN=`<svg viewBox="0 0 400 230">
+ <rect x="50" y="10" width="330" height="170" rx="6" fill="#07140f"/>
+ <path d="M55 176h20l3-150 3 150h70l3-120 3 120h80l3-80 3 80h120" stroke="#7dffa6" stroke-width="2" fill="none"/>
+ <path d="M50 190H384" stroke="#16233a" stroke-width="3"/><path d="M378 184l8 6-8 6" fill="#16233a"/>
+ <path d="M40 180V8" stroke="#16233a" stroke-width="3"/><path d="M34 14l6-8 6 8" fill="#16233a"/>
+ <g font-weight="800" font-size="16" fill="#fff" text-anchor="middle">
+  <circle cx="215" cy="212" r="15" fill="#e4572e"/><text x="215" y="218">1</text>
+  <circle cx="20" cy="95" r="15" fill="#e4572e"/><text x="20" y="101">2</text>
+ </g>
+</svg>`;
+const BOUNCE=`<svg viewBox="0 0 330 190">
+ <rect x="40" y="40" width="250" height="120" fill="#9aa4ae" stroke="#5b6570" stroke-width="2"/>
+ <rect x="80" y="10" width="30" height="30" rx="3" fill="#cfd6dd" stroke="#555" stroke-width="2"/>
+ <text x="300" y="104" font-size="12" fill="#e4572e">100 mm</text><path d="M296 40v120" stroke="#e4572e" stroke-width="2"/>
+ <g stroke-width="3" fill="none"><path d="M88 44v112" stroke="#1f6f8b"/><path d="M98 156V44" stroke="#1f6f8b"/>
+ <path d="M140 44v112" stroke="#e4572e"/><path d="M150 156V44" stroke="#e4572e"/></g>
+ <path d="M84 150l4 8 4-8M94 50l4-8 4 8M136 150l4 8 4-8M146 50l4-8 4 8" fill="#333"/>
+ <text x="93" y="178" font-size="12" text-anchor="middle" fill="#1f6f8b">bis Echo 1</text>
+ <text x="190" y="120" font-size="12" fill="#e4572e">+ runter 100 mm</text><text x="190" y="136" font-size="12" fill="#e4572e">+ rauf 100 mm</text>
+ <text x="145" y="178" font-size="12" text-anchor="middle" fill="#e4572e">bis Echo 2</text>
+ <circle r="6" fill="#ffc400" stroke="#333"><animateMotion dur="4s" repeatCount="indefinite" path="M93 44 V156 H93 V44 M145 44 V156 V44"/></circle>
+</svg>`;
+
+/* ============ Level-Definitionen ============ */
+const kaya=(txt)=>`<div class="story"><div class="ava">👷‍♀️</div><div class="bubble"><div class="who">Meisterin Kaya · Prüfteam</div>${txt}</div></div>`;
+const LEVELS=[
+/* ---------- 1 ---------- */
+{title:'Arbeitsplatz einrichten',tag:'Versuchsaufbau',sub:'Material, Aufbau, Messkette',badge:'🔧 Aufbau-Profi',steps:[
+ {type:'info',html:()=>`<div class="kicker">Dein Auftrag</div>${kaya(`<p style="margin:0 0 8px">Willkommen im Radsatz-Werk, <b>${esc(state.name||'Azubi')}</b>! Hier prüfen wir die ${T('radsatz','Radsatzwellen')} von Zügen. Ein Riss innen drin ist von außen <b>unsichtbar</b> – wenn so eine Welle bricht, kann ein Zug entgleisen.</p><p style="margin:0">Darum prüfen wir mit Ultraschall. Aber: <b>Ein Prüfgerät ist nur so gut wie seine Einstellung.</b> Bevor du an eine echte Welle darfst, justierst du das Gerät am ${T('k1')} und gibst es frei. Dann bekommst du deinen Prüfer-Ausweis. 🪪</p>`)}<div class="fig">${RADSATZ}</div>`},
+ {type:'mcq',q:'Wie funktioniert die Ultraschall-Prüfung? Tipp: Denk an eine Fledermaus. 🦇',o:[
+   {t:'Der Prüfkopf schickt Schall ins Bauteil und „hört“ auf das Echo.',ok:1,fb:'Genau! Wie bei der Fledermaus: Schall raus, Echo zurück. Aus der Zeit bis zum Echo weiß man, wie tief etwas liegt.'},
+   {t:'Der Prüfkopf macht ein Foto vom Inneren.',fb:'Nein – in Stahl kann man nicht hineinsehen. Wir nutzen Schall.'},
+   {t:'Der Prüfkopf misst, wie warm der Stahl ist.',fb:'Nein, die Temperatur interessiert uns hier nicht. Es geht um Schall und Echo.'}],
+  hints:['Eine Fledermaus ruft – und hört, wann der Ruf zurückkommt.','Echo = zurückgeworfener Schall.','Such die Antwort mit „Schall“ und „Echo“.']},
+ {type:'pick',title:'Pack den Prüftisch',text:'Tippe <b>alle Teile</b> an, die du für die Prüfung mit dem Normalprüfkopf am K1 brauchst. Dann „Prüfen“.',items:[
+   {k:'dev',t:'Ultraschall­prüfgerät (Echograph)',ok:1},{k:'npk',t:'Normalprüfkopf',ok:1},{k:'k1',t:'Kalibrierkörper K1 (Stahl)',ok:1},{k:'gel',t:'Koppelmittel (Gel)',ok:1},
+   {k:'tuch',t:'Putztuch',ok:1,fb:'Richtig: Nach der Prüfung Koppelmittel abwischen – sonst rostet der K1!'},
+   {k:'hv',t:'Hochspannungs­netzteil',fb:'⚡ Nicht nötig und gefährlich! Das Prüfgerät erzeugt die Impulse selbst. Netzteile nie mit Funktionsgeneratoren verwechseln.'},
+   {k:'wpk',t:'Winkelprüfkopf',fb:'Der Winkelprüfkopf schallt schräg ein (z. B. für Schweißnähte). Heute soll der Schall senkrecht ins Bauteil.'},
+   {k:'tauch',t:'Tauchbecken mit Wasser',fb:'Das ist für die Tauchtechnik (ein anderer Versuch). Heute koppeln wir direkt an.'},
+   {k:'hammer',t:'Hammer',fb:'Abklopfen war früher 😉 – wir prüfen mit Schall, den man nicht hört.'}],
+  hints:['Du brauchst: ein Gerät, das Signale macht und anzeigt, etwas, das Schall aussendet, einen Prüfkörper – und etwas gegen Luft zwischen Prüfkopf und Stahl.','Der K1 ist aus Stahl und rostet. Was brauchst du nach der Prüfung?','Es sind genau 5 Teile richtig.']},
+ {type:'place',title:'Versuchsaufbau beschriften',text:'Tippe unten einen Begriff an und dann die passende Nummer.',svg:AUFBAU,
+  slots:['Ultraschallprüfgerät','Normalprüfkopf','Koppelmittel','Kalibrierkörper K1'],labels:['Ultraschallprüfgerät','Normalprüfkopf','Koppelmittel','Kalibrierkörper K1','Oszilloskop'],
+  hints:['Nummer 1 hat einen Bildschirm.','Nummer 3 ist die dünne blaue Schicht zwischen Prüfkopf und Block.','Das Oszilloskop gehört nicht in diesen Aufbau.']},
+ {type:'seq',title:'Die Messkette',text:'Was passiert nacheinander? Tippe die Schritte in der <b>richtigen Reihenfolge</b> an.',items:[
+   'Das Prüfgerät erzeugt einen elektrischen Impuls.','Der Prüfkopf macht daraus Ultraschall.','Der Schall geht durch das Koppelmittel in den Stahl.','Der Schall läuft durch den Stahl und wird an der Rückwand zurückgeworfen.','Der Prüfkopf empfängt das Echo und macht wieder ein elektrisches Signal.','Das Prüfgerät zeigt das Echo im A-Bild.'],
+  hints:['Alles beginnt im Gerät – und endet auch wieder dort.','Der Prüfkopf wird zweimal gebraucht: als Sender und als Empfänger.','Start: elektrischer Impuls. Ende: Anzeige im A-Bild.']},
+ {type:'place',title:'Das A-Bild lesen',text:()=>`Das ${T('abild')} ist die Anzeige am Prüfgerät. Welche Achse zeigt was?`,svg:ACHSEN,
+  slots:['Laufzeit / Schallweg (wie tief?)','Echohöhe / Amplitude (wie stark?)'],labels:['Laufzeit / Schallweg (wie tief?)','Echohöhe / Amplitude (wie stark?)','Temperatur','Frequenz'],
+  hints:['Ein Echo, das später zurückkommt, liegt weiter rechts.','Nach oben geht es bei starken Echos.','x-Achse = Zeit bzw. Weg · y-Achse = Höhe.']},
+ {type:'mcq',q:'Im A-Bild ist ein Echo sehr <b>hoch</b>. Heißt das, das Echo kommt von <b>tief</b> im Bauteil?',o:[
+   {t:'Nein. Wie tief etwas liegt, sieht man an der Lage nach rechts – nicht an der Höhe.',ok:1,fb:'Richtig! Horizontal = Zeit/Weg (Tiefe). Vertikal = Echohöhe (Stärke).'},
+   {t:'Ja, hohe Echos kommen immer von tief unten.',fb:'Nein – die Höhe sagt nur, wie stark das Echo ist. Die Tiefe liest man auf der x-Achse ab.'},
+   {t:'Ja, und außerdem ist der Fehler dann besonders groß.',fb:'Doppelt falsch: Die Höhe hängt auch von Koppelung, Verstärkung und Ausrichtung ab. Die Tiefe steht auf der x-Achse.'}],
+  hints:['Schau nochmal, welche Achse du „wie tief?“ genannt hast.','Horizontal ↔ vertikal auseinanderhalten!','Tiefe = x-Achse.']}
+]},
+/* ---------- 2 ---------- */
+{title:'Gerät einstellen',tag:'Durchführung',sub:'Prüfkopf und Material im Menü',badge:'⚙️ Menü-Checker',steps:[
+ {type:'info',html:()=>kaya(`<p style="margin:0">Gerät an! Bevor du misst, muss der Echograph wissen, <b>welcher Prüfkopf</b> dranhängt und <b>welches Material</b> du prüfst. Nur dann kann er aus der Laufzeit einen Weg in mm machen.</p>`)+`<div class="task"><b>Aus der Praktikumsanleitung (3.1, Aufgabe 1):</b> Stelle die longitudinale Schallgeschwindigkeit c<sub>L</sub> = 5920 m/s des K1 und die Prüfkopfbezeichnung im Menü ein.</div>`},
+ {type:'mcq',q:'Aus welchem Material ist der Kalibrierkörper K1? Kleiner Tipp: Schau dir die braunen Flecken an. 🟤',o:[
+   {t:'Stahl',ok:1,fb:'Richtig! Man erkennt es an den Rostspuren. Deshalb: Koppelmittel nach der Prüfung immer abwischen.'},
+   {t:'Aluminium',fb:'Aluminium rostet nicht. Die braunen Flecken sind Rost.'},{t:'Acrylglas',fb:'Acrylglas ist durchsichtig und rostet nicht.'}],
+  hints:['Welches Metall rostet?','Rost = Eisen/Stahl.','Es ist das Material von Schienen und Radsatzwellen.']},
+ {type:'mcq',q:()=>`Du willst den Schall <b>senkrecht</b> nach unten ins Bauteil schicken, um die Dicke zu messen. Welchen Prüfkopf wählst du?`,o:[
+   {t:'Normalprüfkopf',ok:1,fb:'Genau! „Normal“ heißt hier: senkrecht zur Oberfläche – wie die Normale in Mathe.'},
+   {t:'Winkelprüfkopf 45°',fb:'Der schallt schräg ein – gut für Schweißnähte, aber nicht für senkrechte Dickenmessung.'},
+   {t:'Tauchprüfkopf',fb:'Der wird im Wasserbecken benutzt. Heute koppeln wir direkt an.'}],
+  hints:['Senkrecht = im rechten Winkel zur Oberfläche.','In Mathe heißt eine senkrechte Gerade „Normale“.','Der Name des Prüfkopfs passt zu „Normale“.']},
+ {type:'sim',title:'Menü einstellen',run:simMenu,hints:['Mit ◀ ▶ blätterst du durch die Prüfköpfe.','Stahl: c = 5920 m/s. Nutze +1000, +100, +10, +1.','Erst Prüfkopf wählen, dann c auf genau 5920 bringen, dann ✓ drücken.']}
+]},
+/* ---------- 3 ---------- */
+{title:'Ankoppeln',tag:'Durchführung',sub:'Koppelmittel & Anpressdruck',badge:'💧 Koppel-Profi',steps:[
+ {type:'info',html:()=>kaya(`<p style="margin:0">Jetzt wird's praktisch! Viele Anfänger setzen den Prüfkopf einfach auf den Stahl. Probier's aus – und schau genau aufs ${T('abild')}.</p>`)},
+ {type:'sim',title:'Prüfkopf aufsetzen',run:simCouple,hints:['Setz den Prüfkopf zuerst ohne Gel auf und schau 3 Sekunden hin.','Koppelmittel kannst du nur auftragen, wenn der Prüfkopf oben ist.','Reihenfolge: aufsetzen → beobachten → anheben → Gel → wieder aufsetzen.']},
+ {type:'sim',title:'Vergleich',run:simCompare,hints:['Schau auf die Höhe der Echos: links und rechts.','Schau auf die Lage nach rechts: ändert sie sich?','Nur die Höhe und die Ruhe des Echos ändern sich.']},
+ {type:'sim',title:'Anpressdruck',run:simPress,hints:['Schieb den Regler ganz nach links und ganz nach rechts.','Achte auf die Zahl „Höhe“ und die Zahl „Lage“.','Die Höhe ändert sich, die Lage bleibt.']},
+ {type:'info',html:()=>`<div class="kicker">Warum ist Luft so schlecht?</div><h3>Schall mag keine großen Sprünge</h3>
+  <p>Jeder Stoff hat eine ${T('imp','akustische Impedanz Z')}. Sie ist so etwas wie die „Härte für Schall“:</p>
+  <p style="text-align:center;font-size:20px"><b>Z = ρ · c</b><br><small class="m">ρ = Dichte · c = Schallgeschwindigkeit</small></p>
+  <p>Ist der Unterschied zwischen zwei Stoffen riesig, <b>prallt fast der ganze Schall zurück</b> – wie ein Tennisball an einer Wand. 🎾</p>
+  <table class="tb"><tr><th>Stoff</th><th>Z in MRayl</th></tr><tr><td>Luft</td><td>0,00041</td></tr><tr><td>Koppelmittel (Modell)</td><td>1,50</td></tr><tr><td>Stahl</td><td><b>? → rechnest du jetzt</b></td></tr></table>
+  <p class="tip">1 MRayl = 1 Million kg/(m²·s)</p>`},
+ {type:'calc',title:'Impedanz von Stahl',text:'Rechne mit dem 🧮-Rechner oben rechts oder deinem Taschenrechner.',rows:[
+   {given:'Gegeben: ρ<sub>Stahl</sub> = 7850 kg/m³ · c<sub>L</sub> = 5920 m/s'},
+   {pre:'Z = ρ · c = 7850 · 5920 =',ans:46472000,tol:60000,u:'kg/(m²·s)',w:150},
+   {pre:'Das sind ungefähr … Millionen → Z ≈',ans:46.5,tol:0.6,u:'MRayl'}],
+  hints:['Setze einfach ein: 7850 mal 5920.','Das Ergebnis hat 8 Stellen. Eine Million hat 6 Nullen.','46 472 000 ≈ 46,5 Millionen → 46,5 MRayl.']},
+ {type:'calc',title:'Wie viel Schall kommt durch?',text:'Das Modell sagt, wie viel Prozent an der Grenze <b>zurückgeworfen</b> wird (R). Der Rest kommt in den Stahl.',rows:[
+   {given:'Luft → Stahl: R ≈ 99,996 % · Koppelmittel → Stahl: R ≈ 87,9 %'},
+   {pre:'Mit Luftspalt kommt durch: 100 % − 99,996 % =',ans:0.004,tol:0.0006,u:'%'},
+   {pre:'Mit Koppelmittel kommt durch: 100 % − 87,9 % =',ans:12.1,tol:0.06,u:'%'}],
+  hints:['Was nicht zurückgeworfen wird, geht durch.','Rechne jeweils 100 minus den R-Wert.','0,004 % und 12,1 %.']},
+ {type:'sim',title:'Der große Unterschied',run:simBars,hints:['Teile 12,1 durch 0,004.','Ergebnis ist ungefähr 3000.','Mit Koppelmittel kommt etwa 3000-mal mehr Schall in den Stahl.']},
+ {type:'sim',title:'Diagnose K0',run:simK0,hints:['Schau, ob das Echo ruhig steht.','Gibt es ein zweites Echo?','Ein Echo, das hin- und herspringt, ist nicht reproduzierbar.']},
+ {type:'mcq',bonus:1,q:'⭐ Profi-Frage: Das Modell mit R ≈ 87,9 % ist vereinfacht. Was ist eine <b>Grenze</b> dieses Modells?',o:[
+   {t:'Es betrachtet nur eine ideale, senkrechte Grenzfläche – die echte Messkette (Prüfkopf, dünner Film, zwei Grenzflächen) ist komplizierter.',ok:1,fb:'Stark! Das Modell hilft beim Verstehen, liefert aber keine exakten Echohöhen für das echte Gerät.'},
+   {t:'Das Modell gilt nur für Luft.',fb:'Nein, es gilt für jede ideale Grenzfläche zwischen zwei Stoffen.'},
+   {t:'Das Modell hat keine Grenzen, die Werte stimmen immer genau.',fb:'Jedes Modell hat Grenzen. Denk an die vielen Teile der echten Messkette.'}],
+  hints:['Im Modell gibt es genau EINE Grenzfläche.','In echt: Prüfkopf → Film → Stahl – also mehr als eine Grenze.','Die Antwort mit „ideale Grenzfläche“ ist gemeint.']}
+]},
+/* ---------- 4 ---------- */
+{title:'Schallgeschwindigkeit prüfen',tag:'Auswertung',sub:'Echos messen, c berechnen',badge:'🧮 Rechen-Ass',steps:[
+ {type:'info',html:()=>kaya(`<p style="margin:0">Top, das A-Bild am K1 steht ruhig! Jetzt prüfst du, ob die eingestellte Schallgeschwindigkeit wirklich passt. Der Trick: Du nimmst den <b>Abstand</b> zwischen zwei ${T('rwe','Rückwandechos')}.</p>`)},
+ {type:'sim',title:'Echos ausmessen',run:simTapEchoes,hints:['Tippe direkt auf die linke Kante eines grünen Echos.','Zuerst das linke (1.) Echo, dann das rechte (2.) Echo.','Du kannst mit µs/mm umschalten – für die Rechnung brauchst du µs.']},
+ {type:'calc',title:'Echoabstand',text:()=>`Aus deiner Messung: t₁ = 37,0 ${T('us','µs')} · t₂ = 70,8 µs`,rows:[
+   {pre:'Δt = t₂ − t₁ = 70,8 µs − 37,0 µs =',ans:33.8,tol:0.06,u:'µs',proto:['dt',33.8]}],
+  hints:['Δt heißt „Zeitunterschied“.','Großes t minus kleines t.','70,8 − 37,0 = ?']},
+ {type:'mcq',pre:()=>`<div class="fig">${BOUNCE}</div>`,q:'Die Dicke des K1 ist d = 100 mm. Welchen Weg legt der Schall <b>zwischen</b> dem 1. und dem 2. Echo zusätzlich zurück?',o:[
+   {t:'200 mm – einmal runter und wieder rauf.',ok:1,fb:'Genau! Δs = 2 · d = 200 mm = 0,200 m.'},{t:'100 mm – einmal die Dicke.',fb:'Der Schall muss runter UND wieder rauf, sonst kommt er nicht zum Prüfkopf zurück.'},{t:'50 mm – die halbe Dicke.',fb:'Nein, es ist mehr: Schau dir die orangen Pfeile an.'}],
+  hints:['Schau auf die orangen Pfeile.','Runter 100 mm + rauf 100 mm.','100 + 100 = ?']},
+ {type:'calc',title:'Schallgeschwindigkeit berechnen',text:()=>`Formel: c = <span class="frac"><span>Δs</span><span>Δt</span></span> · Achtung: ${T('us','µs')} umrechnen!`,rows:[
+   {pre:'Δs = 2 · 100 mm =',ans:200,tol:0.5,u:'mm'},
+   {pre:'= ',ans:0.2,tol:0.001,u:'m'},
+   {given:'Δt = 33,8 µs = 33,8 · 10⁻⁶ s'},
+   {pre:'c = 0,200 m : (33,8 · 10⁻⁶ s) =',ans:5917,tol:8,u:'m/s',proto:['cber',5917]}],
+  hints:['1 m = 1000 mm → 200 mm = 0,2 m.','Im 🧮-Rechner: 0,2 ÷ 33,8 ×10⁻⁶ =','Ergebnis ≈ 5917 m/s.']},
+ {type:'mcq',q:'Du hast c ≈ 5917 m/s berechnet. Eingestellt ist c = 5920 m/s. Was sagst du?',o:[
+   {t:'Passt! Die Abweichung ist winzig (unter 0,1 %). Die Materialeinstellung ist in Ordnung.',ok:1,fb:'Richtig! 3 m/s Unterschied sind nur Rundung. Das Material stimmt.'},
+   {t:'Falsch eingestellt – ich muss c auf 5917 m/s ändern.',fb:'Nein, 3 m/s sind nur Rundung beim Ablesen. Das ist kein echter Fehler.'},
+   {t:'Das passt gar nicht – der K1 ist wohl nicht aus Stahl.',fb:'Doch – 5917 und 5920 sind fast gleich. Stahl passt.'}],
+  hints:['Wie groß ist der Unterschied: 5920 − 5917?','3 von 5920 ist sehr wenig.','Kleine Abweichungen durch Runden sind normal.']}
+]},
+/* ---------- 5 ---------- */
+{title:'Den Nullpunkt finden',tag:'Auswertung',sub:'Verschiebung statt falsches c',badge:'🎯 Nullpunkt-Jäger',steps:[
+ {type:'info',html:()=>kaya(`<p style="margin:0 0 8px">Merkwürdig… Die Schallgeschwindigkeit stimmt. Aber das 1. Echo liegt bei 37,0 µs – das wären <b>109,5 mm</b> statt 100 mm!</p><p style="margin:0">Irgendwas verschiebt das Bild. Finden wir's raus – mit einem Gedankenexperiment. 🧪</p>`)},
+ {type:'sim',title:'Gedankenexperiment',run:simExplore,hints:['Bewege beide Regler nacheinander und beobachte den Abstand der Echos.','„Anderes Material“ ändert den Abstand. „Nullpunkt“ schiebt beide Echos.','Nullpunktfehler: beide Echos rutschen gleich weit.']},
+ {type:'sim',title:'K1 und K2 vergleichen',run:simCompareK1K2,hints:['Vergleiche den Abstand der Echos bei K1 und K2.','Beide Abstände sind 33,8 µs.','Wenn der Abstand stimmt, ist c richtig – nur der Startpunkt ist verschoben.']},
+ {type:'calc',title:'Versatz berechnen',text:'K1 (verschoben): 37,0 µs und 70,8 µs · K2 (Soll): 33,8 µs und 67,6 µs',rows:[
+   {pre:'1. Echo: t₀ = 37,0 µs − 33,8 µs =',ans:3.2,tol:0.06,u:'µs'},
+   {pre:'2. Echo: 70,8 µs − 67,6 µs =',ans:3.2,tol:0.06,u:'µs',proto:['t0',3.2]}],
+  hints:['Ist minus Soll.','Beide Rechnungen gleich aufbauen.','Beide Male kommt dasselbe raus → gemeinsame Verschiebung.']},
+ {type:'sim',title:'Nullpunkt korrigieren',run:simZero,hints:['Die gelben Linien zeigen, wo die Echos hin sollen.','Du musst um 3,2 µs verschieben.','Tippe +1 dreimal und +0,1 zweimal.']},
+ {type:'mcq',q:'Warum hast du <b>nicht</b> die Schallgeschwindigkeit geändert?',o:[
+   {t:'Weil der Echoabstand schon stimmte – nur der Startpunkt der Zeitmessung war verschoben.',ok:1,fb:'Perfekt! Offset korrigiert – Material bleibt. Der Versatz kommt z. B. von der Laufzeit im Prüfkopf selbst.'},
+   {t:'Weil man die Schallgeschwindigkeit nie ändern darf.',fb:'Doch, das darf man – bei einem anderen Material. Hier war der Abstand aber schon richtig.'},
+   {t:'Weil die Echos zu niedrig waren.',fb:'Die Höhe hat mit dem Nullpunkt nichts zu tun. Denk an Abstand vs. Verschiebung.'}],
+  hints:['Was hat das Gedankenexperiment gezeigt?','Falsches c → Abstand falsch. Nullpunkt → alles verschoben.','Bei K1 war der Abstand richtig.']}
+]},
+/* ---------- 6 ---------- */
+{title:'Justieren am Echograph',tag:'Durchführung',sub:'10 Skalenteile = 100 mm',badge:'📏 Justier-Meister',steps:[
+ {type:'info',html:()=>kaya(`<p style="margin:0">Am echten Echograph arbeitest du nicht mit µs, sondern mit <b>Millimetern</b>. Das Gerät rechnet die Zeit in einen Weg um. Und dann ${T('just','justierst')} du genau so, wie es in der Praktikumsanleitung steht.</p>`)+`<div class="task"><b>Aus der Anleitung (3.1, Aufgabe 2):</b> Justiere so, dass 10 ${T('skt','Skalenteile')} 100 mm des einfachen Schallwegs entsprechen. Erst: 1. Rückwandecho auf den 1. Strich, 2. Rückwandecho auf den 11. Teilstrich. Dann: 1. Rückwandecho auf den 11. Teilstrich. Immer den <b>Beginn</b> der Echos auf die Striche legen.</div>`},
+ {type:'calc',title:'Von µs zu mm',text:'Das Gerät rechnet: s = c · t : 2 &nbsp;(„: 2“, weil der Schall hin <b>und</b> zurück läuft)',rows:[
+   {pre:'s = 5920 m/s · 33,8 · 10⁻⁶ s : 2 =',ans:0.1,tol:0.0006,u:'m'},{pre:'=',ans:100,tol:0.6,u:'mm'}],
+  hints:['Im 🧮-Rechner: 5920 × 33,8 ×10⁻⁶ ÷ 2','Ergebnis ≈ 0,1 m.','0,1 m = 100 mm – genau die Dicke des K1!']},
+ {type:'sim',title:'Justieren – Teil 1',run:(b,api)=>simJust(b,api,'A'),hints:['Mit „Verschieben“ schiebst du beide Echos gleichzeitig. Bring zuerst das 1. Echo auf Strich 1.','Mit „Justierbereich“ streckst oder stauchst du das Bild. Bring damit das 2. Echo auf Strich 11.','Ziel: Verschieben ≈ 109,5 mm, Justierbereich = 100 mm.']},
+ {type:'sim',title:'Justieren – Teil 2',run:(b,api)=>simJust(b,api,'B'),hints:['Den Justierbereich (100 mm) nicht mehr ändern!','Mit „Verschieben“ das 1. Echo nach rechts auf Strich 11 bringen.','Ziel: Verschieben ≈ 9,5 mm.']},
+ {type:'mcq',q:'Das Gerät ist jetzt auf 100 mm justiert (10 SkT = 100 mm). Ein Echo beginnt am <b>6. Teilstrich</b>. Wie tief liegt die reflektierende Stelle?',o:[
+   {t:'50 mm',ok:1,fb:'Richtig! Strich 1 = 0 mm, jeder weitere Strich +10 mm → Strich 6 = 50 mm.'},{t:'60 mm',fb:'Achtung: Strich 1 ist 0 mm! Also Strich 6 = 5 Skalenteile = 50 mm.'},{t:'6 mm',fb:'Ein Skalenteil sind hier 10 mm, nicht 1 mm.'}],
+  hints:['1 SkT = 100 mm : 10 = 10 mm.','Strich 1 liegt bei 0 mm.','Von Strich 1 bis Strich 6 sind es 5 SkT.']},
+ {type:'mcq',q:'Warum legst du immer den <b>Beginn</b> des Echos auf den Teilstrich – und nicht die Spitze?',o:[
+   {t:'Beim Beginn kommt das Echo an. Wo die Spitze liegt, hängt von der Echohöhe ab.',ok:1,fb:'Genau! Der Beginn ist der Ankunftszeitpunkt – unabhängig davon, wie hoch das Echo ist.'},
+   {t:'Weil die Spitze auf dem Bildschirm schlechter aussieht.',fb:'Es geht nicht ums Aussehen – es geht um die Ankunftszeit.'},{t:'Das ist egal, beides geht.',fb:'Nicht egal: Die Spitze liegt bei hohen und niedrigen Echos an verschiedenen Stellen.'}],
+  hints:['Wann ist das Echo „da“?','Die Spitze kommt ein bisschen später.','Ankunft = Beginn.']}
+]},
+/* ---------- 7 ---------- */
+{title:'Freigabe JN-05',tag:'Auswertung',sub:'Entscheiden & dokumentieren',badge:'✅ Freigabe-Chef',steps:[
+ {type:'info',html:()=>kaya(`<p style="margin:0">Fast geschafft! Im System liegen drei Aufzeichnungen vom K1: <b>K0, K1 und K2</b>. Nur eine darf freigegeben werden. Und dann schreibst du die Justierfreigabe <b>JN-05</b> – ohne die darf niemand an die Radsatzwelle.</p>`)},
+ {type:'seq',title:'Die Justierfolge',text:'Bring die fünf Arbeitsschritte in die richtige Reihenfolge.',items:[
+   'Prüfkopf, Kabel und K1 prüfen (sauber, nicht beschädigt)','Dünn und gleichmäßig ankoppeln','Schallgeschwindigkeit und Nullpunkt einstellen','Bekannte Echoabstände nachprüfen (verifizieren)','Einstellungen und Nachprüfung dokumentieren'],
+  hints:['Bevor du misst, schaust du dir das Material an.','Einstellen kommt vor dem Nachprüfen.','Dokumentieren ist immer der letzte Schritt.']},
+ {type:'sim',title:'Drei Aufzeichnungen',run:simDecide,hints:['K0: Ist das Echo ruhig? Gibt es ein 2. Echo?','K1: Stimmt der Abstand? Liegen die Echos an der Soll-Stelle?','Nur eine Aufzeichnung ist stabil UND richtig positioniert.']},
+ {type:'sim',title:'Justierfreigabe JN-05',run:simCloze,hints:['Freigegeben wird die Aufzeichnung, die alles erfüllt.','Denk an die Zahlen aus Level 4 und 5.','Eine Freigabe gilt nie für alles – nur für die geprüften Bedingungen.']}
+]},
+/* ---------- 8 ---------- */
+{title:'Abschlussquiz',tag:'Quiz',sub:'12 Fragen – zeig, was du kannst',badge:'🏅 Ultraschall-Prüfer*in',quiz:1,steps:[]}
+];
+const QUIZ=[
+ {q:'Was zeigt die x-Achse (nach rechts) im A-Bild?',o:[{t:'Laufzeit bzw. Schallweg',ok:1},{t:'Echohöhe'},{t:'Temperatur'}],why:'x-Achse = Laufzeit/Schallweg → wie tief.'},
+ {q:'Wozu braucht man Koppelmittel?',o:[{t:'Es verdrängt die Luft, damit der Schall in den Stahl kommt.',ok:1},{t:'Damit der Prüfkopf festklebt.'},{t:'Als Rostschutz für den K1.'}],why:'Luft wirft fast allen Schall zurück (R ≈ 99,996 %).'},
+ {q:'Du drückst den Prüfkopf fester an. Was passiert im A-Bild?',o:[{t:'Das Echo wird höher, die Lage bleibt gleich.',ok:1},{t:'Das Echo rutscht nach rechts.'},{t:'Das Echo verschwindet.'}],why:'Bessere Koppelung → mehr Höhe, nicht andere Lage.'},
+ {q:'Ein Echo ist sehr hoch. Ist die Fehlstelle dann groß?',o:[{t:'Nicht unbedingt – die Höhe hängt auch von Koppelung, Verstärkung und Ausrichtung ab.',ok:1},{t:'Ja, immer.'},{t:'Nein, hohe Echos bedeuten immer kleine Fehler.'}],why:'Echohöhe ≠ Fehlergröße.'},
+ {q:'K1: t₁ = 37,0 µs, t₂ = 70,8 µs. Wie groß ist der Echoabstand?',o:[{t:'33,8 µs',ok:1},{t:'37,0 µs'},{t:'107,8 µs'}],why:'70,8 − 37,0 = 33,8 µs.'},
+ {q:'Der K1 ist 100 mm dick. Welchen Weg läuft der Schall zwischen 1. und 2. Rückwandecho zusätzlich?',o:[{t:'200 mm',ok:1},{t:'100 mm'},{t:'50 mm'}],why:'Runter und rauf: 2 · 100 mm.'},
+ {q:'Welche Schallgeschwindigkeit stellst du für den Stahl-K1 ein?',o:[{t:'5920 m/s',ok:1},{t:'343 m/s'},{t:'2730 m/s'}],why:'c_L(Stahl) = 5920 m/s. 343 m/s ist Luft, 2730 m/s Acrylglas.'},
+ {q:'Beide Echos sind um 3,2 µs nach rechts verschoben, der Abstand stimmt. Was tust du?',o:[{t:'Nullpunkt um 3,2 µs korrigieren',ok:1},{t:'Schallgeschwindigkeit ändern'},{t:'Mehr Koppelmittel auftragen'}],why:'Gemeinsame Verschiebung = Nullpunktfehler (Offset).'},
+ {q:'Justierbereich 100 mm (10 SkT). Ein Echo beginnt bei 3 SkT. Wie tief?',o:[{t:'30 mm',ok:1},{t:'3 mm'},{t:'300 mm'}],why:'1 SkT = 10 mm → 3 SkT = 30 mm.'},
+ {q:'Warum wird K0 (trocken) nicht freigegeben?',o:[{t:'Das Echo springt und das 2. Echo fehlt – nicht reproduzierbar.',ok:1},{t:'Weil das Echo zu weit rechts liegt.'},{t:'Weil trockene Prüfköpfe verboten sind.'}],why:'Freigabe braucht stabile, wiederholbare Echos.'},
+ {q:'Was kommt in der Justierfolge direkt nach dem Ankoppeln?',o:[{t:'Schallgeschwindigkeit und Nullpunkt einstellen',ok:1},{t:'Dokumentieren'},{t:'Prüfkopf und Kabel prüfen'}],why:'Prüfen → koppeln → einstellen → nachprüfen → dokumentieren.'},
+ {q:'Was machst du nach der Prüfung am K1?',o:[{t:'Koppelmittel abwischen – sonst rostet der Stahl.',ok:1},{t:'Koppelmittel dran lassen, das schützt.'},{t:'Den K1 mit Wasser abspülen und nass lagern.'}],why:'Die Kontrollkörper sind aus Stahl und rosten.'}
+];
+LEVELS[7].steps=[{type:'info',html:()=>kaya(`<p style="margin:0">Letzte Hürde, ${esc(state.name||'Azubi')}! 12 Fragen. Für jede Frage, die du <b>beim ersten Versuch</b> richtig hast, gibt's einen Stern-Punkt. Keine Hilfen – du schaffst das! 💪</p>`)}]
+ .concat(QUIZ.map((q,i)=>({type:'mcq',quiz:1,q:`<small class="m">Frage ${i+1} von ${QUIZ.length}</small><br>${q.q}`,o:q.o.map(o=>Object.assign({},o,{fb:o.ok?q.why:'Leider nicht. '+q.why})),hints:[]})))
+ .concat([{type:'quizEnd'}]);
+
+/* ============ Navigation ============ */
+let cur=null, ctx=null;
+function levelOpen(i){return state.teacher||i===0||state.done[i-1]}
+function renderHome(){
+  loops=[];cur=null;
+  $('#level').classList.add('hidden');$('#certView').classList.add('hidden');$('#home').classList.remove('hidden');$('#foot').classList.add('hidden');
+  $('#tTitle').textContent='Ultraschall-Prüfplatz';$('#dots').innerHTML='';$('#bHome').classList.add('hidden');
+  updPts();
+  const nDone=LEVELS.filter((l,i)=>state.done[i]).length, nextI=LEVELS.findIndex((l,i)=>!state.done[i]);
+  $('#home').innerHTML=`<section class="hero"><div class="wrap">
+    <div class="kicker" style="color:#ffb199">Radsatz-Werk · Prüfteam Ultraschall</div>
+    <h2>Mission: Prüfgerät justieren &amp; freigeben</h2>
+    <p>Hallo ${esc(state.name||'Azubi')}! Bevor du Radsatzwellen prüfen darfst, musst du das Ultraschallgerät am K1 einstellen. Schaffst du alle 8 Level?</p>
+    <div class="stats"><div class="stat"><b>${nDone}/8</b>Level</div><div class="stat"><b>⭐ ${state.points}</b>Punkte</div><div class="stat"><b>${nDone}</b>Abzeichen</div></div>
+  </div></section>
+  <div class="wrap">
+   ${nextI>=0?`<button class="btn wide" style="width:100%;margin-top:16px" id="goNext">▶ ${state.stepIdx[nextI]?'Weitermachen':'Starten'}: Level ${nextI+1}</button>`:`<button class="btn wide" style="width:100%;margin-top:16px" id="goCert">🪪 Meinen Prüfer-Ausweis zeigen</button>`}
+   <div class="levels">${LEVELS.map((L,i)=>{const d=state.done[i],o=levelOpen(i);return `<button class="lv ${d?'done':''} ${i===nextI?'next':''}" data-l="${i}" ${o?'':'disabled'}>
+     <div class="num">${d?'✓':i+1}</div><div class="tx"><div class="tag">${L.tag}</div><div class="tt">${L.title}</div><div class="sub">${L.sub}</div></div><div class="st">${d?L.badge.split(' ')[0]:o?'▶':'🔒'}</div></button>`}).join('')}</div>
+   <h3 style="margin:0 0 8px">Deine Abzeichen</h3>
+   <div class="badges">${LEVELS.map((L,i)=>`<span class="bdg ${state.done[i]?'':'off'}">${L.badge}</span>`).join('')}</div>
+   <p style="margin:26px 0 30px;text-align:center"><button class="btn sec small" id="bSet">⚙️ Einstellungen</button></p>
+  </div>`;
+  $$('.lv').forEach(b=>b.onclick=()=>openLevel(+b.dataset.l));
+  const gn=$('#goNext');if(gn)gn.onclick=()=>openLevel(nextI);
+  const gc=$('#goCert');if(gc)gc.onclick=renderCert;
+  $('#bSet').onclick=openSettings;
+  window.scrollTo(0,0);
+}
+function updPts(){$('#tPts').textContent='⭐ '+state.points}
+function openLevel(i){cur={li:i,si:Math.min(state.stepIdx[i]||0,LEVELS[i].steps.length-1)};
+  if(state.done[i])cur.si=0;
+  $('#home').classList.add('hidden');$('#certView').classList.add('hidden');$('#level').classList.remove('hidden');$('#foot').classList.remove('hidden');$('#bHome').classList.remove('hidden');renderStep()}
+function renderStep(){
+  loops=[];
+  const L=LEVELS[cur.li], S=L.steps[cur.si];
+  $('#tTitle').textContent=`Level ${cur.li+1}: ${L.title}`;
+  $('#dots').innerHTML=L.steps.map((s,i)=>`<i class="${i<cur.si?'on':''} ${i===cur.si?'cur':''}"></i>`).join('');
+  const box=$('#stepBox');box.innerHTML='';
+  ctx={attempts:0,hint:0,solved:false,S,key:cur.li+'-'+cur.si};
+  const next=$('#bNext');next.disabled=true;next.textContent=cur.si===L.steps.length-1?'Level abschließen 🏁':'Weiter ▶';
+  const hasHints=S.hints&&S.hints.length&&!S.quiz;
+  $('#bHint').classList.toggle('hidden',!hasHints);$('#bHint').textContent='💡 Hilfe';
+  const card=document.createElement('div');card.className='card';box.appendChild(card);
+  if(S.type==='info'){card.innerHTML=S.html();solved(true)}
+  else{
+    const tt=S.title?`<div class="kicker">${L.tag}${S.bonus?' · Bonus':''}</div><h3>${S.title}</h3>`:(S.bonus?`<div class="kicker">Bonus</div>`:'');
+    const tx=S.text?`<p>${typeof S.text==='function'?S.text():S.text}</p>`:'';
+    card.innerHTML=tt+tx+(S.pre?S.pre():'');
+    const hb=document.createElement('div');hb.id='hintArea';
+    const api={solved:()=>solved(),wrong:()=>{ctx.attempts++},card};
+    W[S.type](card,S,api);
+    card.appendChild(hb);
+    if(S.bonus){next.disabled=false;next.textContent='Überspringen / Weiter ▶'}
+  }
+  if(!state.done[cur.li]){state.stepIdx[cur.li]=cur.si;save()}
+  window.scrollTo(0,0);
+}
+function solved(silent){
+  if(ctx.solved)return;ctx.solved=true;
+  const S=ctx.S, next=$('#bNext');next.disabled=false;
+  if(S.bonus)next.textContent='Weiter ▶';
+  if(S.proto)state.proto[S.proto[0]]=S.proto[1];
+  if(!silent&&!state.awarded[ctx.key]){
+    const p=S.quiz?(ctx.attempts===0?10:0):(ctx.attempts===0?10:ctx.attempts===1?6:3)+(S.bonus?5:0);
+    state.awarded[ctx.key]=1;
+    if(S.quiz)state.quiz[cur.si]=ctx.attempts===0;
+    if(p>0){state.points+=p;updPts();floatPts('+'+p)}
+  }
+  save();
+}
+function floatPts(t){const e=document.createElement('div');e.className='float';e.textContent=t;const r=$('#tPts').getBoundingClientRect();e.style.left=(r.left)+'px';e.style.top=(r.bottom+4)+'px';document.body.appendChild(e);setTimeout(()=>e.remove(),1200)}
+$('#bNext').onclick=()=>{const L=LEVELS[cur.li];
+  if(cur.si<L.steps.length-1){cur.si++;renderStep()}else finishLevel()};
+$('#bHint').onclick=()=>{const S=ctx.S;if(!S.hints||!S.hints.length)return;const n=ctx.hint;if(n>=S.hints.length){shake($('#hintArea'));return}
+  const lbl=['💡 Denkanstoß','📘 Wort-Hilfe','✏️ Erster Schritt'][n]||'💡 Tipp';
+  const d=document.createElement('div');d.className='hintbox';d.innerHTML=`<b>${lbl}:</b> ${S.hints[n]}`;$('#hintArea').appendChild(d);
+  ctx.hint++;state.hints++;save();$('#bHint').textContent=ctx.hint>=S.hints.length?'💡 Alle Hilfen offen':`💡 Hilfe (${ctx.hint+1}/${S.hints.length})`;d.scrollIntoView({behavior:'smooth',block:'nearest'})};
+$('#bHome').onclick=renderHome;$('#bCalc').onclick=openCalc;$('#bProto').onclick=openProto;
+function finishLevel(){
+  const i=cur.li, first=!state.done[i];state.done[i]=true;
+  if(first){state.points+=20;updPts()}
+  state.stepIdx[i]=0;save();confetti();
+  const last=i===LEVELS.length-1;
+  sheet(`<div class="win"><div class="big">${LEVELS[i].badge.split(' ')[0]}</div><h3 style="margin:10px 0 4px">Level ${i+1} geschafft!</h3>
+   <p>Neues Abzeichen: <b>${LEVELS[i].badge}</b>${first?'<br>Bonus: <b>+20 ⭐</b>':''}</p>
+   <button class="btn wide" style="width:100%" id="wNext">${last?'🪪 Prüfer-Ausweis ansehen':'Weiter zu Level '+(i+2)+' ▶'}</button>
+   <button class="btn sec" style="width:100%;margin-top:8px" id="wHome">Zur Übersicht</button></div>`,(s,close)=>{
+     $('#wNext',s).onclick=()=>{close();last?renderCert():openLevel(i+1)};$('#wHome',s).onclick=()=>{close();renderHome()}});
+}
+function confetti(){const cs=['#e4572e','#f0b400','#23915a','#1f6f8b','#7dffa6'];for(let k=0;k<40;k++){const c=document.createElement('div');c.className='conf';c.style.left=Math.random()*100+'vw';c.style.background=cs[k%5];c.style.animationDelay=Math.random()*.5+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),2600)}}
+function renderCert(){
+  loops=[];$('#home').classList.add('hidden');$('#level').classList.add('hidden');$('#foot').classList.add('hidden');$('#certView').classList.remove('hidden');$('#bHome').classList.remove('hidden');
+  $('#tTitle').textContent='Prüfer-Ausweis';$('#dots').innerHTML='';
+  const q=Object.values(state.quiz).filter(Boolean).length, all=LEVELS.every((l,i)=>state.done[i]);
+  const stars=q>=11?3:q>=8?2:q>=5?1:0;
+  const d=new Date().toLocaleDateString('de-DE');
+  $('#certView').innerHTML=`<div class="wrap" style="padding:18px 16px 40px">
+   <div class="cert"><div class="kicker" style="color:#ffb199">Radsatz-Werk · Qualitätssicherung</div><h2>🪪 Prüfer-Ausweis Ultraschall</h2>
+   <div style="opacity:.85">Stufe 1 · Justierung mit Normalprüfkopf am Kalibrierkörper K1</div>
+   <div class="nm">${esc(state.name||'Azubi')}</div><div style="opacity:.85">${all?'hat alle 8 Level erfolgreich abgeschlossen.':'hat noch nicht alle Level abgeschlossen.'}</div>
+   <div class="stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+   <div class="row"><div>⭐ <b>${state.points}</b> Punkte</div><div>📝 Quiz: <b>${q}/12</b></div><div>💡 Hilfen: <b>${state.hints}</b></div><div>📅 ${d}</div></div>
+   <div class="badges" style="margin-top:14px">${LEVELS.map((L,i)=>`<span class="bdg ${state.done[i]?'':'off'}" style="color:#15202e">${L.badge}</span>`).join('')}</div></div>
+   <p class="tip" style="margin-top:14px">📸 Mach einen Screenshot von deinem Ausweis und gib ihn bei deiner Lehrkraft ab.</p>
+   <p class="tip">Nächste Woche: Mit dem justierten Gerät misst du Dicken und findest versteckte Fehlstellen – dann geht's an die Radsatzwelle! 🚆</p>
+   <button class="btn wide" style="width:100%" id="cHome">Zur Übersicht</button></div>`;
+  $('#cHome').onclick=renderHome;window.scrollTo(0,0);
+}
+function openSettings(){
+  sheet(`<h3>⚙️ Einstellungen</h3><label><b>Dein Name</b><input class="name" id="sName" value="${esc(state.name)}" maxlength="30"></label>
+  <button class="btn blue" style="width:100%;margin-top:10px" id="sSave">Name speichern</button>
+  <hr style="margin:18px 0;border:0;border-top:1px solid var(--line)">
+  <b>Für Lehrkräfte</b><p class="tip" style="margin:4px 0 8px">Alle Level freischalten (z. B. für Demo am Beamer): Code eingeben.</p>
+  <div style="display:flex;gap:8px"><input class="name" id="sPin" placeholder="Code" autocomplete="off"><button class="btn blue" id="sUnl">OK</button></div>
+  <div id="sMsg" class="tip"></div>
+  <hr style="margin:18px 0;border:0;border-top:1px solid var(--line)">
+  <button class="btn sec" style="width:100%" id="sReset">🗑️ Fortschritt löschen</button>
+  <button class="btn sec" style="width:100%;margin-top:8px" data-close>Schließen</button>`,(s,close)=>{
+   $('#sSave',s).onclick=()=>{state.name=$('#sName',s).value.trim();save();close();renderHome()};
+   $('#sUnl',s).onclick=()=>{if($('#sPin',s).value.trim().toUpperCase()==='13NF'){state.teacher=true;save();close();renderHome()}else $('#sMsg',s).textContent='Code falsch.'};
+   $('#sReset',s).onclick=(e)=>{if(e.target.dataset.sure){const n=state.name;state=JSON.parse(JSON.stringify(S0));state.name=n;save();close();renderHome()}else{e.target.dataset.sure=1;e.target.textContent='Wirklich löschen? Nochmal tippen.'}};
+  });
+}
+function askName(){
+  sheet(`<div style="text-align:center"><div style="font-size:54px">🚆🔊</div><h3>Ultraschall-Prüfplatz</h3><p>Du startest heute als Azubi im Prüfteam eines Radsatz-Werks. Wie heißt du?</p></div>
+  <input class="name" id="nIn" placeholder="Vorname" maxlength="30" autocomplete="off"><button class="btn wide" style="width:100%;margin-top:10px" id="nGo">Los geht's ▶</button>`,(s,close)=>{
+   const go=()=>{state.name=$('#nIn',s).value.trim()||'Azubi';save();close();renderHome()};$('#nGo',s).onclick=go;$('#nIn',s).addEventListener('keydown',e=>{if(e.key==='Enter')go()})});
+}
+
+/* ============ Widgets ============ */
+function mcqW(container,S,onOk,onWrong){
+  const d=document.createElement('div');d.className='mcq';
+  d.innerHTML=`<p class="q">${typeof S.q==='function'?S.q():S.q}</p><div class="opts"></div><div class="fb"></div>`;
+  const ob=$('.opts',d),fb=$('.fb',d);
+  (S.noShuffle?S.o:shuffle(S.o)).forEach(o=>{const b=document.createElement('button');b.className='opt';b.innerHTML=o.t;
+    b.onclick=()=>{if(d.dataset.done)return;
+      if(o.ok){b.classList.add('ok');d.dataset.done=1;fb.className='fb ok';fb.innerHTML='✅ '+(o.fb||'Richtig!');$$('.opt',ob).forEach(x=>x.disabled=true);onOk&&onOk()}
+      else{b.classList.add('bad');b.disabled=true;shake(b);fb.className='fb bad';fb.innerHTML='❌ '+(o.fb||'Noch nicht – versuch es nochmal.');onWrong&&onWrong();
+        if(S.quiz){$$('.opt',ob).forEach(x=>x.disabled=true);const r=$$('.opt',ob).find((x,i)=>x.innerHTML===S.o.find(z=>z.ok).t);r&&r.classList.add('ok');d.dataset.done=1;onOk&&onOk()}}};
+    ob.appendChild(b)});
+  container.appendChild(d);return d;
+}
+const W={
+ mcq:(c,S,api)=>mcqW(c,S,api.solved,api.wrong),
+ pick:(c,S,api)=>{
+  const g=document.createElement('div');g.className='grid3';
+  const items=shuffle(S.items);items.forEach(it=>{const t=document.createElement('button');t.className='tile';t.innerHTML=ICON[it.k]+`<span>${it.t}</span>`;t._it=it;t.onclick=()=>{if(ctx.solved)return;t.classList.toggle('sel');t.classList.remove('wrong')};g.appendChild(t)});
+  c.appendChild(g);const b=document.createElement('button');b.className='btn blue';b.style.cssText='width:100%;margin-top:12px';b.textContent='Prüfen ✔';c.appendChild(b);
+  const fb=document.createElement('div');fb.className='fb';c.appendChild(fb);
+  b.onclick=()=>{if(ctx.solved)return;const tiles=$$('.tile',g);let wrong=[],miss=0;
+    tiles.forEach(t=>{const s=t.classList.contains('sel');if(s&&!t._it.ok){wrong.push(t);t.classList.add('wrong')}if(!s&&t._it.ok)miss++;if(s&&t._it.ok)t.classList.add('good')});
+    if(!wrong.length&&!miss){fb.className='fb ok';fb.innerHTML='✅ Perfekt – dein Prüftisch ist vollständig!<br>'+S.items.filter(i=>i.ok&&i.fb).map(i=>'• '+i.fb).join('<br>');tiles.forEach(t=>t.disabled=true);api.solved()}
+    else{api.wrong();fb.className='fb bad';fb.innerHTML=(wrong.length?wrong.map(t=>'❌ <b>'+t._it.t.replace('­','')+':</b> '+t._it.fb).join('<br>'):'')+(miss?`<br>🔍 Es fehlt noch ${miss===1?'ein Teil':miss+' Teile'}.`:'');shake(b)}};
+ },
+ place:(c,S,api)=>{
+  c.insertAdjacentHTML('beforeend',`<div class="fig">${S.svg}</div>`);
+  const sl=document.createElement('div');sl.className='slots';
+  S.slots.forEach((a,i)=>{const b=document.createElement('button');b.className='slot';b.innerHTML=`<span class="n">${i+1}</span><span class="dv">… antippen</span>`;b._ans=a;sl.appendChild(b)});
+  const ch=document.createElement('div');ch.className='chips';shuffle(S.labels).forEach(l=>{const b=document.createElement('button');b.className='chip';b.textContent=l;ch.appendChild(b)});
+  const fb=document.createElement('div');fb.className='fb';
+  c.appendChild(sl);c.insertAdjacentHTML('beforeend','<p class="tip" style="margin:8px 0 0">Begriffe:</p>');c.appendChild(ch);c.appendChild(fb);
+  let selC=null,selS=null;
+  const tryIt=()=>{if(!selC||!selS)return;
+    if(selC.textContent===selS._ans){selS.classList.add('filled');selS.classList.remove('act');$('.dv',selS).textContent=selC.textContent;selC.remove();fb.className='fb';fb.innerHTML='';selC=selS=null;
+      if($$('.slot',sl).every(s=>s.classList.contains('filled'))){fb.className='fb ok';fb.innerHTML='✅ Alles richtig beschriftet!';api.solved()}}
+    else{api.wrong();shake(selS);fb.className='fb bad';fb.innerHTML=`❌ „${selC.textContent}“ passt nicht zu Nummer ${$$('.slot',sl).indexOf(selS)+1}.`;selC.classList.remove('sel');selS.classList.remove('act');selC=selS=null}};
+  $$('.slot',sl).forEach(s=>s.onclick=()=>{if(s.classList.contains('filled'))return;$$('.slot',sl).forEach(x=>x.classList.remove('act'));selS=s;s.classList.add('act');if(!selC){fb.className='fb info';fb.innerHTML='👇 Jetzt unten den passenden Begriff antippen.'}tryIt()});
+  ch.addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;$$('.chip',ch).forEach(x=>x.classList.remove('sel'));selC=b;b.classList.add('sel');if(!selS){fb.className='fb info';fb.innerHTML='👆 Jetzt die passende Nummer antippen.'}tryIt()});
+ },
+ seq:(c,S,api)=>{
+  const done=document.createElement('div');done.className='seqlist';
+  const pool=document.createElement('div');pool.className='seqlist';pool.style.marginTop='12px';
+  const fb=document.createElement('div');fb.className='fb';let n=0;
+  c.insertAdjacentHTML('beforeend','<p class="tip" style="margin:0 0 6px">Deine Reihenfolge:</p>');c.appendChild(done);
+  c.insertAdjacentHTML('beforeend','<p class="tip" style="margin:12px 0 0">Tippe den nächsten Schritt an:</p>');c.appendChild(pool);c.appendChild(fb);
+  if(!S.items.length)return;
+  done.innerHTML=`<div class="tip" id="seqEmpty">— noch leer —</div>`;
+  shuffle(S.items.map((t,i)=>({t,i}))).forEach(it=>{const b=document.createElement('button');b.className='seqitem';b.innerHTML=`<span class="n">?</span><span>${it.t}</span>`;
+    b.onclick=()=>{if(it.i===n){n++;const e=$('#seqEmpty',done);e&&e.remove();b.classList.add('done');$('.n',b).textContent=n;b.onclick=null;done.appendChild(b);fb.className='fb';fb.innerHTML='';
+        if(n===S.items.length){fb.className='fb ok';fb.innerHTML='✅ Super – die Reihenfolge stimmt!';api.solved()}}
+      else{api.wrong();shake(b);fb.className='fb bad';fb.innerHTML=`❌ Das kommt ${it.i>n?'später':'früher'}. Was muss <b>davor</b> passieren?`}};pool.appendChild(b)});
+ },
+ calc:(c,S,api)=>{
+  const w=document.createElement('div');w.className='calc';
+  S.rows.forEach(r=>{const d=document.createElement('div');d.className='crow'+(r.given?' given':'');
+    if(r.given)d.innerHTML=r.given;else{d.innerHTML=`<span>${r.pre}</span><input inputmode="decimal" autocomplete="off" style="${r.w?'width:'+r.w+'px':''}" aria-label="Ergebnis"><span class="u">${r.u||''}</span>`;$('input',d)._r=r}
+    w.appendChild(d)});
+  c.appendChild(w);
+  c.insertAdjacentHTML('beforeend',`<p class="tip">🧮 Rechner oben rechts · Komma oder Punkt ist egal.</p>`);
+  const b=document.createElement('button');b.className='btn blue';b.style.cssText='width:100%';b.textContent='Prüfen ✔';c.appendChild(b);
+  const fb=document.createElement('div');fb.className='fb';c.appendChild(fb);
+  b.onclick=()=>{if(ctx.solved)return;let bad=0,empty=0;
+    $$('input',w).forEach(i=>{const v=parseNum(i.value);i.classList.remove('okI','badI');if(i.value.trim()===''){empty++;return}
+      const ok=Math.abs(v-i._r.ans)<=i._r.tol;i.classList.add(ok?'okI':'badI');if(!ok)bad++});
+    if(empty){fb.className='fb info';fb.innerHTML='✏️ Füll erst alle Kästchen aus.';return}
+    if(!bad){fb.className='fb ok';fb.innerHTML='✅ Richtig gerechnet!';$$('input',w).forEach(i=>i.disabled=true);S.rows.forEach(r=>{if(r.proto)state.proto[r.proto[0]]=r.proto[1]});api.solved()}
+    else{api.wrong();fb.className='fb bad';fb.innerHTML='❌ Die rot markierten Kästchen stimmen noch nicht. Tipp: 💡 Hilfe unten.';shake(b)}};
+ },
+ sim:(c,S,api)=>S.run(c,api),
+ quizEnd:(c,S,api)=>{
+  const q=Object.values(state.quiz).filter(Boolean).length;
+  c.innerHTML=`<div class="win"><div class="big">${q>=11?'🏆':q>=8?'🥈':q>=5?'🥉':'💪'}</div><h3>Du hast ${q} von 12 Fragen beim ersten Versuch richtig!</h3>
+   <p>${q>=8?'Stark – du bist bereit für die Radsatzwelle!':'Gut gemacht! Schau dir die Level mit Fehlern nochmal an – du kannst sie jederzeit wiederholen.'}</p></div>`;
+  api.solved();
+ }
+};
+
+/* ============ Simulationen ============ */
+function checklist(items){const u=document.createElement('ul');u.className='check';u.innerHTML=items.map(t=>`<li>${t}</li>`).join('');u.set=(i,ok)=>u.children[i].classList.toggle('ok',ok);return u}
+function ctlRow({label,min,max,step,val,fine,fmtV,onChange,coarse}){
+  const d=document.createElement('div');d.className='ctl';
+  d.innerHTML=`<div class="lab">${label}<span></span></div>${coarse?`<input type="range" min="${min}" max="${max}" step="${step}" value="${val}" style="width:100%"><div class="row btns4"><button class="sbtn" data-d="-${coarse}">−${fmt(coarse,coarse%1?1:0)}</button><button class="sbtn" data-d="-${fine}">−${fmt(fine,fine%1?1:0)}</button><button class="sbtn" data-d="${fine}">+${fmt(fine,fine%1?1:0)}</button><button class="sbtn" data-d="${coarse}">+${fmt(coarse,coarse%1?1:0)}</button></div>`
+   :`<div class="row"><button class="sbtn" data-d="-${fine}">−</button><input type="range" min="${min}" max="${max}" step="${step}" value="${val}"><button class="sbtn" data-d="${fine}">+</button></div>`}`;
+  const r=$('input',d),sp=$('.lab span',d);
+  const set=v=>{v=Math.min(max,Math.max(min,Math.round(v/step)*step));v=Number(v.toFixed(3));r.value=v;sp.textContent=fmtV(v);onChange(v)};
+  r.oninput=()=>set(+r.value);$$('.sbtn',d).forEach(b=>b.onclick=()=>set(+r.value+ +b.dataset.d));
+  sp.textContent=fmtV(val);d.set=set;return d;
+}
+function statusFb(c){const f=document.createElement('div');f.className='fb';c.appendChild(f);return (cls,h)=>{f.className='fb '+cls;f.innerHTML=h}}
+
+function simMenu(c,api){
+  const probes=['Winkelprüfkopf 45°','Tauchprüfkopf','Normalprüfkopf'];let pi=0,cv=2730;
+  c.insertAdjacentHTML('beforeend',`<div class="task"><b>Auftrag:</b> Wähle den richtigen Prüfkopf und stelle die Schallgeschwindigkeit für Stahl ein. Dann ✓ drücken.</div>
+  <div class="dev"><div class="scr">
+   <div class="mrow"><span>PRÜFKOPF</span><span style="display:flex;gap:6px;align-items:center"><button class="arrow" id="pL">◀</button><b id="pN"></b><button class="arrow" id="pR">▶</button></span></div>
+   <div class="mrow"><span>SCHALLGESCHW.</span><b id="cN"></b></div>
+   <div class="mrow"><span>MATERIAL</span><span id="mN"></span></div></div>
+   <div class="keys">${[-1000,-100,-10,-1,1,10,100,1000].map(v=>`<button data-v="${v}">${v>0?'+':'−'}${Math.abs(v)}</button>`).join('')}</div>
+   <div class="keys"><button id="ok" style="background:#23915a;color:#fff">✓ Bestätigen</button></div>
+   <div class="brand">ECHOGRAPH · ULTRASCHALLPRÜFGERÄT</div></div>
+  <table class="tb" style="margin-top:12px"><tr><th>Material</th><th>c<sub>L</sub> in m/s</th></tr><tr><td>Stahl</td><td>5920</td></tr><tr><td>Aluminium</td><td>6320</td></tr><tr><td>Kupfer</td><td>4700</td></tr><tr><td>Acrylglas</td><td>2730</td></tr><tr><td>Wasser</td><td>1480</td></tr></table>`);
+  const say=statusFb(c);
+  const mat={5920:'Stahl',6320:'Aluminium',4700:'Kupfer',2730:'Acrylglas',1480:'Wasser'};
+  const up=()=>{$('#pN',c).textContent=probes[pi];$('#cN',c).textContent=cv+' m/s';$('#mN',c).textContent=mat[cv]||'—'};up();
+  $('#pL',c).onclick=()=>{pi=(pi+2)%3;up()};$('#pR',c).onclick=()=>{pi=(pi+1)%3;up()};
+  $$('.keys button[data-v]',c).forEach(b=>b.onclick=()=>{cv=Math.max(0,Math.min(9999,cv+ +b.dataset.v));up()});
+  $('#ok',c).onclick=()=>{if(ctx.solved)return;const e=[];if(probes[pi]!=='Normalprüfkopf')e.push('Der Prüfkopf stimmt noch nicht – der Schall soll <b>senkrecht</b> rein.');if(cv!==5920)e.push(`Die Schallgeschwindigkeit ist ${cv} m/s${mat[cv]?' ('+mat[cv]+')':''}. Für Stahl brauchst du 5920 m/s.`);
+    if(!e.length){state.proto.probe='Normalprüfkopf';state.proto.cset=5920;say('ok','✅ Eingestellt: Normalprüfkopf, Stahl, c = 5920 m/s. Das Gerät ist bereit!');api.solved()}else{api.wrong();say('bad','❌ '+e.join('<br>'))}};
+}
+function makeCoupleScene(c){
+  const f=document.createElement('div');f.className='fig';f.innerHTML=sceneSVG();c.appendChild(f);
+  const sv=$('svg',f);
+  return {set(placed,gel){$('.probe',sv).setAttribute('transform',placed?'translate(0,0)':'translate(0,-30)');$('.gel',sv).setAttribute('opacity',gel?1:0);
+    const wv=$('.waves',sv);wv.style.display=placed?'':'none';wv.classList.toggle('weak',!gel)}};
+}
+function coupleData(st){
+  if(!st.placed)return{send:0,grass:1.5,echoes:[]};
+  if(!st.gel)return{send:0,ring:3.4,grass:7,echoes:[{x:37.0,a:rand(18,46)*(0.9+st.p*0.2)},{x:70.8,a:rand(0,5)}]};
+  const a1=55+27*st.p+rand(-.8,.8);return{send:0,grass:2,echoes:[{x:37.0,a:a1},{x:70.8,a:a1*.667}]};
+}
+function simCouple(c,api){
+  c.insertAdjacentHTML('beforeend',`<div class="task"><b>Auftrag:</b> Setz den Prüfkopf erst <b>ohne</b> Koppelmittel auf den K1 und beobachte das A-Bild. Dann: anheben, Koppelmittel drauf, wieder aufsetzen.</div>`);
+  const st={placed:false,gel:false,p:.8,dryT:0};const sc=makeCoupleScene(c);
+  const cl=checklist(['Prüfkopf trocken aufsetzen und 3 Sekunden beobachten','Prüfkopf anheben und Koppelmittel auftragen','Prüfkopf wieder aufsetzen']);
+  const br=document.createElement('div');br.className='btnrow';br.innerHTML=`<button class="btn blue" id="bP"></button><button class="btn sec" id="bG"></button>`;
+  c.appendChild(br);const o=makeScan(c,{title:'A-Bild · Live'});c.appendChild(cl);const say=statusFb(c);
+  const upB=()=>{$('#bP',c).textContent=st.placed?'⬆ Prüfkopf anheben':'⬇ Prüfkopf aufsetzen';$('#bG',c).textContent=st.gel?'🧽 Gel abwischen':'💧 Koppelmittel auftragen';sc.set(st.placed,st.gel)};upB();
+  $('#bP',c).onclick=()=>{st.placed=!st.placed;upB()};
+  $('#bG',c).onclick=()=>{if(st.placed){say('info','☝️ Heb den Prüfkopf zuerst an – das Gel kommt auf die Oberfläche des K1.');return}st.gel=!st.gel;upB()};
+  let seen=false,t0=0;
+  loop(()=>{const d=coupleData(st);drawT(o,d);const e=d.echoes[0];
+    o.ro.innerHTML=st.placed?`<span>1. Echo – Höhe: <b>${fmt(e.a,0)} %BSH</b></span><span>Lage: <b>37,0 µs</b></span><span>2. Echo: <b>${d.echoes[1].a<8?'nicht erkennbar':fmt(d.echoes[1].a,0)+' %BSH'}</b></span>`:'<span>Prüfkopf in der Luft – kein Echo.</span>';
+    if(st.placed&&!st.gel){if(!t0)t0=Date.now();if(Date.now()-t0>3000&&!seen){seen=true;cl.set(0,true);say('info','👀 Siehst du das? Das Echo <b>springt</b> hin und her, ist niedrig – und das 2. Echo fehlt fast ganz. Jetzt: anheben und Koppelmittel auftragen.')}}else t0=0;
+    if(seen&&st.gel)cl.set(1,true);
+    if(seen&&st.gel&&st.placed&&!ctx.solved){cl.set(2,true);state.proto.kopp='dünner Koppelfilm';say('ok','✅ Mit Koppelmittel: Die Echos sind <b>hoch und ruhig</b> – und das 2. Echo ist deutlich da!');api.solved()}
+  });
+}
+function simCompare(c,api){
+  c.insertAdjacentHTML('beforeend','<p>Links ohne, rechts mit Koppelmittel. Schau genau hin!</p>');
+  const g=document.createElement('div');g.style.cssText='display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))';c.appendChild(g);
+  const a=makeScan(g,{title:'ohne Koppelmittel (trocken)'}),b=makeScan(g,{title:'mit Koppelmittel'});
+  loop(()=>{drawT(a,coupleData({placed:1,gel:0,p:.8}));drawT(b,coupleData({placed:1,gel:1,p:.8}))});
+  mcqW(c,{q:'Was hat das Koppelmittel verändert?',o:[
+    {t:'Die Echos sind höher und stehen ruhig – die Lage (nach rechts) bleibt gleich.',ok:1,fb:'Genau! Koppelung ändert die <b>Übertragung</b> (Höhe, Stabilität) – nicht die Laufzeit im Stahl.'},
+    {t:'Die Echos sind nach rechts gewandert.',fb:'Schau nochmal auf die x-Achse: Beide Echos liegen an derselben Stelle.'},
+    {t:'Nichts – beide Bilder sind gleich.',fb:'Schau auf die Höhe und darauf, ob das Echo zappelt.'}]},api.solved,api.wrong);
+}
+function simPress(c,api){
+  c.insertAdjacentHTML('beforeend',`<div class="task"><b>Aus der Anleitung (3.1, Aufgabe 3):</b> Verändere den Anpressdruck <b>vorsichtig</b> und beschreibe die Auswirkung auf die Amplitude. Schieb den Regler einmal ganz nach links und ganz nach rechts.</div>`);
+  const st={placed:1,gel:1,p:.5};const sc=makeCoupleScene(c);sc.set(1,1);
+  const o=makeScan(c,{title:'A-Bild · Live'});let lo=false,hi=false,asked=false;const say=statusFb(c);
+  const ctl=ctlRow({label:'Anpressdruck (leicht ↔ fest)',min:0,max:1,step:.05,val:.5,fine:.1,fmtV:v=>Math.round(v*100)+' %',onChange:v=>{st.p=v;if(v<=.2)lo=true;if(v>=.8)hi=true;
+    if(v>=.96)say('info','⚠️ Vorsicht: Nicht mit Gewalt drücken – der Prüfkopf kann beschädigt werden.');else if(!asked)say('','')}});
+  c.appendChild(ctl);const q=document.createElement('div');c.appendChild(q);
+  loop(()=>{const d=coupleData(st);drawT(o,d);o.ro.innerHTML=`<span>1. Echo – Höhe: <b>${fmt(d.echoes[0].a,0)} %BSH</b></span><span>Lage: <b>37,0 µs</b></span>`;
+    if(lo&&hi&&!asked){asked=true;say('','');mcqW(q,{q:'Was passiert bei mehr Anpressdruck?',o:[
+      {t:'Das Echo wird höher – die Lage bleibt gleich.',ok:1,fb:'Richtig! Fester Druck → dünnerer Koppelfilm → bessere Übertragung → höheres Echo. Die Laufzeit im Stahl ändert sich nicht.'},
+      {t:'Das Echo wandert nach links, weil der Stahl dünner wird.',fb:'Der Stahl wird nicht dünner! Schau auf die Zahl „Lage“ – sie bleibt 37,0 µs.'},
+      {t:'Das Echo wird niedriger.',fb:'Schau nochmal auf die Zahl „Höhe“ bei festem Druck.'}]},api.solved,api.wrong)}});
+}
+function simBars(c,api){
+  c.insertAdjacentHTML('beforeend',`<p>So viel Schall kommt in den Stahl:</p><div class="bars">
+   <div><b>Mit Luftspalt:</b> 0,004 %<div class="bar"><i style="width:.2%"></i><span>fast nichts…</span></div></div>
+   <div><b>Mit Koppelmittel:</b> 12,1 %<div class="bar"><i style="width:60%"></i><span style="color:#fff">12,1 %</span></div></div></div>
+   <p class="tip">Balken im Maßstab: 12,1 % = 60 % Balkenbreite. Der Luft-Balken wäre nur 0,02 % breit – unsichtbar!</p>`);
+  mcqW(c,{q:'Wie viel Mal mehr Schall kommt mit Koppelmittel in den Stahl? (12,1 : 0,004)',o:[{t:'etwa 30-mal',fb:'Zu wenig. Rechne 12,1 : 0,004 mit dem 🧮-Rechner.'},{t:'etwa 300-mal',fb:'Noch zu wenig – rechne nochmal nach.'},{t:'etwa 3000-mal',ok:1,fb:'Genau! Rund 3000-mal mehr. Darum ist ein dünner Koppelfilm Pflicht.'}],noShuffle:1},api.solved,api.wrong);
+}
+function simK0(c,api){
+  c.insertAdjacentHTML('beforeend',`<p>Ein Kollege hat diese Aufzeichnung <b>K0</b> gespeichert (trockener Kontakt). Das erste Echo liegt ungefähr an der richtigen Stelle.</p>`);
+  const o=makeScan(c,{title:'Aufzeichnung K0'});loop(()=>{const d=REC.K0();drawT(o,d);o.ro.innerHTML=`<span>1. Echo – Höhe: <b>${fmt(d.echoes[0].a,0)} %BSH</b> (springt!)</span>`});
+  mcqW(c,{q:'Darf K0 freigegeben werden?',o:[
+   {t:'Nein – das Echo springt stark (18–46 %) und das 2. Echo fehlt. Das ist nicht reproduzierbar.',ok:1,fb:'Richtig! Eine ungefähr richtige Lage reicht nicht. Für eine Freigabe braucht man stabile, wiederholbare Echos.'},
+   {t:'Ja – das Echo liegt ja ungefähr richtig.',fb:'„Ungefähr“ reicht nicht! Schau, wie das Echo zappelt, und ob ein 2. Echo da ist.'},
+   {t:'Ja – solange irgendein Echo zu sehen ist, ist alles gut.',fb:'Nein. Ohne stabile Übertragung kann man nichts sicher messen.'}]},api.solved,api.wrong);
+}
+function simTapEchoes(c,api){
+  c.insertAdjacentHTML('beforeend',`<div class="task"><b>Auftrag:</b> Tippe im A-Bild auf den <b>Beginn</b> des 1. und dann des 2. Rückwandechos. Das Gerät misst dann die Laufzeit.</div>`);
+  const o=makeScan(c,{title:'A-Bild K1 · antippen!',toggle:true});const marks=[];const say=statusFb(c);
+  const times=[37.0,70.8];
+  o.cv.addEventListener('pointerdown',e=>{if(ctx.solved)return;let x=scanToX(o.cv,e.clientX);if(x==null)return;if(o.unit==='mm')x/=MMUS;
+    const want=marks.length;const hit=times.findIndex(t=>x>t-4&&x<t+6);
+    if(hit<0){say('bad','❌ Da ist kein Rückwandecho. Tippe auf einen der grünen Ausschläge (nicht ganz links – das ist der Sendeimpuls).');return}
+    if(hit!==want){api.wrong();say('bad',want===0?'☝️ Fang mit dem <b>ersten</b> (linken) Echo an.':'Das hast du schon markiert. Jetzt das 2. Echo!');return}
+    marks.push({x:times[hit],name:'t'+(hit===0?'₁':'₂'),row:hit});
+    if(marks.length===1)say('info','👍 t₁ = <b>37,0 µs</b>. Jetzt das 2. Echo antippen.');
+    else{state.proto.t1=37.0;state.proto.t2=70.8;say('ok','✅ Gemessen: t₁ = <b>37,0 µs</b> und t₂ = <b>70,8 µs</b> – im Protokoll 📋 eingetragen.<br>🧐 Schalte mal auf <b>mm</b> um: Das 1. Echo liegt bei <b>109,5 mm</b> – obwohl der K1 nur 100 mm dick ist… Merk dir das!');api.solved()}});
+  loop(()=>drawT(o,Object.assign(REC.K1(),{marks})));
+}
+function simExplore(c,api){
+  c.insertAdjacentHTML('beforeend',`<div class="task"><b>Gedankenexperiment:</b> Was wäre, wenn … a) das Material eine andere Schallgeschwindigkeit hätte? b) der Nullpunkt verschoben wäre? Bewege <b>beide</b> Regler und beobachte die Echos. Die gelben Linien sind die Soll-Lagen für Stahl.</div>`);
+  const st={c:5920,t0:0};let mc=false,mt=false,step=0;
+  const o=makeScan(c,{title:'Was-wäre-wenn-A-Bild'});
+  const cl=checklist(['Regler „anderes Material“ bewegt','Regler „Nullpunkt verschoben“ bewegt']);
+  c.appendChild(ctlRow({label:'a) anderes Material: c',min:4000,max:8000,step:10,val:5920,fine:100,fmtV:v=>v+' m/s',onChange:v=>{st.c=v;if(Math.abs(v-5920)>400){mc=true;cl.set(0,1)}}}));
+  c.appendChild(ctlRow({label:'b) Nullpunkt verschoben um',min:0,max:8,step:.1,val:0,fine:.5,fmtV:v=>fmt(v,1)+' µs',onChange:v=>{st.t0=v;if(v>1){mt=true;cl.set(1,1)}}}));
+  c.appendChild(cl);const q=document.createElement('div');c.appendChild(q);
+  loop(()=>{const dt=200000/st.c;const e=[{x:st.t0+dt,a:78},{x:st.t0+2*dt,a:52}];drawT(o,{send:st.t0-3.2,echoes:e,targets:[33.8,67.6]});
+    o.ro.innerHTML=`<span>1. Echo: <b>${fmt(e[0].x,1)} µs</b></span><span>Echoabstand: <b>${fmt(dt,1)} µs</b></span>`;
+    if(mc&&mt&&step===0){step=1;mcqW(q,{q:'a) Was passiert, wenn das Material eine <b>andere Schallgeschwindigkeit</b> hat?',o:[{t:'Der Abstand zwischen den Echos ändert sich.',ok:1,fb:'Richtig: anderes c → anderer Echoabstand.'},{t:'Beide Echos rutschen gleich weit, der Abstand bleibt.',fb:'Das war der andere Regler. Probier den c-Regler nochmal aus.'},{t:'Die Echos werden höher.',fb:'Die Höhe bleibt gleich. Achte auf die Zahl „Echoabstand“.'}]},()=>{
+      mcqW(q,{q:'b) Und was passiert, wenn der <b>Nullpunkt verschoben</b> ist?',o:[{t:'Beide Echos rutschen gleich weit – der Abstand bleibt gleich.',ok:1,fb:'Genau! Das ist das Erkennungszeichen für einen Nullpunktfehler (Offset).'},{t:'Der Abstand zwischen den Echos wird größer.',fb:'Schau auf die Zahl „Echoabstand“, während du den Nullpunkt-Regler bewegst.'},{t:'Nur das 2. Echo bewegt sich.',fb:'Nein – beide bewegen sich. Probier es nochmal aus.'}]},api.solved,api.wrong)},api.wrong)}});
+}
+function simCompareK1K2(c,api){
+  c.insertAdjacentHTML('beforeend','<p>Die gelben Linien zeigen die Soll-Lage. Vergleiche K1 (vor der Korrektur) mit K2 (Soll).</p>');
+  const g=document.createElement('div');g.style.cssText='display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))';c.appendChild(g);
+  const a=makeScan(g,{title:'K1 · vor Korrektur'}),b=makeScan(g,{title:'K2 · Soll'});
+  a.ro.innerHTML='<span>t₁ = <b>37,0 µs</b></span><span>t₂ = <b>70,8 µs</b></span><span>Abstand: <b>33,8 µs</b></span>';
+  b.ro.innerHTML='<span>t₁ = <b>33,8 µs</b></span><span>t₂ = <b>67,6 µs</b></span><span>Abstand: <b>33,8 µs</b></span>';
+  loop(()=>{drawT(a,Object.assign(REC.K1(),{targets:[33.8,67.6]}));drawT(b,Object.assign(REC.K2(),{targets:[33.8,67.6]}))});
+  mcqW(c,{q:'Der Echoabstand ist bei beiden gleich (33,8 µs), aber K1 ist nach rechts verschoben. Was musst du korrigieren?',o:[
+   {t:'Den Nullpunkt (Offset)',ok:1,fb:'Richtig! Gleicher Abstand + gemeinsame Verschiebung = Nullpunktfehler.'},{t:'Die Schallgeschwindigkeit',fb:'Dann würde sich der Abstand ändern – der stimmt aber schon!'},{t:'Das Koppelmittel',fb:'Die Echos sind hoch und stabil – die Koppelung passt.'}]},api.solved,api.wrong);
+}
+function simZero(c,api){
+  c.insertAdjacentHTML('beforeend',`<div class="task"><b>Auftrag:</b> Schiebe mit der Nullpunkt-Korrektur beide Echos auf die gelben Soll-Linien (33,8 µs und 67,6 µs). Tipp: Schalte danach auf <b>mm</b> um!</div>`);
+  const st={k:0};const o=makeScan(c,{title:'A-Bild K1',toggle:true});const say=statusFb(c);
+  c.insertBefore(ctlRow({label:'Nullpunkt-Korrektur',min:0,max:6,step:.1,val:0,fine:.1,coarse:1,fmtV:v=>fmt(v,1)+' µs',onChange:v=>st.k=v}),o.wrap.nextSibling);
+  loop(()=>{const d=REC.K1();d.echoes.forEach(e=>e.x-=st.k);d.send-=st.k;d.targets=[33.8,67.6];drawT(o,d);
+    const mm=o.unit==='mm';o.ro.innerHTML=`<span>1. Echo: <b>${mm?fmt((37-st.k)*MMUS,1)+' mm':fmt(37-st.k,1)+' µs'}</b></span><span>2. Echo: <b>${mm?fmt((70.8-st.k)*MMUS,1)+' mm':fmt(70.8-st.k,1)+' µs'}</b></span>`;
+    if(Math.abs(st.k-3.2)<.05&&!ctx.solved){state.proto.t0=3.2;say('ok','✅ Treffer! Nullpunkt um <b>3,2 µs</b> korrigiert. Jetzt sieht K1 genau aus wie K2. In mm: 1. Echo bei <b>100 mm</b>, 2. Echo bei <b>200 mm</b> – passt zum K1!');api.solved()}});
+}
+function simJust(c,api,phase){
+  const OFF=9.47; // mm Vorlauf (≙ 3,2 µs)
+  const st=phase==='A'?{R:250,D:0}:{R:100,D:109.5};
+  c.insertAdjacentHTML('beforeend',phase==='A'
+   ?`<div class="task"><b>Ziel Teil 1:</b> Beginn des <b>1. Rückwandechos</b> auf Strich <b>1</b> (ganz links) und Beginn des <b>2. Rückwandechos</b> auf Strich <b>11</b> (ganz rechts).</div>`
+   :`<div class="task"><b>Ziel Teil 2:</b> Justierbereich bleibt 100 mm. Verschiebe jetzt das <b>1. Rückwandecho</b> auf Strich <b>11</b>. Dann zeigt der Bildschirm 0 bis 100 mm Tiefe.</div>`);
+  const o=makeScan(c,{title:'Echograph · Justierung'});const say=statusFb(c);
+  const cD=ctlRow({label:'Verschieben (Bild nach links)',min:0,max:220,step:.5,val:st.D,fine:.5,coarse:10,fmtV:v=>fmt(v,1)+' mm',onChange:v=>st.D=v});
+  const cR=ctlRow({label:'Justierbereich (Breite des Bildschirms)',min:50,max:300,step:.5,val:st.R,fine:.5,coarse:10,fmtV:v=>fmt(v,1)+' mm',onChange:v=>st.R=v});
+  c.insertBefore(cD,o.wrap.nextSibling);c.insertBefore(cR,cD.nextSibling);
+  const pos=n=>(n*100+OFF-st.D)/st.R*10;
+  loop(()=>{const e=[1,2,3].map((n,i)=>({x:pos(n),a:[78,52,35][i]}));
+    drawScan(o.cv,{xmin:0,xmax:10,strich:1,echoes:e,send:(0-st.D)/st.R*10,ring:1.2,grass:2,hl:phase==='A'?[0,10]:[10],corner:'1 SkT = '+fmt(st.R/10,1)+' mm'});
+    const sl=v=>(v<-.2||v>10.2)?'außerhalb des Bildschirms':'Strich '+fmt(v+1,1);o.ro.innerHTML=`<span>1. Echo: <b>${sl(pos(1))}</b></span><span>2. Echo: <b>${sl(pos(2))}</b></span>`;
+    if(ctx.solved)return;
+    if(phase==='A'&&Math.abs(pos(1))<.12&&Math.abs(pos(2)-10)<.12){state.sim.just={R:st.R,D:st.D};state.proto.range=100;say('ok',`✅ Stark! 1. Echo auf Strich 1, 2. Echo auf Strich 11. Justierbereich = <b>${fmt(st.R,1)} mm</b> → 1 SkT = 10 mm.`);api.solved()}
+    if(phase==='B'){if(Math.abs(st.R-100)>1.2){say('info','☝️ Den Justierbereich bitte auf 100 mm lassen – nur verschieben!')}
+      else if(Math.abs(pos(1)-10)<.12){state.proto.delay=st.D;say('ok',`✅ Justiert! Das 1. Rückwandecho steht bei 100 mm. „Verschieben“ = <b>${fmt(st.D,1)} mm</b> – das ist genau der Vorlauf von <b>3,2 µs</b> aus Level 5 (9,5 mm ≙ 3,2 µs). Dein Gerät misst jetzt Wege ab der Oberfläche.`);api.solved()}}});
+}
+function simDecide(c,api){
+  c.insertAdjacentHTML('beforeend','<p>Entscheide für jede Aufzeichnung, was als Nächstes zu tun ist. Gelbe Linien = Soll-Lage.</p>');
+  const data=[
+   {k:'K0',info:'trocken · t₁ ≈ 33,8 µs · Höhe 18–46 % (springt) · kein 2. Echo',ans:1,fb:['Das Echo springt, das 2. Echo fehlt – so kann man nichts freigeben.',null,'Der Nullpunkt ist nicht das Problem – erst muss die Koppelung stimmen.']},
+   {k:'K1',info:'Koppelfilm · t₁ = 37,0 µs · t₂ = 70,8 µs · stabil',ans:2,fb:['Die Echos liegen 3,2 µs zu weit rechts – so zeigt das Gerät falsche Tiefen.','Die Echos sind hoch und stabil – die Koppelung passt schon.',null]},
+   {k:'K2',info:'Koppelfilm, Nullpunkt korrigiert · t₁ = 33,8 µs · t₂ = 67,6 µs · stabil',ans:0,fb:[null,'Die Koppelung ist schon gut – Echos hoch und stabil.','Der Nullpunkt ist schon korrigiert – die Echos liegen auf Soll.']}];
+  const acts=['✅ freigeben','💧 Koppelung verbessern','🎯 Nullpunkt korrigieren'];let n=0;
+  data.forEach(d=>{const card=document.createElement('div');card.className='dcard';card.innerHTML=`<h4>Aufzeichnung ${d.k}</h4><div class="tip">${d.info}</div>`;c.appendChild(card);
+    const o=makeScan(card,{title:d.k});loop(()=>drawT(o,Object.assign(REC[d.k](),{targets:[33.8,67.6]})));
+    const bs=document.createElement('div');bs.className='dbtns';const fb=document.createElement('div');fb.className='fb';
+    acts.forEach((a,i)=>{const b=document.createElement('button');b.textContent=a;b.onclick=()=>{if(card.classList.contains('ok'))return;
+      if(i===d.ans){b.classList.add('ok');card.classList.add('ok');fb.className='fb ok';fb.innerHTML='✅ Richtig!';n++;if(n===3)api.solved()}else{b.classList.add('bad');shake(b);api.wrong();fb.className='fb bad';fb.innerHTML='❌ '+d.fb[i]}};bs.appendChild(b)});
+    card.appendChild(bs);card.appendChild(fb)});
+}
+function simCloze(c,api){
+  const P=[
+   ['Freigegeben wird die Aufzeichnung ',['K0','K1','K2'],2,'.'],
+   ['Die Koppelung ist in Ordnung, weil ',['die Echos stabil sind und zwei Rückwandechos zu sehen sind','die Echos sehr hoch sind','das erste Echo ganz links liegt'],0,'.'],
+   ['Echoabstand ',['33,8 µs','37,0 µs','70,8 µs'],0,' → berechnete Schallgeschwindigkeit '],
+   ['c ≈ ',['5917 m/s','2730 m/s','343 m/s'],0,'. Das passt zur Einstellung 5920 m/s.'],
+   ['Der Nullpunkt wurde um ',['3,2 µs','33,8 µs','0 µs'],0,' korrigiert – '],
+   ['die Schallgeschwindigkeit wurde ',['nicht verändert','halbiert','auf 5917 m/s geändert'],0,'.'],
+   ['Die Freigabe gilt nur für ',['Stahl mit c = 5920 m/s, diesen Normalprüfkopf und einen dünnen Koppelfilm','alle Materialien und alle Prüfköpfe','jede Koppelung, auch trocken'],0,'.'],
+   ['Nicht erlaubt ist: ',['aus der Echohöhe die Größe eines Fehlers abzulesen','die Lage der Echos abzulesen','die Justierung zu dokumentieren'],0,'.']];
+  c.insertAdjacentHTML('beforeend',`<p>Vervollständige die Justierfreigabe. Tippe auf jedes Feld und wähle aus.</p><div class="cloze"><p>${P.map((p,i)=>`${p[0]}<select data-i="${i}"><option value="">— wählen —</option>${shuffle(p[1].map((t,j)=>({t,j}))).map(o=>`<option value="${o.j}">${o.t}</option>`).join('')}</select>${p[3]}`).join(' ')}</p></div>`);
+  const b=document.createElement('button');b.className='btn blue';b.style.width='100%';b.textContent='Freigabe prüfen ✔';c.appendChild(b);const say=statusFb(c);const out=document.createElement('div');c.appendChild(out);
+  b.onclick=()=>{if(ctx.solved)return;let bad=0,empty=0;$$('select',c).forEach(s=>{s.classList.remove('okI','badI');if(s.value===''){empty++;return}const ok=+s.value===P[+s.dataset.i][2];s.classList.add(ok?'okI':'badI');if(!ok)bad++});
+    if(empty){say('info','✏️ Bitte alle Felder auswählen.');return}
+    if(bad){api.wrong();say('bad',`❌ ${bad} Feld${bad>1?'er':''} stimmt noch nicht (rot). Schau in dein Protokoll 📋.`);return}
+    $$('select',c).forEach(s=>s.disabled=true);say('ok','✅ Freigabe vollständig und richtig!');
+    const d=new Date().toLocaleDateString('de-DE');
+    out.innerHTML=`<div class="doc"><div class="stamp">FREIGEGEBEN</div><h4>Justierfreigabe JN-05</h4><dl>
+     <dt>Gerät</dt><dd>Ultraschallprüfgerät (Echograph), Normalprüfkopf</dd><dt>Referenz</dt><dd>Kalibrierkörper K1, d = 100,0 mm, Stahl</dd>
+     <dt>Aufzeichnung</dt><dd>K2 – dünner Koppelfilm, stabil, 2 Rückwandechos</dd><dt>Rechenprüfung</dt><dd>Δt = 33,8 µs → c ≈ 5917 m/s ≈ 5920 m/s ✔</dd>
+     <dt>Nullpunkt</dt><dd>Offset 3,2 µs korrigiert (≙ 9,5 mm), c unverändert</dd><dt>Justierung</dt><dd>10 SkT = 100 mm</dd>
+     <dt>Gilt nur für</dt><dd>Stahl, c = 5920 m/s, diesen Prüfkopf, dünnen Koppelfilm</dd><dt>Grenze</dt><dd>Echohöhe ≠ Fehlergröße</dd>
+     <dt>Prüfer*in</dt><dd><b>${esc(state.name||'Azubi')}</b> · ${d}</dd></dl></div>`;
+    api.solved();out.scrollIntoView({behavior:'smooth',block:'nearest'})};
+}
+
+/* ============ Start ============ */
+renderHome();if(!state.name)askName();
+</script>
+</body>
+</html>
