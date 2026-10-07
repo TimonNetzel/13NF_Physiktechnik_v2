@@ -124,6 +124,9 @@ h2 { margin: 0 0 4px; font-size: 1.45rem; letter-spacing: -.02em; }
 .mat--applet { --farbe: var(--applet); --bg: var(--applet-bg); }
 .mat--klausur { --farbe: var(--klausur); --bg: var(--klausur-bg); }
 .mat--skript { --farbe: var(--skript); --bg: var(--skript-bg); }
+.mat--planung { --farbe: var(--akzent); --bg: var(--akzent-weich); }
+.mat--simulation { --farbe: var(--applet); --bg: var(--applet-bg); }
+.mat--laborheft { --farbe: var(--skript); --bg: var(--skript-bg); }
 .mat a { text-decoration: none; color: var(--farbe); font-weight: 650; }
 .mat-haupt { flex: 1; min-width: 0; min-height: 48px; display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 11px; }
 .mat-haupt span { min-width: 0; }
@@ -257,6 +260,16 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
       <div class="karten" id="klausur-karten"></div>
     </section>
 
+    <section id="simulationen" aria-labelledby="simulationen-titel" hidden>
+      <div class="abschnitt-kopf"><div><h2 id="simulationen-titel">Lernsimulationen</h2><p>Versuche virtuell vorbereiten – dazu das Laborheft für den echten Versuch.</p></div></div>
+      <div class="karten" id="simulation-karten"></div>
+    </section>
+
+    <section id="planung" aria-labelledby="planung-titel" hidden>
+      <div class="abschnitt-kopf"><div><h2 id="planung-titel">Unterrichtsplanung</h2><p>Stundenziele, Indikatoren und Ablauf jeder Woche – transparent für alle.</p></div></div>
+      <div class="karten" id="planung-karten"></div>
+    </section>
+
     <footer id="fuss"></footer>
   </main>
 
@@ -278,7 +291,7 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
  "klasse": "13NF",
  "fach": "Physiktechnik",
  "schuljahr": "2026/27",
- "erzeugt": "2026-10-02",
+ "erzeugt": "2026-10-07",
  "wochen": [
   {
    "nr": 1,
@@ -394,7 +407,24 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
    "titel": "Klausurübung Woche 1",
    "dauer": "135 Min."
   }
- ]
+ ],
+ "simulationen": [
+  {
+   "titel": "3.1 Ultraschallprüfung mit dem Normalprüfkopf",
+   "untertitel": "UT-Prüfplatz: Normalprüfkopf",
+   "dauer": "90 Min.",
+   "simulation": {
+    "html": "lernsimulationen/3-1_normalpruefkopf.html"
+   },
+   "laborheft": {
+    "pdf": "lernsimulationen/3-1_normalpruefkopf_laborheft.pdf",
+    "loesung": {
+     "pdf": "lernsimulationen/3-1_normalpruefkopf_laborheft_loesung.pdf"
+    }
+   }
+  }
+ ],
+ "planung": []
 };
 
     var ICON = {
@@ -403,6 +433,9 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
       applet: '<path d="M4 6h3M11 6h9M4 12h9M17 12h3M4 18h3M11 18h9"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="9" cy="18" r="2"/>',
       klausur: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="m9 12 2 2 4-4"/>',
       skript: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+      simulation: '<path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7 15h10"/>',
+      laborheft: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/>',
+      planung: '<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16M8 14h3M8 17h6"/>',
       extra: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>'
     };
     var NAME = { lernen: "Lernen", ueben: "Üben", applet: "Applet" };
@@ -418,11 +451,14 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
     function zwei(n) { return (n < 10 ? "0" : "") + n; }
 
     // Ein Materialknopf: Hauptaktion (HTML im Betrachter, sonst PDF), daneben PDF und Lösung.
+    // Das Lernabenteuer (lernen.html) öffnet als volle Seite im selben Tab; „Zurück“ im Browser führt zur Übersicht.
     function knopf(art, satz, label, unterzeile, kontext) {
       if (!satz || !(satz.html || satz.pdf)) return "";
       var titel = (kontext ? kontext + " · " : "") + label;
       var haupt = satz.html
-        ? '<a class="mat-haupt" href="' + esc(satz.html) + '" data-betrachter data-titel="' + esc(titel) + '">'
+        ? (art === "lernen" || art === "simulation"
+          ? '<a class="mat-haupt" href="' + esc(satz.html) + '">'
+          : '<a class="mat-haupt" href="' + esc(satz.html) + '" data-betrachter data-titel="' + esc(titel) + '">')
         : '<a class="mat-haupt" href="' + esc(satz.pdf) + '" target="_blank" rel="noopener">';
       var html = '<div class="mat mat--' + art + '">' + haupt + icon(ICON[art] ? art : "extra") +
         "<span>" + esc(label) + (unterzeile ? "<small>" + esc(unterzeile) + "</small>" : "") + "</span></a>";
@@ -473,6 +509,8 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
     zahlen.push("<b>" + wochen.length + "</b> Wochen online");
     if (d.materialien.length) zahlen.push("<b>" + d.materialien.length + "</b> Skripte");
     if (klausuren) zahlen.push("<b>" + klausuren + "</b> Probeklausuren");
+    var simulationen = d.simulationen || [];
+    if (simulationen.length) zahlen.push("<b>" + simulationen.length + "</b> Lernsimulationen");
     document.getElementById("kennzahlen").innerHTML = zahlen.map(function (z) { return "<li>" + z + "</li>"; }).join("");
 
     var sprung = [];
@@ -480,6 +518,9 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
     sprung.push('<a href="#wochen">Alle Wochen</a>');
     if (d.materialien.length) sprung.push('<a href="#skripte">Skripte</a>');
     if (klausuren) sprung.push('<a href="#klausuren">Probeklausuren</a>');
+    if (simulationen.length) sprung.push('<a href="#simulationen">Lernsimulationen</a>');
+    var planung = d.planung || [];
+    if (planung.length) sprung.push('<a href="#planung">Unterrichtsplanung</a>');
     document.getElementById("sprung").innerHTML = sprung.join("");
 
     var liste = document.getElementById("wochenliste");
@@ -552,7 +593,7 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
       var meta = [k.wochen ? "Wochen " + k.wochen : "", k.dauer].filter(Boolean).join(" · ");
       return '<div class="karte"><div><h3>' + esc(k.titel) + "</h3>" +
         (meta ? '<div class="woche-meta">' + esc(meta) + "</div>" : "") + "</div>" +
-        '<div class="materialien">' + knopf(art, k, art === "klausur" ? "Klausur öffnen" : "Öffnen", "", k.titel) + "</div></div>";
+        '<div class="materialien">' + knopf(art, k, art === "klausur" ? "Klausur öffnen" : art === "planung" ? "Planung öffnen" : "Öffnen", "", k.titel) + "</div></div>";
     }
 
     if (d.materialien.length) {
@@ -563,6 +604,23 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
       document.getElementById("klausur-karten").innerHTML =
         d.probeklausuren.map(function (k) { return klausurKarte(k, "klausur"); }).join("");
       document.getElementById("klausuren").hidden = false;
+    }
+    // Lernsimulation: Simulation (volle Seite wie lernen.html) und Laborheft (PDF, daneben Lösung)
+    if (simulationen.length) {
+      document.getElementById("simulation-karten").innerHTML = simulationen.map(function (s) {
+        var meta = [s.untertitel, s.dauer].filter(Boolean).join(" · ");
+        return '<div class="karte"><div><h3>' + esc(s.titel) + "</h3>" +
+          (meta ? '<div class="woche-meta">' + esc(meta) + "</div>" : "") + "</div>" +
+          '<div class="materialien">' +
+          knopf("simulation", s.simulation, "Simulation starten", "iPad & Handy", s.titel) +
+          knopf("laborheft", s.laborheft, "Laborheft", "für den echten Versuch", s.titel) + "</div></div>";
+      }).join("");
+      document.getElementById("simulationen").hidden = false;
+    }
+    if (planung.length) {
+      document.getElementById("planung-karten").innerHTML =
+        planung.map(function (k) { return klausurKarte(k, "planung"); }).join("");
+      document.getElementById("planung").hidden = false;
     }
 
     document.getElementById("fuss").textContent = [d.klasse, d.fach, d.schuljahr ? "Schuljahr " + d.schuljahr : "", "Stand " +
