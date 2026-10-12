@@ -266,6 +266,11 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
       <div class="karten" id="simulation-karten"></div>
     </section>
 
+    <section id="praktikum" aria-labelledby="praktikum-titel" hidden>
+      <div class="abschnitt-kopf"><div><h2 id="praktikum-titel">Praktikum</h2><p>Begleitend zum echten Versuch: Sicherheit, Aufbau, Messen und Auswerten in 45 Minuten.</p></div></div>
+      <div class="karten" id="praktikum-karten"></div>
+    </section>
+
     <section id="planung" aria-labelledby="planung-titel" hidden>
       <div class="abschnitt-kopf"><div><h2 id="planung-titel">Unterrichtsplanung</h2><p>Stundenziele, Indikatoren und Ablauf jeder Etappe – transparent für alle.</p></div></div>
       <div class="karten" id="planung-karten"></div>
@@ -292,7 +297,7 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
  "klasse": "13NF",
  "fach": "Physiktechnik",
  "schuljahr": "2026/27",
- "erzeugt": "2026-10-10",
+ "erzeugt": "2026-10-12",
  "wochen": [
   {
    "nr": 1,
@@ -428,6 +433,25 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
    }
   }
  ],
+ "praktikum": [
+  {
+   "titel": "Ultraschallprüfung mit dem Normalprüfkopf",
+   "versuch": "3-1_normalpruefkopf",
+   "dauer": "45 Min.",
+   "lernen": {
+    "html": "praktikum/3-1_normalpruefkopf/lernen.html"
+   },
+   "auswertung": {
+    "pdf": "praktikum/3-1_normalpruefkopf/lernen.pdf",
+    "loesung": {
+     "pdf": "praktikum/3-1_normalpruefkopf/lernen_loesungen.pdf"
+    }
+   },
+   "planung": {
+    "pdf": "planung/praktikum-3-1_normalpruefkopf.pdf"
+   }
+  }
+ ],
  "planung": [
   {
    "pdf": "planung/woche-06.pdf",
@@ -522,6 +546,8 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
     if (klausuren) zahlen.push("<b>" + klausuren + "</b> Probeklausuren");
     var simulationen = d.simulationen || [];
     if (simulationen.length) zahlen.push("<b>" + simulationen.length + "</b> Lernsimulationen");
+    var praktikum = d.praktikum || [];
+    if (praktikum.length) zahlen.push("<b>" + praktikum.length + "</b> Praktikumseinheiten");
     document.getElementById("kennzahlen").innerHTML = zahlen.map(function (z) { return "<li>" + z + "</li>"; }).join("");
 
     var sprung = [];
@@ -530,6 +556,7 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
     if (d.materialien.length) sprung.push('<a href="#skripte">Skripte</a>');
     if (klausuren) sprung.push('<a href="#klausuren">Probeklausuren</a>');
     if (simulationen.length) sprung.push('<a href="#simulationen">Lernsimulationen</a>');
+    if (praktikum.length) sprung.push('<a href="#praktikum">Praktikum</a>');
     var planung = d.planung || [];
     if (planung.length) sprung.push('<a href="#planung">Unterrichtsplanung</a>');
     document.getElementById("sprung").innerHTML = sprung.join("");
@@ -652,6 +679,18 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
           knopf("laborheft", s.laborheft, "Laborheft", "für den echten Versuch", s.titel) + "</div></div>";
       }).join("");
       document.getElementById("simulationen").hidden = false;
+    }
+    // Praktikum: Lernabenteuer zum Versuch (volle Seite), Versuchsauswertung (PDF mit Lösung), Planung
+    if (praktikum.length) {
+      document.getElementById("praktikum-karten").innerHTML = praktikum.map(function (s) {
+        return '<div class="karte"><div><h3>' + esc(s.titel) + "</h3>" +
+          (s.dauer ? '<div class="woche-meta">' + esc(s.dauer) + "</div>" : "") + "</div>" +
+          '<div class="materialien">' +
+          knopf("lernen", s.lernen, "Lernabenteuer starten", "begleitend zum Versuch", s.titel) +
+          knopf("laborheft", s.auswertung, "Versuchsauswertung", "PDF zum Ausfüllen", s.titel) +
+          knopf("planung", s.planung, "Planung", "Ablauf der Stunde", s.titel) + "</div></div>";
+      }).join("");
+      document.getElementById("praktikum").hidden = false;
     }
     if (planung.length) {
       document.getElementById("planung-karten").innerHTML =
