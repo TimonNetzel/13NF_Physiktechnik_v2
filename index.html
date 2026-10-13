@@ -103,6 +103,12 @@ h2 { margin: 0 0 4px; font-size: 1.45rem; letter-spacing: -.02em; }
 .aktuell::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 5px; background: linear-gradient(var(--lernen), var(--ueben)); }
 .aktuell-marke { display: inline-flex; align-items: center; gap: 7px; margin: 0 0 8px; color: var(--akzent); font-size: .82rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
 .aktuell-marke::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 4px var(--akzent-weich); }
+.lerncoach-box { margin-top: 16px; padding: 16px 20px; background: var(--akzent-weich); border-radius: 16px; display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; }
+.lerncoach-box h2 { margin: 0 0 2px; font-size: 1.2rem; }
+.lerncoach-box p { margin: 0; color: var(--leise); }
+.lerncoach-knoepfe { display: flex; flex-wrap: wrap; gap: 8px; }
+.lerncoach-knoepfe a { display: inline-flex; align-items: center; padding: 8px 16px; border-radius: 999px; font-weight: 700; text-decoration: none; border: 1px solid var(--akzent); color: var(--akzent); background: var(--flaeche); }
+.lerncoach-knoepfe a.haupt { background: var(--akzent); color: var(--flaeche); }
 .aktuell h2 { font-size: clamp(1.4rem, 3.4vw, 1.9rem); line-height: 1.2; margin-bottom: 16px; }
 .aktuell h2 small { display: block; margin-bottom: 2px; color: var(--leise); font-size: .95rem; font-weight: 600; letter-spacing: 0; }
 .aktuell .materialien { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
@@ -234,6 +240,14 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
   <main class="rahmen">
     <section class="aktuell" id="aktuell" aria-labelledby="aktuell-titel" hidden></section>
 
+    <section class="lerncoach-box" id="lerncoach" aria-labelledby="lerncoach-titel" hidden>
+      <div>
+        <h2 id="lerncoach-titel">Lerncoach</h2>
+        <p>Dein Plan für die Klausur, 15 Minuten Karten zweimal pro Woche, Ampel und Fehlerprotokoll.</p>
+      </div>
+      <div class="lerncoach-knoepfe" id="lerncoach-knoepfe"></div>
+    </section>
+
     <section id="wochen" aria-labelledby="wochen-titel">
       <div class="abschnitt-kopf">
         <div>
@@ -259,6 +273,11 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
     <section id="klausuren" aria-labelledby="klausuren-titel" hidden>
       <div class="abschnitt-kopf"><div><h2 id="klausuren-titel">Probeklausuren</h2><p>Zur Vorbereitung – mit den abgedeckten Etappen.</p></div></div>
       <div class="karten" id="klausur-karten"></div>
+    </section>
+
+    <section id="geschrieben" aria-labelledby="geschrieben-titel" hidden>
+      <div class="abschnitt-kopf"><div><h2 id="geschrieben-titel">Klausuren</h2><p>Geschriebene Klausuren: Erwartungshorizont, Musterlösung und Notenverteilung zur Besprechung.</p></div></div>
+      <div class="karten" id="geschrieben-karten"></div>
     </section>
 
     <section id="simulationen" aria-labelledby="simulationen-titel" hidden>
@@ -297,7 +316,7 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
  "klasse": "13NF",
  "fach": "Physiktechnik",
  "schuljahr": "2026/27",
- "erzeugt": "2026-10-12",
+ "erzeugt": "2026-10-13",
  "wochen": [
   {
    "nr": 1,
@@ -417,6 +436,7 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
    "dauer": "135 Min."
   }
  ],
+ "klausuren": [],
  "simulationen": [
   {
    "titel": "3.1 Ultraschallprüfung mit dem Normalprüfkopf",
@@ -459,7 +479,11 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
    "dauer": "",
    "nr": 6
   }
- ]
+ ],
+ "lerncoach": {
+  "html": "lerncoach/index.html",
+  "hintergrund": "lerncoach/hintergrund.html"
+ }
 };
 
     var ICON = {
@@ -544,6 +568,8 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
     zahlen.push("<b>" + wochen.length + "</b> Etappen online");
     if (d.materialien.length) zahlen.push("<b>" + d.materialien.length + "</b> Skripte");
     if (klausuren) zahlen.push("<b>" + klausuren + "</b> Probeklausuren");
+    var geschrieben = d.klausuren || [];
+    if (geschrieben.length) zahlen.push("<b>" + geschrieben.length + "</b> Klausuren");
     var simulationen = d.simulationen || [];
     if (simulationen.length) zahlen.push("<b>" + simulationen.length + "</b> Lernsimulationen");
     var praktikum = d.praktikum || [];
@@ -552,14 +578,23 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
 
     var sprung = [];
     if (aktuell) sprung.push('<a href="#aktuell">Diese Etappe</a>');
+    if (d.lerncoach) sprung.push('<a href="#lerncoach">Lerncoach</a>');
     sprung.push('<a href="#wochen">Alle Etappen</a>');
     if (d.materialien.length) sprung.push('<a href="#skripte">Skripte</a>');
     if (klausuren) sprung.push('<a href="#klausuren">Probeklausuren</a>');
+    if (geschrieben.length) sprung.push('<a href="#geschrieben">Klausuren</a>');
     if (simulationen.length) sprung.push('<a href="#simulationen">Lernsimulationen</a>');
     if (praktikum.length) sprung.push('<a href="#praktikum">Praktikum</a>');
     var planung = d.planung || [];
     if (planung.length) sprung.push('<a href="#planung">Unterrichtsplanung</a>');
     document.getElementById("sprung").innerHTML = sprung.join("");
+
+    if (d.lerncoach) {
+      document.getElementById("lerncoach-knoepfe").innerHTML =
+        '<a class="haupt" href="' + esc(d.lerncoach.html) + '">Lerncoach öffnen</a>' +
+        (d.lerncoach.hintergrund ? '<a href="' + esc(d.lerncoach.hintergrund) + '">Warum so?</a>' : "");
+      document.getElementById("lerncoach").hidden = false;
+    }
 
     var liste = document.getElementById("wochenliste");
     liste.innerHTML = wochen.map(function (w) {
@@ -652,11 +687,11 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
 
     zeigeOben(Number(new URLSearchParams(location.search).get("woche")) || gespeichert() || 0);
 
-    function klausurKarte(k, art) {
+    function klausurKarte(k, art, label) {
       var meta = [k.wochen ? "Etappen " + k.wochen : "", k.dauer].filter(Boolean).join(" · ");
       return '<div class="karte"><div><h3>' + esc(k.titel) + "</h3>" +
         (meta ? '<div class="woche-meta">' + esc(meta) + "</div>" : "") + "</div>" +
-        '<div class="materialien">' + knopf(art, k, art === "klausur" ? "Klausur öffnen" : art === "planung" ? "Planung öffnen" : "Öffnen", "", k.titel) + "</div></div>";
+        '<div class="materialien">' + knopf(art, k, label || (art === "klausur" ? "Klausur öffnen" : art === "planung" ? "Planung öffnen" : "Öffnen"), "", k.titel) + "</div></div>";
     }
 
     if (d.materialien.length) {
@@ -667,6 +702,11 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
       document.getElementById("klausur-karten").innerHTML =
         d.probeklausuren.map(function (k) { return klausurKarte(k, "klausur"); }).join("");
       document.getElementById("klausuren").hidden = false;
+    }
+    if (geschrieben.length) {
+      document.getElementById("geschrieben-karten").innerHTML =
+        geschrieben.map(function (k) { return klausurKarte(k, "klausur", "Besprechung öffnen"); }).join("");
+      document.getElementById("geschrieben").hidden = false;
     }
     // Lernsimulation: Simulation (volle Seite wie lernen.html) und Laborheft (PDF, daneben Lösung)
     if (simulationen.length) {

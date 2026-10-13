@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Lerncoach Hintergrund 13NF</title>
+<!-- Erzeugt von _werkzeuge/lerncoach_bauen.py aus _werkzeuge/lerncoach/hintergrund_vorlage.html. Nicht von Hand ändern. -->
+<style>
+:root{--seite:#f5f6f8;--flaeche:#fff;--flaeche-2:#f0f2f5;--tinte:#18212b;--leise:#5b6672;--linie:#e0e4e9;--akzent:#1f4f73;--akzent-weich:#e6eef5;
+  --stark:#1e7a46;--stark-bg:#e2f4ea;--mittel:#9a5a06;--mittel-bg:#fcf1df;--schwach:#8a3b8f;--schwach-bg:#f6e8f7}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--seite:#0f141a;--flaeche:#171e26;--flaeche-2:#1e2731;--tinte:#e8edf2;--leise:#9aa6b2;--linie:#29333e;--akzent:#8cc1ea;--akzent-weich:#1c2d3b;
+  --stark:#6fd3a0;--stark-bg:#16332a;--mittel:#f2bd6b;--mittel-bg:#3a2c16;--schwach:#e3a6e8;--schwach-bg:#35213a}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:16px}
+body{margin:0;background:var(--seite);color:var(--tinte);font-family:"Source Sans 3","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--akzent)}
+.rahmen{width:min(820px,100%);margin:0 auto;padding:0 max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left))}
+header{padding:max(24px,env(safe-area-inset-top)) 0 8px}
+.kopf-links{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.92rem;margin-bottom:12px}
+.kopf-links a{text-decoration:none;font-weight:600}
+.eyebrow{margin:0 0 4px;color:var(--leise);font-size:.82rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+h1{margin:0;font-size:1.9rem;line-height:1.2}
+.untertitel{color:var(--leise);margin:.4rem 0 0}
+nav.inhalt{background:var(--flaeche);border:1px solid var(--linie);border-radius:14px;padding:12px 18px;margin:18px 0}
+nav.inhalt h2{font-size:1rem;margin:0 0 .3rem}
+nav.inhalt ol{margin:0;padding-left:1.3rem;columns:2;column-gap:2rem}
+@media (max-width:600px){nav.inhalt ol{columns:1}}
+main section{margin:0 0 8px}
+main section>h2{font-size:1.4rem;margin:2rem 0 .5rem;padding-top:.6rem;border-top:1px solid var(--linie)}
+.kurz>:first-child{margin-top:0}.kurz>:last-child{margin-bottom:0}
+.praxis>:first-child{margin-top:0}.praxis>:last-child{margin-bottom:0}
+main h3{font-size:1.12rem;margin:1.4rem 0 .3rem}
+.beleg{display:inline-block;font-size:.75rem;font-weight:700;border-radius:999px;padding:.05rem .55rem;margin-left:.4rem;vertical-align:middle;white-space:nowrap}
+td .beleg{margin-left:0}
+.beleg.stark{background:var(--stark-bg);color:var(--stark)}
+.beleg.mittel{background:var(--mittel-bg);color:var(--mittel)}
+.beleg.schwach{background:var(--schwach-bg);color:var(--schwach)}
+.praxis{background:var(--akzent-weich);border-radius:10px;padding:.6rem .9rem;margin:.7rem 0}
+.kurz{background:var(--flaeche);border:1px solid var(--linie);border-left:4px solid var(--akzent);border-radius:10px;padding:.7rem 1rem}
+.tabelle{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.95rem;margin:.6rem 0;background:var(--flaeche)}
+th,td{border:1px solid var(--linie);padding:.45rem .55rem;text-align:left;vertical-align:top}
+th{background:var(--flaeche-2)}
+ol.literatur{padding-left:1.4rem;font-size:.93rem}
+ol.literatur li{margin:.3rem 0;overflow-wrap:anywhere}
+ol.literatur li:target{background:var(--akzent-weich)}
+section#klasse{background:var(--flaeche);border:1px solid var(--linie);border-radius:14px;padding:4px 18px 14px;margin-top:2rem}
+section#klasse>h2{border-top:none}
+footer{color:var(--leise);font-size:.85rem;padding:20px 0 40px;border-top:1px solid var(--linie);margin-top:2rem}
+@media print{.kopf-links{display:none}body{background:#fff;font-size:11pt}section#klasse,nav.inhalt{break-inside:avoid}a{color:inherit;text-decoration:none}}
+</style>
+</head>
+<body>
+<header class="rahmen">
+  <div class="kopf-links"><a href="index.html">← Zum Lerncoach</a><a href="../index.html">Übersicht der Klasse</a></div>
+  <p class="eyebrow">13NF · Physiktechnik · Lerncoach</p>
+  <h1>Warum der Lerncoach so aufgebaut ist</h1>
+  <p class="untertitel">Wissenschaftliche Begründung für Lehrkraft, Schüler und Eltern. Der allgemeine Teil gilt für alle Klassen, der letzte Abschnitt beschreibt die Klasse 13NF.</p>
+</header>
+<main class="rahmen">
+  <nav class="inhalt" aria-label="Inhalt"><h2>Inhalt</h2><ol><li><a href="#ueberblick">Kurzfassung</a></li><li><a href="#ausgangslage">Ausgangslage</a></li><li><a href="#rahmenmodell">Rahmenmodell: selbstreguliertes Lernen</a></li><li><a href="#wochenrhythmus">Übertragung auf den Wochenrhythmus</a></li><li><a href="#bausteine">Die Bausteine</a></li><li><a href="#klausurphase">Klausurphase</a></li><li><a href="#pruefungsangst">Umgang mit Prüfungsangst</a></li><li><a href="#gestaltung">Gestaltung: sachlich mit funktionalen Spielelementen</a></li><li><a href="#differenzierung">Differenzierung: Kern, Fachmodul, Klassenprofil</a></li><li><a href="#uebersicht">Übersicht: Funktionen und Belege</a></li><li><a href="#grenzen">Grenzen</a></li><li><a href="#literatur">Literatur</a></li><li><a href="#klasse">Dieser Coach in der Klasse 13NF</a></li></ol></nav>
+<section id="ueberblick">
+<h2>Kurzfassung</h2>
+<div class="kurz">
+<p>Der Lerncoach hilft Schülern, die zweimal 15 Minuten Lernzeit pro Woche wirksam zu nutzen. Er setzt vor allem auf zwei besonders gut belegte Strategien: Wissen aus dem Gedächtnis abrufen, statt es wieder zu lesen, und das Lernen über Wochen verteilen, statt kurz vor der Klausur alles nachzuholen. Dazu kommen gemischtes Üben, Lösungsbeispiele mit Selbsterklären, ein Fehlerprotokoll und Wenn-dann-Pläne. Die Ich-kann-Ampel ist nur zusammen mit Abrufkarten sinnvoll, weil Selbsteinschätzungen ohne Prüfung oft zu optimistisch sind. Vor Klausuren steigt die Lernzeit in Stufen, eine Woche vorher steht eine Probeklausur in voller Länge. Für Tipps zum Klausurtag und zur Reflexion danach ist die Forschung dünner, das Dokument sagt das jeweils dazu. Der Coach ist sachlich gestaltet, ohne Punkte und Ranglisten, und speichert alles nur im eigenen Browser. Er ergänzt den Unterricht und ersetzt ihn nicht.</p>
+</div>
+</section>
+
+<section id="ausgangslage">
+<h2>Ausgangslage</h2>
+<p>Der Coach ist für Klassen eines Berufskollegs in Nordrhein-Westfalen gedacht. Die Schüler besuchen das berufliche Gymnasium mit dem Ziel Abitur, teils zusätzlich mit Berufsabschluss als Assistent, oder die dreijährige Berufsfachschule mit Fachhochschulreife und Berufsabschluss. Sie sind in den Jahrgängen 11 bis 13. In Mathematik, Physik und Physiktechnik hat jede Woche denselben Rhythmus: 2 Stunden Lerneinheit mit einem digitalen Lernabenteuer und Ich-kann-Ampel, 1 Stunde Üben mit einem Aufgabenblatt an einem anderen Tag und zweimal 15 Minuten Lernen zu Hause.</p>
+<p>Pro Halbjahr gibt es meist zwei Klausuren von 90 bis 180 Minuten. Der Termin steht oft erst vier bis sechs Wochen vorher fest. Nur Physiktechnik ist Abschlussprüfungsfach, im Abitur oder in der Prüfung zur Fachhochschulreife, jeweils 180 Minuten im Mai oder Juni. Nach jeder Klausur gibt es eine Besprechung mit eigener Schülerseite.</p>
+<p>Die Lernzeit zu Hause ist also kurz und muss mit wirksamen Strategien gefüllt sein. Zwischen Lerneinheit und Klausur liegen oft Wochen, in denen ohne Wiederholung viel verloren geht. Außerdem lernen viele so, wie sie es gewohnt sind. In einer Befragung von 177 Studenten in den USA gaben 84 % an, Texte erneut zu lesen. Nur 11 % prüften sich selbst ab (<a href="#lit-karpicke2009">Karpicke et al. 2009</a>). Der Coach muss deshalb erklären, warum er anders vorgeht.</p>
+<p>Dieses Dokument beschreibt den gemeinsamen Kern. Bildungsgang, Halbjahresthemen und typische Fehler einer Klasse stehen in einem eigenen Teil.</p>
+</section>
+
+<section id="rahmenmodell">
+<h2>Rahmenmodell: selbstreguliertes Lernen</h2>
+<p>Der Coach folgt dem zyklischen Modell des selbstregulierten Lernens nach Zimmerman (<a href="#lit-zimmerman2002">Zimmerman 2002</a>). Gutes Lernen durchläuft danach immer wieder drei Phasen:</p>
+<ol>
+<li><strong>Vorausdenken und Planen:</strong> Ziel und Strategie wählen. „Am Dienstag nach dem Training wiederhole ich 15 Minuten die Karten zur Ableitung.“</li>
+<li><strong>Ausführen und Beobachten:</strong> Beim Abrufen fällt auf, dass die Kettenregel noch nicht sitzt.</li>
+<li><strong>Reflektieren:</strong> „Ich habe die innere Ableitung vergessen. Nächstes Mal schreibe ich innere und äußere Funktion zuerst getrennt auf.“ Das ist der Ausgangspunkt der nächsten Planung.</li>
+</ol>
+<p>Selbstreguliertes Lernen lässt sich trainieren. In einer Metaanalyse über Trainingsprogramme lag der Effekt auf die Schulleistung bei d = 0,61 in der Grundschule und bei d = 0,54 in der Sekundarstufe (<a href="#lit-dignath2008">Dignath und Büttner 2008</a>). Die Feedbackfragen nach Hattie und Timperley passen zu den Phasen: Wohin will ich? Wo stehe ich? Was ist der nächste Schritt? Lob für die Person wie „Du bist ein Mathe-Talent“ hilft dabei am wenigsten (<a href="#lit-hattie2007">Hattie und Timperley 2007</a>).</p>
+<p>Ergänzend stützt sich der Coach auf den Leitfaden der Education Endowment Foundation (EEF) zu Metakognition von 2025 (<a href="#lit-eef2025">EEF 2025</a>). Die EEF schätzt den Nutzen gut umgesetzter metakognitiver Ansätze auf etwa acht Monate zusätzlichen Lernfortschritt. Für den Coach heißt das: Strategien werden ausdrücklich gelehrt, hier über Strategiekarten mit „Wie“ und „Warum“. Sie werden mit dem Fachinhalt verknüpft, deshalb arbeitet der Coach mit den Ich-kann-Sätzen der jeweiligen Woche statt mit allgemeinen Tipps. Vormachen ist Aufgabe der Lehrkraft, der Coach dient danach als Gedächtnisstütze.</p>
+<div class="tabelle"><table>
+<thead>
+<tr><th>Bereich im Coach</th><th>Phase nach Zimmerman</th><th>Wozu</th></tr>
+</thead>
+<tbody>
+<tr><td>Meine Woche</td><td>alle Phasen</td><td>Ablauf der Woche, Wochenkette für die zwei Lernzeiten</td></tr>
+<tr><td>Ampel</td><td>Planen, Reflektieren</td><td>Ich-kann-Sätze einschätzen, Lücken erkennen</td></tr>
+<tr><td>15 Minuten</td><td>Ausführen und Beobachten</td><td>Abrufkarten aus früheren Wochen, gemischt und mit Abstand</td></tr>
+<tr><td>Fehlerprotokoll</td><td>Reflektieren, Übergang zum Planen</td><td>Fehlerart, richtige Lösung, Regel für das nächste Mal</td></tr>
+<tr><td>Klausur</td><td>alle Phasen</td><td>Rückwärtsplan, Probeklausur, Klausurtag, Reflexion</td></tr>
+<tr><td>Abschlussprüfung</td><td>Planen</td><td>Langzeitplan über Monate, nur Physiktechnik</td></tr>
+<tr><td>Strategiekarten</td><td>Planen</td><td>Wissen, wie Strategien gehen und warum sie wirken</td></tr>
+<tr><td>Wenn-dann-Pläne</td><td>Planen, Übergang zum Ausführen</td><td>Zeit, Ort und Anlass der Lernzeiten festlegen</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section id="wochenrhythmus">
+<h2>Übertragung auf den Wochenrhythmus</h2>
+<p>Jeder Inhalt soll mehrmals und mit Abstand wiederkommen. Beispiel: Die Kettenregel wird am Montag in der Lerneinheit eingeführt, am Mittwoch geübt, am Donnerstag und Sonntag zu Hause abgerufen und taucht danach immer wieder im Kartenkasten auf.</p>
+<div class="tabelle"><table>
+<thead>
+<tr><th>Zeitpunkt</th><th>Was der Schüler tut</th><th>Strategie</th><th>Bereich im Coach</th></tr>
+</thead>
+<tbody>
+<tr><td>vor der Lerneinheit (2–3 min)</td><td>Ampel der Vorwoche ansehen, offene Frage notieren</td><td>Planen</td><td>Meine Woche, Ampel</td></tr>
+<tr><td>Lerneinheit (2 h)</td><td>neuen Inhalt erarbeiten, Lösungsbeispiele erklären, Ampel setzen</td><td>Lösungsbeispiele, Selbsterklären</td><td>Lernabenteuer, Ampel</td></tr>
+<tr><td>Übungsstunde (1 h, anderer Tag)</td><td>Aufgaben ohne Vorlage beginnen, gemischt üben, Fehler festhalten</td><td>Abruf, Mischen, Lernen aus Fehlern</td><td>Fehlerprotokoll</td></tr>
+<tr><td>Lernzeit 1 (15 min)</td><td>Abrufkarten aus früheren Wochen, danach Ampel prüfen</td><td>Abruf, Verteilen, Kalibrierung</td><td>15 Minuten, Ampel</td></tr>
+<tr><td>Lernzeit 2 (15 min)</td><td>Abrufkarten, eine Aufgabe aus dem Fehlerprotokoll neu lösen, Wochenkette abhaken</td><td>Abruf, Lernen aus Fehlern</td><td>15 Minuten, Fehlerprotokoll</td></tr>
+</tbody>
+</table></div>
+<p>Die Lernzeiten liegen am besten ein oder zwei Tage nach Lerneinheit und Übungsstunde. Dann kostet das Abrufen etwas Mühe, und gerade das macht das Gelernte haltbarer (<a href="#lit-soderstrom2015">Soderstrom und Bjork 2015</a>). Wann sie stattfinden, legen die <a href="#planung">Wenn-dann-Pläne</a> fest.</p>
+</section>
+
+<section id="bausteine">
+<h2>Die Bausteine</h2>
+<p>„Stark belegt“ heißt: Mehrere Metaanalysen oder große Studien im Unterricht kommen zum selben Ergebnis. „Mittel belegt“ heißt: Es gibt gute Studien, aber weniger einheitliche Ergebnisse oder überwiegend Laborbefunde. „Schwach belegt“ heißt: wenige, kleine oder widersprüchliche Studien.</p>
+
+<h3 id="abruf">Abrufübung</h3>
+<span class="beleg stark">stark belegt</span>
+<p>Wer Wissen aus dem Gedächtnis holt, behält es länger als jemand, der dieselbe Zeit mit Wiederlesen verbringt. In einem klassischen Versuch lasen Studenten einen Sachtext und schrieben danach auf, was sie noch wussten, oder lasen ihn erneut (<a href="#lit-roediger2006">Roediger und Karpicke 2006</a>). Nach fünf Minuten lag das Wiederlesen vorn, nach zwei Tagen und nach einer Woche das Abrufen. Die Gruppe mit dem Wiederlesen fühlte sich trotzdem sicherer. Im echten Unterricht fand eine Metaanalyse über 222 Studien mit mehr als 48 000 Teilnehmern für Quizfragen einen mittleren Effekt von g = 0,50 in allen Schulstufen (<a href="#lit-yang2021">Yang et al. 2021</a>). <a href="#lit-dunlosky2013">Dunlosky et al. 2013</a> geben der Abrufübung unter zehn verbreiteten Lernstrategien die beste Bewertung. Nach dem Abrufen muss die Lösung geprüft werden, sonst bleiben Fehler unbemerkt (<a href="#lit-miyatsu2018">Miyatsu et al. 2018</a>).</p>
+<p>In Mathematik und Physik zielen gute Karten auf Verfahren und Deutungen: „Wie bestimmst du Extremstellen? Nenne die Schritte.“ Oder: „Ein Auto bremst gleichmäßig. Wie sieht das v-t-Diagramm aus, und warum?“</p>
+<div class="praxis"><strong>Im Coach:</strong> Im Bereich „15 Minuten“ wird jede Karte erst im Kopf oder auf Papier beantwortet, dann aufgedeckt und verglichen. Ob sie gewusst wurde, bestimmt, wann sie wiederkommt.</div>
+
+<h3 id="verteilt">Verteiltes Lernen</h3>
+<span class="beleg stark">stark belegt</span>
+<p>Dieselbe Lernzeit bringt mehr, wenn sie auf mehrere Termine verteilt wird. Der günstigste Abstand hängt davon ab, wie lange man sich etwas merken will (<a href="#lit-cepeda2006">Cepeda et al. 2006</a>). In einer Studie mit mehr als 1 350 Teilnehmern gilt: Lag der Test eine Woche nach der Wiederholung, war ein Abstand von etwa 20–40 % dieser Woche am besten. Lag er ein Jahr danach, waren es 5–10 % des Jahres. Ein etwas zu langer Abstand schadete weniger als ein zu kurzer (<a href="#lit-cepeda2008">Cepeda et al. 2008</a>). Für eine Klausur in fünf Wochen heißt das: Wiederholungen im Abstand von einigen Tagen bringen mehr als alles am letzten Wochenende. Beim Lernen mit Karteikarten war verteiltes Lernen bei 90 % der Teilnehmer wirksamer, trotzdem hielten 72 % das geballte Lernen für besser (<a href="#lit-kornell2009">Kornell 2009</a>). Frischer Stoff fühlt sich nach Können an, dieses Gefühl täuscht (<a href="#lit-soderstrom2015">Soderstrom und Bjork 2015</a>).</p>
+<p>Der Kartenkasten folgt der Idee von Leitner (<a href="#lit-leitner1972">Leitner 1972</a>). Gewusste Karten rücken ein Fach weiter, nicht gewusste gehen zurück ins erste Fach. Wiederholtes Abrufen über mehrere Sitzungen verbesserte in Studien die Ergebnisse in Kursklausuren und das langfristige Behalten (<a href="#lit-rawson2013">Rawson et al. 2013</a>). Offen ist der beste Zeitplan. Eine Metaanalyse fand einen großen Vorteil für verteiltes gegenüber geballtem Abrufen (g = 0,74), aber keinen Vorteil wachsender gegenüber gleich bleibenden Abständen (<a href="#lit-latimier2021">Latimier et al. 2021</a>). Die Fächer sind also eine Faustregel und kein exakt belegtes Rezept.</p>
+<div class="praxis"><strong>Im Coach:</strong> Die 15 Minuten ziehen Karten aus allen bisherigen Wochen. Nicht gewusste Karten und Karten zu roten Ich-kann-Sätzen kommen früher wieder, sicher gewusste seltener. Der Abstand entsteht so automatisch.</div>
+
+<h3 id="mischen">Gemischtes Üben</h3>
+<span class="beleg mittel">mittel belegt</span>
+<p>Beim gemischten Üben, im Englischen Interleaving, wechseln sich Aufgabentypen ab. Produkt-, Ketten- und Quotientenregel kommen durcheinander statt zehnmal Kettenregel hintereinander. So muss man bei jeder Aufgabe zuerst entscheiden, welches Verfahren passt, genau wie in der Klausur. In einer Studie mit 787 Schülern aus 54 Mathematikklassen der 7. Jahrgangsstufe in Florida übten die Klassen vier Monate gemischt oder geblockt. Im unangekündigten Test einen Monat später erreichte die gemischte Gruppe 61 % der Punkte, die geblockte 38 % (d = 0,83, <a href="#lit-rohrer2020">Rohrer et al. 2020</a>). Eine Metaanalyse über 59 Studien fand einen mittleren Vorteil von g = 0,42, aber mit großer Streuung (<a href="#lit-brunmair2019">Brunmair und Richter 2019</a>). Mischen half vor allem bei leicht verwechselbaren Aufgabentypen, für Mathematik fand sich ein kleiner positiver Effekt.</p>
+<p>Gemischtes Üben fühlt sich schwerer an. Viele halten anstrengende Strategien deshalb für weniger wirksam, obwohl sie langfristig mehr bringen (<a href="#lit-kirkjohnson2019">Kirk-Johnson et al. 2019</a>). Gemischt wird erst, wenn ein Aufgabentyp eingeführt ist.</p>
+<div class="praxis"><strong>Im Coach:</strong> Die Karten stammen aus verschiedenen Wochen, ab drei Wochen vor einer Klausur aus allen Klausurwochen. Eine Strategiekarte erklärt, dass mehr Fehler beim Mischen normal sind.</div>
+
+<h3 id="beispiele">Lösungsbeispiele und Selbsterklären</h3>
+<span class="beleg stark">stark belegt</span>
+<p>Bei einem neuen Verfahren lernt man zunächst mehr aus vollständig gelösten Beispielen als aus eigenem Probieren. Beim Lösen ohne Vorlage verbraucht die Suche nach dem Weg so viel Arbeitsgedächtnis, dass für das Verstehen wenig bleibt (<a href="#lit-sweller2019">Sweller et al. 2019</a>). Eine Metaanalyse über 55 Studien zur Mathematik fand für Lösungsbeispiele einen mittleren Vorteil (<a href="#lit-barbieri2023">Barbieri et al. 2023</a>). Der Vorteil gilt am Anfang. Bei Fortgeschrittenen können ausführliche Beispiele sogar stören (<a href="#lit-kalyuga2003">Kalyuga et al. 2003</a>). Deshalb werden Lösungsschritte nach und nach ausgeblendet, das sogenannte Fading: Erst fehlt der letzte Schritt, dann fehlen zwei, bis die Aufgabe ganz selbst gelöst wird (<a href="#lit-renkl2003">Renkl und Atkinson 2003</a>).</p>
+<p>Ein Beispiel wirkt nur, wenn man es aktiv durcharbeitet. Chi und Kollegen beobachteten acht Studenten beim Durcharbeiten von Lösungsbeispielen zur Mechanik (<a href="#lit-chi1989">Chi et al. 1989</a>). Die erfolgreichen erklärten sich jeden Schritt selbst, die weniger erfolgreichen lasen nur. In einer Metaanalyse über 64 Forschungsberichte erreichte angeleitetes Selbsterklären g = 0,55 (<a href="#lit-bisra2018">Bisra et al. 2018</a>). Fading zusammen mit Fragen zum Selbsterklären verbesserte das Lösen ähnlicher und neuer Aufgaben, ohne mehr Zeit zu kosten (<a href="#lit-atkinson2003">Atkinson et al. 2003</a>). Die Einstufung „stark“ gilt vor allem für Lösungsbeispiele bei Anfängern, Selbsterklären allein bewerten <a href="#lit-dunlosky2013">Dunlosky et al. 2013</a> als mittel.</p>
+<div class="praxis"><strong>Im Coach:</strong> Lösungsbeispiele stehen im Lernabenteuer und auf dem Aufgabenblatt. Eine Strategiekarte nennt Fragen zum Selbsterklären: Welche Regel steckt in diesem Schritt? Warum gerade hier? Beim waagerechten Wurf etwa: Warum wird die Bewegung in zwei Richtungen zerlegt?</div>
+
+<h3 id="ampel">Selbsteinschätzung und Kalibrierung</h3>
+<span class="beleg mittel">mittel belegt</span>
+<p>Die Ampel hilft beim Planen, aber nur, wenn die Einschätzung stimmt. Das ist oft nicht der Fall. Studenten sagten ihre Klausurergebnisse selbst nach 13 Klausuren in einem Semester zu optimistisch voraus (<a href="#lit-foster2017">Foster et al. 2017</a>). Wer sich überschätzt, hört zu früh auf zu lernen und behält weniger (<a href="#lit-dunlosky2012">Dunlosky und Rawson 2012</a>).</p>
+<p>Zwei Dinge machen Einschätzungen genauer. Urteile mit etwas Abstand zum Lernen sind deutlich treffsicherer als Urteile direkt danach (<a href="#lit-rhodes2011">Rhodes und Tauber 2011</a>). Außerdem schätzt sich realistischer ein, wer die eigene Antwort Punkt für Punkt mit der Musterlösung vergleicht (<a href="#lit-dunlosky2012">Dunlosky und Rawson 2012</a>). Deshalb steht die Ampel nie allein. Ein Ich-kann-Satz wie „Ich kann die Steigung einer Tangente berechnen“ ist mit Abrufkarten verbunden. Grün ist erst berechtigt, wenn diese Karten ohne Hilfe gelingen. Dass einem die Seite im Heft bekannt vorkommt, reicht nicht.</p>
+<div class="praxis"><strong>Im Coach:</strong> Die Ampel aus der Lerneinheit ist eine erste Einschätzung. Nach jeder Lernzeit stellt der Coach die Farbe neben das Ergebnis der zugehörigen Karten und fragt, ob sie noch stimmt.</div>
+
+<h3 id="fehler">Fehlerprotokoll</h3>
+<span class="beleg mittel">mittel belegt</span>
+<p>Fehler helfen beim Lernen, wenn eine Korrektur folgt. Wer erst einen Fehler macht und dann die richtige Lösung bekommt, lernt oft besser als jemand, der Fehler von vornherein vermeidet. Fehler, bei denen man sich sicher war, werden besonders gut korrigiert (<a href="#lit-metcalfe2017">Metcalfe 2017</a>). Rückmeldungen bringen umso mehr, je mehr Information sie enthalten (<a href="#lit-wisniewski2020">Wisniewski et al. 2020</a>). Das Fehlerprotokoll hält diese Information fest: Fehlerart, richtige Lösung und eine Regel. Die Fehlerarten sind:</p>
+<ul>
+<li><strong>Lesen und Operator:</strong> bei „Begründe“ nur gerechnet</li>
+<li><strong>Verfahren:</strong> Produkt- statt Kettenregel, Energieerhaltung ohne Reibungsarbeit</li>
+<li><strong>Rechnen:</strong> Vorzeichen, Klammer, Taschenrechner, Einheit</li>
+<li><strong>Deuten:</strong> negative Geschwindigkeit als Fehler statt als Bewegung in Gegenrichtung gedeutet</li>
+<li><strong>Darstellung:</strong> Lösungsweg nicht nachvollziehbar, Achsen unbeschriftet</li>
+<li><strong>Zeit:</strong> Aufgabe nicht geschafft, zu lange an einer Teilaufgabe gehangen</li>
+</ul>
+<p>Die Regel ist der wichtigste Teil. „Besser aufpassen“ ist keine Regel. „Bei verketteten Funktionen schreibe ich zuerst innere und äußere Funktion auf“ ist eine. Wer vor allem Zeitfehler hat, braucht eine andere Vorbereitung als jemand mit Verfahrensfehlern. Das Protokoll als Werkzeug ist kaum eigens untersucht, seine Bestandteile beruhen auf der Forschung zu Fehlern und Rückmeldung.</p>
+<div class="praxis"><strong>Im Coach:</strong> Fehler aus Übungsstunde, Probeklausur und Klausurbesprechung kommen ins Protokoll, Einträge ohne Regel bleiben offen. In der zweiten Lernzeit wird eine Aufgabe daraus neu gelöst. Vor Klausuren zeigt der Coach die häufigsten Fehlerarten.</div>
+
+<h3 id="planung">Wenn-dann-Pläne</h3>
+<span class="beleg mittel">mittel belegt</span>
+<p>Gute Vorsätze scheitern oft am Anfangen. „Mehr für Physik tun“ legt nicht fest, wann und wo. Ein Wenn-dann-Plan verbindet eine Situation mit einer Handlung: „Wenn ich am Dienstag aus dem Bus steige, dann mache ich am Schreibtisch 15 Minuten Abrufkarten.“ Eine Metaanalyse über 94 unabhängige Tests fand für solche Pläne einen mittleren bis großen Effekt von d = 0,65 auf das Erreichen von Zielen (<a href="#lit-gollwitzer2006">Gollwitzer und Sheeran 2006</a>). Die Studien stammen aus vielen Lebensbereichen, speziell zum Lernen zu Hause gibt es weniger. Hilfreich ist ein zweiter Plan für das wahrscheinlichste Hindernis: „Wenn mich jemand anruft, dann rufe ich nach den 15 Minuten zurück.“</p>
+<div class="praxis"><strong>Im Coach:</strong> Für beide Lernzeiten werden Zeit, Ort und Anlass festgelegt, dazu ein Plan für ein Hindernis. Reißt die Wochenkette mehrmals ab, schlägt der Coach vor, den Plan zu ändern, statt nur den Vorsatz zu erneuern.</div>
+
+<h3 id="wenig">Was wenig bringt</h3>
+<span class="beleg stark">stark belegt</span>
+<p>Markieren, Wiederlesen und Zusammenfassen sind beliebt, bekommen bei <a href="#lit-dunlosky2013">Dunlosky et al. 2013</a> aber nur eine geringe Nutzenbewertung. Gut belegt ist vor allem der Vergleich: Dieselbe Zeit mit Abrufen oder verteiltem Üben bringt deutlich mehr. Wiederlesen erzeugt Vertrautheit, die leicht mit Können verwechselt wird (<a href="#lit-roediger2006">Roediger und Karpicke 2006</a>). Zusammenfassen kann helfen, braucht aber Übung und Zeit. In Mathematik und Physik kommt hinzu, dass sich ein Lösungsweg, der beim Lesen einleuchtet, deshalb noch lange nicht selbst aufschreiben lässt. Wer drei gelöste Aufgaben zum Induktionsgesetz durchliest, merkt womöglich erst in der Klausur, dass ihm der erste Schritt fehlt. Verboten sind diese Methoden nicht. Lesen wird wirksamer, wenn man danach das Heft schließt und aus dem Kopf aufschreibt (<a href="#lit-miyatsu2018">Miyatsu et al. 2018</a>).</p>
+<div class="praxis"><strong>Im Coach:</strong> Der Coach hat keine Funktion zum Wiederlesen. Eine Strategiekarte zeigt die bessere Variante: Abschnitt lesen, Heft zu, aufschreiben, vergleichen.</div>
+</section>
+
+<section id="klausurphase">
+<h2>Klausurphase</h2>
+
+<h3 id="rueckwaertsplan">Rückwärtsplan und Steigerung der Lernzeit</h3>
+<span class="beleg mittel">mittel belegt</span>
+<p>Menschen unterschätzen regelmäßig, wie lange sie für eine Aufgabe brauchen, auch im Studium (<a href="#lit-buehler1994">Buehler et al. 1994</a>). Ein Rückwärtsplan beginnt beim Klausurtermin und legt fest, was in jeder Woche passiert. Die Stufen folgen aus den Bausteinen, die Minuten sind eine praktische Setzung.</p>
+<div class="tabelle"><table>
+<thead>
+<tr><th>Zeitpunkt</th><th>Lernzeit</th><th>Inhalt</th></tr>
+</thead>
+<tbody>
+<tr><td>normale Woche</td><td>2 × 15 min</td><td>Abrufkarten aus früheren Wochen, Fehlerprotokoll</td></tr>
+<tr><td>Termin bekannt (4–6 Wochen vorher)</td><td>2 × 15 min</td><td>Datum, Dauer und Wochen eintragen, Bestandsaufnahme: Ich-kann-Sätze der Klausurwochen mit Karten prüfen, Ampel anpassen</td></tr>
+<tr><td>3 Wochen vorher</td><td>3 × 20 min</td><td>gemischt aus allen Klausurwochen, Schwerpunkt auf roten und gelben Sätzen</td></tr>
+<tr><td>2 Wochen vorher</td><td>3 × 30 min</td><td>eine Einheit mit Klausuraufgaben unter Zeitdruck, dazu Abruf und Fehlerprotokoll</td></tr>
+<tr><td>1 Woche vorher</td><td>Probeklausur in voller Länge, 2 × 20 min</td><td>Probeklausur schreiben und korrigieren, danach ihre Fehler im Protokoll bearbeiten</td></tr>
+<tr><td>Tag davor</td><td>20 min</td><td>leichter Abruf, kein neuer Stoff, früh schlafen</td></tr>
+</tbody>
+</table></div>
+<p>Wer regelmäßig gelernt hat, braucht keine Nachtschicht. Wer spät einsteigt, holt die Bestandsaufnahme sofort nach und beginnt mit den roten Sätzen.</p>
+
+<h3 id="probeklausur">Probeklausur unter echten Bedingungen</h3>
+<span class="beleg mittel">mittel belegt</span>
+<p>Eine Probeklausur ist Abrufübung in Prüfungsform. Nach einer Metaanalyse über 118 Artikel bringen Übungstests mehr als Wiederlesen und als alle anderen untersuchten Vergleichsbedingungen (<a href="#lit-adesope2017">Adesope et al. 2017</a>). Der Nutzen hängt auch davon ab, wie gut Übung und Prüfung im Format zusammenpassen (<a href="#lit-yang2021">Yang et al. 2021</a>). Echte Bedingungen heißt deshalb: am Stück, mit Uhr, nur mit erlaubten Hilfsmitteln und ohne Handy. Danach wird korrigiert, und jeder Punktverlust kommt ins Fehlerprotokoll. Eine Woche Abstand lässt Zeit, Lücken zu schließen. Probeklausuren stehen auf der Übersichtsseite der Klasse.</p>
+
+<h3 id="klausurtag">Klausurtag</h3>
+<span class="beleg schwach">schwach belegt</span>
+<p>Zum Klausurtag selbst gibt es wenig direkte Forschung. Die Routine verbindet einen kleinen Befund mit praktischen Regeln:</p>
+<ol>
+<li><strong>Zwei Minuten Sorgen aufschreiben.</strong> Die Begründung steht im Abschnitt <a href="#pruefungsangst">Umgang mit Prüfungsangst</a>.</li>
+<li><strong>Alle Aufgaben überfliegen.</strong> So fallen leichte Aufgaben auf, und keine einfache Teilaufgabe bleibt am Ende liegen.</li>
+<li><strong>Zeitplan nach Punkten.</strong> Bei 180 Minuten, 100 Punkten und 10 Minuten Reserve zum Kontrollieren bleiben 1,7 Minuten pro Punkt. Eine Aufgabe mit 15 Punkten bekommt also etwa 25 Minuten. Wer deutlich darüber liegt, geht weiter und kommt später zurück.</li>
+</ol>
+<p>Diese Regeln sind verbreitet und plausibel, aber kaum in kontrollierten Studien geprüft.</p>
+
+<h3 id="reflexion">Reflexion nach der Klausur</h3>
+<span class="beleg schwach">schwach belegt</span>
+<p>Nach der Rückgabe denken die meisten nur an die Note. Lovett schlug einen kurzen Reflexionsbogen vor, einen sogenannten Exam Wrapper (<a href="#lit-lovett2013">Lovett 2013</a>). Der Coach stellt drei Fragen:</p>
+<ol>
+<li>Wie habe ich mich vorbereitet, und wie viel Zeit habe ich wirklich investiert?</li>
+<li>Welche Arten von Fehlern habe ich gemacht, und wo habe ich die meisten Punkte verloren?</li>
+<li>Was mache ich vor der nächsten Klausur anders?</li>
+</ol>
+<p>Die Idee verbindet Reflexion und nächste Planung, die Belege sind aber dünn. Lovett berichtet, dass Studenten nach mehr Reflexionsbögen häufiger wirksame Strategien nutzten. Eine kontrollierte Studie mit 86 Studenten fand dagegen keinen Effekt auf Klausurergebnisse, Endnoten oder metakognitive Fähigkeiten, wenn die Bögen in nur einem Kurs eingesetzt wurden (<a href="#lit-soicher2017">Soicher und Gurung 2017</a>). Der Coach nutzt die Reflexion trotzdem, weil sie wenig Zeit kostet. Ihr Wert entsteht erst, wenn die Antwort auf die dritte Frage im nächsten Rückwärtsplan auftaucht.</p>
+<div class="praxis"><strong>Im Coach:</strong> Der Bereich „Klausur“ erstellt aus Datum, Dauer und Klausurwochen den Rückwärtsplan und erinnert an die Probeklausur. Nach der Besprechung werden die drei Fragen beantwortet. Die Antwort auf die dritte Frage erscheint wieder, sobald der nächste Termin eingetragen wird.</div>
+
+<h3 id="abschluss">Abschlussprüfung über mehrere Monate</h3>
+<span class="beleg mittel">mittel belegt</span>
+<p>In Physiktechnik umfasst die Abschlussprüfung den Stoff mehrerer Halbjahre, zwischen erstem Thema und Prüfung liegen also viele Monate. Nach <a href="#lit-cepeda2008">Cepeda et al. 2008</a> liegt der beste Abstand zwischen Wiederholungen bei einem Behaltensintervall von einem Jahr bei 5–10 % dieser Zeit, also bei etwa zweieinhalb bis fünf Wochen. Ältere Themen sollten deshalb alle paar Wochen abgerufen werden, lange vor der eigentlichen Prüfungsvorbereitung (<a href="#lit-rawson2013">Rawson et al. 2013</a>). Der Langzeitplan sieht etwa so aus:</p>
+<ul>
+<li><strong>vom ersten Prüfungsthema bis drei Monate vorher:</strong> einmal im Monat eine zusätzliche Lernzeit mit gemischten Karten aus allen früheren Halbjahren</li>
+<li><strong>etwa drei Monate vorher:</strong> Bestandsaufnahme aller Prüfungsthemen, Themenplan nach Wochen, pro Woche eine frühere Prüfungsaufgabe</li>
+<li><strong>letzte vier bis sechs Wochen:</strong> wie der Rückwärtsplan einer Klausur, mit mindestens einer Probeprüfung von 180 Minuten</li>
+</ul>
+<p>Die Bausteine sind gut belegt, der Plan als Ganzes ist nicht in einer Studie geprüft.</p>
+</section>
+
+<section id="pruefungsangst">
+<h2>Umgang mit Prüfungsangst</h2>
+<p>Etwas Aufregung ist normal. Starke Prüfungsangst hängt aber mit schlechteren Leistungen zusammen, wie eine Metaanalyse über 238 Studien zeigt (<a href="#lit-vonderembse2018">von der Embse et al. 2018</a>). Bei starker, anhaltender Angst ersetzt der Coach kein Gespräch mit einer Lehrkraft oder der Beratung an der Schule.</p>
+
+<h3 id="vorbereitung">Vorbereitung als bester Schutz</h3>
+<span class="beleg mittel">mittel belegt</span>
+<p>Ein wichtiger Schutz ist das begründete Gefühl, vorbereitet zu sein. In einer Befragung von 1 408 Schülern aus Middle School und Highschool in den USA gaben 72 % an, dass regelmäßige Abrufübungen im Unterricht sie vor Tests weniger nervös machten (<a href="#lit-agarwal2014">Agarwal et al. 2014</a>). Das ist eine Selbstauskunft und keine gemessene Angst. Es passt aber dazu, dass Abrufen und Probeklausur schon vorher zeigen, was man kann.</p>
+
+<h3 id="sorgen">Sorgen aufschreiben</h3>
+<span class="beleg schwach">schwach belegt</span>
+<p>Ramirez und Beilock ließen Schüler der 9. Klasse vor der Abschlussklausur ihres Biologiekurses zehn Minuten lang aufschreiben, was sie beunruhigt (<a href="#lit-ramirez2011">Ramirez und Beilock 2011</a>). Eine Vergleichsgruppe schrieb über ein anderes Thema. Dort schnitten ängstlichere Schüler schlechter ab, in der Schreibgruppe dagegen etwa so gut wie die weniger ängstlichen. Sorgen belegen nach den Autoren Arbeitsgedächtnis, Aufschreiben entlastet es. Die Stichproben waren mit 51 und 55 Schülern klein, und spätere Studien fanden den Effekt nicht immer. Der Coach sieht nur zwei Minuten vor, weil in einer Klausur keine zehn Minuten frei sind. Ob die kurze Form wirkt, ist nicht untersucht. Wer nicht aufgeregt ist, überspringt den Schritt.</p>
+
+<h3 id="neubewertung">Aufregung neu bewerten</h3>
+<span class="beleg schwach">schwach belegt</span>
+<p>Herzklopfen vor einer Klausur wird oft als Zeichen gedeutet, dass etwas schiefgeht. Jamieson und Kollegen sagten Studenten vor einem Übungstest für den amerikanischen Zulassungstest GRE, dass körperliche Erregung die Leistung verbessern kann (<a href="#lit-jamieson2010">Jamieson et al. 2010</a>). Diese Gruppe schnitt im Mathematikteil besser ab, im Übungstest und ein bis drei Monate später im echten Test. Das ist eine einzelne Studie. Der Coach formuliert deshalb vorsichtig: „Aufregung heißt, dass dein Körper sich auf eine Leistung einstellt. Sie ist kein Zeichen, dass du scheitern wirst.“</p>
+
+<h3 id="schlaf">Schlaf</h3>
+<span class="beleg stark">stark belegt</span>
+<p>Im Schlaf festigt das Gehirn, was tagsüber gelernt wurde, Fakten ebenso wie Abläufe (<a href="#lit-diekelmann2010">Diekelmann und Born 2010</a>). In einer Tagebuchstudie mit 535 Jugendlichen hatten Schüler nach Nächten, in denen sie fürs Lernen weniger geschlafen hatten als sonst, am nächsten Tag mehr Mühe, dem Unterricht zu folgen, und häufiger Schwierigkeiten bei Aufgaben oder Tests (<a href="#lit-gillenoneel2013">Gillen-O’Neel et al. 2013</a>). Für 13- bis 18-Jährige empfiehlt die amerikanische Fachgesellschaft für Schlafmedizin 8–10 Stunden Schlaf pro Tag (<a href="#lit-paruthi2016">Paruthi et al. 2016</a>). „Stark“ gilt für den Zusammenhang von Schlaf und Gedächtnis, Studien direkt zur Nacht vor einer Klausur sind seltener.</p>
+<div class="praxis"><strong>Im Coach:</strong> Am Tag vor der Klausur stehen nur leichter Abruf und der Hinweis auf frühes Schlafen. Die Klausurtag-Routine beginnt mit den zwei Minuten für Sorgen. Eine Strategiekarte erklärt die Neubewertung von Aufregung.</div>
+</section>
+
+<section id="gestaltung">
+<h2>Gestaltung: sachlich mit funktionalen Spielelementen</h2>
+
+<h3 id="spielelemente">Spielelemente mit Funktion</h3>
+<span class="beleg mittel">mittel belegt</span>
+<p>Eine Metaanalyse fand für Gamification kleine Effekte: g = 0,49 auf kognitive Lernergebnisse, g = 0,36 auf Motivation und g = 0,25 auf Verhalten (<a href="#lit-sailer2020">Sailer und Homner 2020</a>). Nur der kognitive Effekt blieb in methodisch strengen Studien stabil. Eine Spielgeschichte und Wettbewerb zusammen mit Zusammenarbeit verstärkten vor allem den Effekt auf das Verhalten. Daraus folgt nicht, dass jedes Spielelement hilft. Der Coach behält nur Elemente mit klarer Funktion. Die Ampel zeigt den Stand und steuert die Kartenauswahl. Die Wochenkette zeigt, ob beide Lernzeiten stattfinden, und zählt Wochen statt Tage. Der Fortschritt zeigt, wie viele Karten sicher sitzen. Geschichte und Spiel gehören, wo eine Klasse sie nutzt, ins Lernabenteuer im Unterricht. Im Coach würden sie in 15 Minuten Zeit kosten, die dem Abrufen fehlt (siehe <a href="#ablenkung">dekorative Zusätze</a>).</p>
+
+<h3 id="ranglisten">Keine Punkte, Ränge oder Ranglisten</h3>
+<span class="beleg mittel">mittel belegt</span>
+<p>Nach der Selbstbestimmungstheorie entsteht dauerhafte Motivation, wenn sich Menschen als kompetent, selbstbestimmt und sozial eingebunden erleben (<a href="#lit-ryan2000">Ryan und Deci 2000</a>). Eine Metaanalyse über 128 Studien fand, dass erwartete greifbare Belohnungen die Bereitschaft senkten, sich freiwillig weiter mit einer Sache zu beschäftigen. Positive, informierende Rückmeldung steigerte sie dagegen (d = 0,33 für freiwillige Beschäftigung, d = 0,31 für Interesse, <a href="#lit-deci1999">Deci et al. 1999</a>). Punkte sind keine greifbaren Belohnungen wie Geld, der Befund lässt sich nicht eins zu eins übertragen. Er spricht aber für informierende Rückmeldungen: „8 von 10 Karten zur Kettenregel gewusst“ statt „+80 Punkte“.</p>
+<p>Ranglisten rücken den Vergleich mit anderen in den Vordergrund. In einer Studie über ein Semester hatten Studenten in einem Kurs mit Rangliste und Abzeichen am Ende eine geringere intrinsische Motivation und schlechtere Ergebnisse in der Abschlussklausur als in einem sonst gleichen Kurs (<a href="#lit-hanus2015">Hanus und Fox 2015</a>). Das ist eine einzelne Studie. Sie passt aber zu einer einfachen Überlegung: In jeder Rangliste steht die Hälfte der Klasse in der unteren Hälfte, egal wie viel sie gelernt hat. Der Coach vergleicht deshalb nur mit dem eigenen früheren Stand.</p>
+
+<h3 id="ablenkung">Keine dekorativen Zusätze</h3>
+<span class="beleg mittel">mittel belegt</span>
+<p>Interessante, aber für das Lernziel unnötige Zusätze heißen in der Forschung Seductive Details, etwa eine lustige Anekdote ohne Bezug zum Inhalt. Nach einer Metaanalyse verschlechtern sie das Behalten und die Übertragung auf neue Aufgaben (<a href="#lit-rey2012">Rey 2012</a>). Eine spätere Metaanalyse über 58 Studien bestätigt einen kleinen bis mittleren negativen Effekt (<a href="#lit-sundararajan2020">Sundararajan und Adesope 2020</a>). Die meisten Studien dauerten nur wenige Minuten und sind damit gut mit einer Lernzeit von 15 Minuten vergleichbar. Der Coach verzichtet in den Lernzeiten auf Figuren und Animationen.</p>
+
+<h3 id="datenschutz">Daten nur im Browser</h3>
+<p>Alle Eingaben bleiben im Browser des eigenen Geräts. Es gibt kein Konto und keine Übertragung, auch die Lehrkraft sieht nichts. Das folgt dem Grundsatz der Datenminimierung aus der Datenschutz-Grundverordnung (<a href="#lit-eu2016">Verordnung (EU) 2016/679</a>). Außerdem hat niemand einen Grund, die Ampel schöner zu färben, wenn keiner mitliest. Das ist eine Überlegung und kein Forschungsbefund. Der Nachteil: Löscht der Browser seine Daten oder wechselt man das Gerät, ist alles weg. Deshalb gibt es die Sicherung als Datei.</p>
+</section>
+
+<section id="differenzierung">
+<h2>Differenzierung: Kern, Fachmodul, Klassenprofil</h2>
+<p>Der Coach hat drei Schichten, weil Lernstrategien nach dem EEF-Leitfaden besser wirken, wenn sie mit dem Fachinhalt verknüpft sind (<a href="#lit-eef2025">EEF 2025</a>). Ein Rat wie „Wiederhole regelmäßig“ bleibt oft folgenlos. Eine Karte wie „Skizziere das Feldlinienbild zweier gleichnamiger Ladungen“ führt direkt zum Abrufen.</p>
+
+<h3 id="kern">Kern</h3>
+<p>Für alle Klassen gleich sind Kartenkasten, Ampel, Fehlerprotokoll mit sechs Fehlerarten, Wenn-dann-Pläne, Rückwärtsplan, Klausurtag-Routine und Reflexion. Die Strategiekarten verweisen auf dieses Dokument.</p>
+
+<h3 id="mathematik">Fachmodul Mathematik</h3>
+<p>Die Karten zielen auf Verfahren und Grundvorstellungen. Grundvorstellungen sind tragfähige Bedeutungen eines Begriffs, etwa die Ableitung als lokale Änderungsrate (<a href="#lit-vomhofe2016">vom Hofe und Blum 2016</a>). Neben „Berechne f′(2)“ fragt eine Karte deshalb: „f(t) gibt den Wasserstand in Zentimetern nach t Minuten an. Was bedeutet f′(2) = −3?“ Für Aufgaben ohne vorgegebenen Lösungsweg nutzt das Fachmodul die vier Phasen nach Pólya: Aufgabe verstehen, Plan ausdenken, Plan ausführen, Rückschau halten (<a href="#lit-polya1945">Pólya 1945</a>). Mischen ist besonders sinnvoll, weil sich viele Aufgabentypen ähneln, etwa Nullstellen, Extremstellen und Wendestellen.</p>
+
+<h3 id="physik">Fachmodul Physik</h3>
+<p>Schüler bringen Vorstellungen aus dem Alltag mit, die der Physik oft widersprechen, etwa dass ein Körper nur in Bewegung bleibt, solange eine Kraft in Bewegungsrichtung wirkt. Solche Schülervorstellungen sind gut erforscht und verschwinden nicht durch einmaliges Erklären (<a href="#lit-schecker2018">Schecker et al. 2018</a>, <a href="#lit-duit2003">Duit und Treagust 2003</a>). Karten fragen deshalb gezielt danach: „Ein Ball fliegt nach dem Wurf nach oben. Welche Kräfte wirken auf ihn ohne Luftreibung?“ Für Rechenaufgaben gilt ein Problemlöseschema, angelehnt an <a href="#lit-heller1992">Heller et al. 1992</a>: Skizze, gegebene und gesuchte Größen, Ansatz, Rechnung, Prüfung von Einheit und Plausibilität. Die Fehlerart Deuten ist hier besonders wichtig, etwa wenn 340 km/h für ein Fahrrad nicht auffallen.</p>
+
+<h3 id="physiktechnik">Fachmodul Physiktechnik</h3>
+<p>Physiktechnik übernimmt Schülervorstellungen und Problemlöseschema aus der Physik und ergänzt Karten zu Messwerten, Diagrammen und Messunsicherheit: „Wie bestimmst du aus einer Messreihe von Spannung und Stromstärke den Widerstand, und woran erkennst du einen Ausreißer?“ Am Berufskolleg ist der Unterricht handlungsorientiert. Für den berufsbezogenen Unterricht beschreiben die Handreichungen der KMK, dass Lernhandlungen möglichst selbstständig geplant, durchgeführt, überprüft, gegebenenfalls korrigiert und bewertet werden sollen (<a href="#lit-kmk2021">KMK 2021</a>). Diese vollständige Handlung entspricht dem Kreislauf nach Zimmerman. Nur dieses Fachmodul enthält den Langzeitplan für die <a href="#abschluss">Abschlussprüfung</a>.</p>
+
+<h3 id="klassenprofil">Klassenprofil</h3>
+<p>Das Klassenprofil enthält Bildungsgang, Jahrgang, Abschluss, Halbjahresthemen und typische Fehler. Daraus entstehen Ich-kann-Sätze und Karten jeder Woche. Es bestimmt auch, wie der Coach den Nutzen des Stoffs begründet. Nach der Erwartungs-Wert-Theorie lernt man eher, wenn man Erfolg erwartet und den Stoff für wertvoll hält, zum Beispiel für nützlich (<a href="#lit-eccles2020">Eccles und Wigfield 2020</a>). In einer Feldstudie mit 262 Schülern der 9. Klasse schrieb ein Teil darüber, was der Naturwissenschaftskurs mit dem eigenen Leben zu tun hat. Bei Schülern mit geringer Erfolgserwartung stiegen danach Interesse und Noten (<a href="#lit-hulleman2009">Hulleman und Harackiewicz 2009</a>). Für Klassen mit Berufsabschluss liegt der Bezug zum Beruf nahe, sonst eher der zum Studium.</p>
+</section>
+
+<section id="uebersicht">
+<h2>Übersicht: Funktionen und Belege</h2>
+<div class="tabelle"><table>
+<thead>
+<tr><th>Funktion im Coach</th><th>Befund</th><th>Belegstärke</th><th>Quelle</th></tr>
+</thead>
+<tbody>
+<tr><td>15 Minuten mit Abrufkarten</td><td>Abrufen schlägt Wiederlesen, im Unterricht g = 0,50</td><td><span class="beleg stark">stark belegt</span></td><td><a href="#lit-roediger2006">Roediger und Karpicke 2006</a>, <a href="#lit-yang2021">Yang et al. 2021</a></td></tr>
+<tr><td>Kartenkasten mit Abständen</td><td>Verteilen wirkt, bester Abstand wächst mit dem Behaltensintervall</td><td><span class="beleg stark">stark belegt</span></td><td><a href="#lit-cepeda2006">Cepeda et al. 2006</a>, <a href="#lit-cepeda2008">Cepeda et al. 2008</a></td></tr>
+<tr><td>genauer Zeitplan der Fächer</td><td>wachsende Abstände nicht besser als gleich bleibende</td><td><span class="beleg schwach">schwach belegt</span></td><td><a href="#lit-latimier2021">Latimier et al. 2021</a></td></tr>
+<tr><td>gemischte Karten</td><td>d = 0,83 in einer Mathematikstudie, Metaanalyse g = 0,42 mit großer Streuung</td><td><span class="beleg mittel">mittel belegt</span></td><td><a href="#lit-rohrer2020">Rohrer et al. 2020</a>, <a href="#lit-brunmair2019">Brunmair und Richter 2019</a></td></tr>
+<tr><td>Lösungsbeispiele mit Fading</td><td>mittlerer Vorteil bei Anfängern in Mathematik</td><td><span class="beleg stark">stark belegt</span></td><td><a href="#lit-barbieri2023">Barbieri et al. 2023</a>, <a href="#lit-renkl2003">Renkl und Atkinson 2003</a></td></tr>
+<tr><td>Strategiekarte Selbsterklären</td><td>g = 0,55</td><td><span class="beleg mittel">mittel belegt</span></td><td><a href="#lit-bisra2018">Bisra et al. 2018</a></td></tr>
+<tr><td>Ampel zusammen mit Abruf</td><td>Selbsteinschätzung oft zu optimistisch, mit Abstand und Lösungsvergleich genauer</td><td><span class="beleg mittel">mittel belegt</span></td><td><a href="#lit-foster2017">Foster et al. 2017</a>, <a href="#lit-rhodes2011">Rhodes und Tauber 2011</a></td></tr>
+<tr><td>Fehlerprotokoll</td><td>Fehler mit erklärender Korrektur fördern das Lernen</td><td><span class="beleg mittel">mittel belegt</span></td><td><a href="#lit-metcalfe2017">Metcalfe 2017</a></td></tr>
+<tr><td>Wenn-dann-Pläne</td><td>d = 0,65, für das Lernen weniger Studien</td><td><span class="beleg mittel">mittel belegt</span></td><td><a href="#lit-gollwitzer2006">Gollwitzer und Sheeran 2006</a></td></tr>
+<tr><td>Strategiekarten mit Fachbezug</td><td>metakognitive Ansätze im Unterricht etwa acht Monate Lernfortschritt, wirksamer im Fach</td><td><span class="beleg mittel">mittel belegt</span></td><td><a href="#lit-eef2025">EEF 2025</a>, <a href="#lit-dignath2008">Dignath und Büttner 2008</a></td></tr>
+<tr><td>Rückwärtsplan</td><td>Zeitbedarf wird regelmäßig unterschätzt</td><td><span class="beleg mittel">mittel belegt</span></td><td><a href="#lit-buehler1994">Buehler et al. 1994</a></td></tr>
+<tr><td>Probeklausur</td><td>Übungstests schlagen Wiederlesen</td><td><span class="beleg mittel">mittel belegt</span></td><td><a href="#lit-adesope2017">Adesope et al. 2017</a></td></tr>
+<tr><td>Klausurtag-Routine</td><td>kaum direkte Studien</td><td><span class="beleg schwach">schwach belegt</span></td><td>Erfahrungswissen</td></tr>
+<tr><td>Reflexion nach der Klausur</td><td>gemischte Ergebnisse</td><td><span class="beleg schwach">schwach belegt</span></td><td><a href="#lit-lovett2013">Lovett 2013</a>, <a href="#lit-soicher2017">Soicher und Gurung 2017</a></td></tr>
+<tr><td>Langzeitplan Abschlussprüfung</td><td>Abstände von Wochen bei Intervallen von Monaten</td><td><span class="beleg mittel">mittel belegt</span></td><td><a href="#lit-cepeda2008">Cepeda et al. 2008</a>, <a href="#lit-rawson2013">Rawson et al. 2013</a></td></tr>
+<tr><td>Sorgen aufschreiben</td><td>kleine Studien, nicht immer bestätigt</td><td><span class="beleg schwach">schwach belegt</span></td><td><a href="#lit-ramirez2011">Ramirez und Beilock 2011</a></td></tr>
+<tr><td>Aufregung neu bewerten</td><td>eine Studie mit Studenten</td><td><span class="beleg schwach">schwach belegt</span></td><td><a href="#lit-jamieson2010">Jamieson et al. 2010</a></td></tr>
+<tr><td>Hinweis auf Schlaf</td><td>Schlaf festigt das Gedächtnis</td><td><span class="beleg stark">stark belegt</span></td><td><a href="#lit-diekelmann2010">Diekelmann und Born 2010</a></td></tr>
+<tr><td>informierende Rückmeldung statt Punkte und Ranglisten</td><td>informierende Rückmeldung stärkt, Vergleich und Kontrolle schwächen Motivation</td><td><span class="beleg mittel">mittel belegt</span></td><td><a href="#lit-deci1999">Deci et al. 1999</a>, <a href="#lit-hanus2015">Hanus und Fox 2015</a></td></tr>
+<tr><td>keine dekorativen Zusätze</td><td>Seductive Details verschlechtern das Lernen</td><td><span class="beleg mittel">mittel belegt</span></td><td><a href="#lit-sundararajan2020">Sundararajan und Adesope 2020</a></td></tr>
+<tr><td>Daten nur im Browser</td><td>Datenminimierung, kein Lernbefund</td><td>entfällt</td><td><a href="#lit-eu2016">Verordnung (EU) 2016/679</a></td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section id="grenzen">
+<h2>Grenzen</h2>
+<p><strong>Selbstauskunft.</strong> Ampel, Wochenkette und Fehlerprotokoll beruhen auf dem, was Schüler selbst eintragen. Niemand prüft, ob eine Karte ehrlich als gewusst markiert wurde. Auch manche Befunde hier beruhen auf Selbstauskunft, etwa die geringere Nervosität bei <a href="#lit-agarwal2014">Agarwal et al. 2014</a>.</p>
+<p><strong>Labor und Unterricht.</strong> Viele Ergebnisse stammen aus Laborstudien mit Wortpaaren oder kurzen Texten. Mathematik und Physik verlangen dagegen Verfahren und Begründungen, die auf neue Aufgaben übertragen werden müssen. Große Studien im Unterricht gibt es vor allem für Abrufen und gemischtes Üben (<a href="#lit-yang2021">Yang et al. 2021</a>, <a href="#lit-rohrer2020">Rohrer et al. 2020</a>).</p>
+<p><strong>Andere Länder und Altersgruppen.</strong> Die meisten Studien stammen aus den USA, mit Studenten oder jüngeren Schülern. Dignath und Büttner fanden in der Sekundarstufe kleinere Effekte von Strategietrainings als in der Grundschule, für Mathematik d = 0,23 gegenüber d = 0,96. Trainings durch Forscher wirkten stärker als Trainings durch Lehrkräfte im Alltag (<a href="#lit-dignath2008">Dignath und Büttner 2008</a>). Ob die Effekte an einem Berufskolleg in Nordrhein-Westfalen ähnlich groß sind, ist offen. Effektstärken sind zudem Durchschnitte, von denen Einzelne stark abweichen.</p>
+<p><strong>Der Coach als Ganzes ist nicht geprüft.</strong> Die Bausteine sind einzeln untersucht, ihre Kombination nicht. Die Fachkonferenz könnte nach einem Halbjahr anonym erfragen, wie oft und wofür die Schüler den Coach nutzen.</p>
+<p><strong>Der Coach ersetzt keinen Unterricht.</strong> Strategien wirken nach dem EEF-Leitfaden am besten, wenn die Lehrkraft sie im Fach vormacht, bespricht und schrittweise abgibt. Der Coach kann erinnern und ordnen, Erklären und Ermutigen bleiben Aufgabe des Unterrichts. Er hilft außerdem nur denen, die ihn öffnen. Gerade Schüler, die wenig lernen, erreicht ein freiwilliges Werkzeug schwer. Hier hilft es, die Wenn-dann-Pläne gemeinsam in der Lerneinheit aufzustellen.</p>
+</section>
+
+<section id="literatur">
+<h2>Literatur</h2>
+<ol class="literatur">
+<li id="lit-adesope2017">Adesope, O. O., Trevisan, D. A., &amp; Sundararajan, N. (2017). Rethinking the use of tests: A meta-analysis of practice testing. <em>Review of Educational Research, 87</em>(3), 659–701. <a href="https://doi.org/10.3102/0034654316689306">https://doi.org/10.3102/0034654316689306</a></li>
+<li id="lit-agarwal2014">Agarwal, P. K., D’Antonio, L., Roediger, H. L., McDermott, K. B., &amp; McDaniel, M. A. (2014). Classroom-based programs of retrieval practice reduce middle school and high school students’ test anxiety. <em>Journal of Applied Research in Memory and Cognition, 3</em>(3), 131–139. <a href="https://doi.org/10.1016/j.jarmac.2014.07.002">https://doi.org/10.1016/j.jarmac.2014.07.002</a></li>
+<li id="lit-atkinson2003">Atkinson, R. K., Renkl, A., &amp; Merrill, M. M. (2003). Transitioning from studying examples to solving problems: Effects of self-explanation prompts and fading worked-out steps. <em>Journal of Educational Psychology, 95</em>(4), 774–783. <a href="https://doi.org/10.1037/0022-0663.95.4.774">https://doi.org/10.1037/0022-0663.95.4.774</a></li>
+<li id="lit-barbieri2023">Barbieri, C., Miller-Cotto, D., Clerjuste, S., &amp; Chawla, K. (2023). A meta-analysis of the worked examples effect on mathematics performance. <em>Educational Psychology Review, 35</em>, Artikel 11. <a href="https://doi.org/10.1007/s10648-023-09745-1">https://doi.org/10.1007/s10648-023-09745-1</a></li>
+<li id="lit-bisra2018">Bisra, K., Liu, Q., Nesbit, J. C., Salimi, F., &amp; Winne, P. H. (2018). Inducing self-explanation: A meta-analysis. <em>Educational Psychology Review, 30</em>, 703–725.</li>
+<li id="lit-brunmair2019">Brunmair, M., &amp; Richter, T. (2019). Similarity matters: A meta-analysis of interleaved learning and its moderators. <em>Psychological Bulletin, 145</em>(11), 1029–1052. <a href="https://doi.org/10.1037/bul0000209">https://doi.org/10.1037/bul0000209</a></li>
+<li id="lit-buehler1994">Buehler, R., Griffin, D., &amp; Ross, M. (1994). Exploring the “planning fallacy”: Why people underestimate their task completion times. <em>Journal of Personality and Social Psychology, 67</em>(3), 366–381. <a href="https://doi.org/10.1037/0022-3514.67.3.366">https://doi.org/10.1037/0022-3514.67.3.366</a></li>
+<li id="lit-cepeda2006">Cepeda, N. J., Pashler, H., Vul, E., Wixted, J. T., &amp; Rohrer, D. (2006). Distributed practice in verbal recall tasks: A review and quantitative synthesis. <em>Psychological Bulletin, 132</em>(3), 354–380. <a href="https://doi.org/10.1037/0033-2909.132.3.354">https://doi.org/10.1037/0033-2909.132.3.354</a></li>
+<li id="lit-cepeda2008">Cepeda, N. J., Vul, E., Rohrer, D., Wixted, J. T., &amp; Pashler, H. (2008). Spacing effects in learning: A temporal ridgeline of optimal retention. <em>Psychological Science, 19</em>(11), 1095–1102. <a href="https://doi.org/10.1111/j.1467-9280.2008.02209.x">https://doi.org/10.1111/j.1467-9280.2008.02209.x</a></li>
+<li id="lit-chi1989">Chi, M. T. H., Bassok, M., Lewis, M. W., Reimann, P., &amp; Glaser, R. (1989). Self-explanations: How students study and use examples in learning to solve problems. <em>Cognitive Science, 13</em>(2), 145–182.</li>
+<li id="lit-deci1999">Deci, E. L., Koestner, R., &amp; Ryan, R. M. (1999). A meta-analytic review of experiments examining the effects of extrinsic rewards on intrinsic motivation. <em>Psychological Bulletin, 125</em>(6), 627–668. <a href="https://doi.org/10.1037/0033-2909.125.6.627">https://doi.org/10.1037/0033-2909.125.6.627</a></li>
+<li id="lit-diekelmann2010">Diekelmann, S., &amp; Born, J. (2010). The memory function of sleep. <em>Nature Reviews Neuroscience, 11</em>(2), 114–126. <a href="https://doi.org/10.1038/nrn2762">https://doi.org/10.1038/nrn2762</a></li>
+<li id="lit-dignath2008">Dignath, C., &amp; Büttner, G. (2008). Components of fostering self-regulated learning among students. A meta-analysis on intervention studies at primary and secondary school level. <em>Metacognition and Learning, 3</em>(3), 231–264. <a href="https://doi.org/10.1007/s11409-008-9029-x">https://doi.org/10.1007/s11409-008-9029-x</a></li>
+<li id="lit-duit2003">Duit, R., &amp; Treagust, D. F. (2003). Conceptual change: A powerful framework for improving science teaching and learning. <em>International Journal of Science Education, 25</em>(6), 671–688. <a href="https://doi.org/10.1080/09500690305016">https://doi.org/10.1080/09500690305016</a></li>
+<li id="lit-dunlosky2012">Dunlosky, J., &amp; Rawson, K. A. (2012). Overconfidence produces underachievement: Inaccurate self evaluations undermine students’ learning and retention. <em>Learning and Instruction, 22</em>(4), 271–280. <a href="https://doi.org/10.1016/j.learninstruc.2011.08.003">https://doi.org/10.1016/j.learninstruc.2011.08.003</a></li>
+<li id="lit-dunlosky2013">Dunlosky, J., Rawson, K. A., Marsh, E. J., Nathan, M. J., &amp; Willingham, D. T. (2013). Improving students’ learning with effective learning techniques: Promising directions from cognitive and educational psychology. <em>Psychological Science in the Public Interest, 14</em>(1), 4–58. <a href="https://doi.org/10.1177/1529100612453266">https://doi.org/10.1177/1529100612453266</a></li>
+<li id="lit-eccles2020">Eccles, J. S., &amp; Wigfield, A. (2020). From expectancy-value theory to situated expectancy-value theory: A developmental, social cognitive, and sociocultural perspective on motivation. <em>Contemporary Educational Psychology, 61</em>, 101859. <a href="https://doi.org/10.1016/j.cedpsych.2020.101859">https://doi.org/10.1016/j.cedpsych.2020.101859</a></li>
+<li id="lit-eef2025">Education Endowment Foundation (2025). <em>Metacognition and self-regulated learning: Guidance report</em> (2. Auflage). London: EEF. <a href="https://educationendowmentfoundation.org.uk/education-evidence/guidance-reports/metacognition">https://educationendowmentfoundation.org.uk/education-evidence/guidance-reports/metacognition</a></li>
+<li id="lit-eu2016">Europäisches Parlament und Rat der Europäischen Union (2016). <em>Verordnung (EU) 2016/679 vom 27. April 2016 (Datenschutz-Grundverordnung)</em>, Artikel 5 Absatz 1 Buchstabe c.</li>
+<li id="lit-foster2017">Foster, N. L., Was, C. A., Dunlosky, J., &amp; Isaacson, R. M. (2017). Even after thirteen class exams, students are still overconfident. <em>Metacognition and Learning, 12</em>. <a href="https://doi.org/10.1007/s11409-016-9158-6">https://doi.org/10.1007/s11409-016-9158-6</a></li>
+<li id="lit-gillenoneel2013">Gillen-O’Neel, C., Huynh, V. W., &amp; Fuligni, A. J. (2013). To study or to sleep? The academic costs of extra studying at the expense of sleep. <em>Child Development, 84</em>(1), 133–142. <a href="https://doi.org/10.1111/j.1467-8624.2012.01834.x">https://doi.org/10.1111/j.1467-8624.2012.01834.x</a></li>
+<li id="lit-gollwitzer2006">Gollwitzer, P. M., &amp; Sheeran, P. (2006). Implementation intentions and goal achievement: A meta-analysis of effects and processes. <em>Advances in Experimental Social Psychology, 38</em>, 69–119. <a href="https://doi.org/10.1016/S0065-2601(06)38002-1">https://doi.org/10.1016/S0065-2601(06)38002-1</a></li>
+<li id="lit-hanus2015">Hanus, M. D., &amp; Fox, J. (2015). Assessing the effects of gamification in the classroom: A longitudinal study on intrinsic motivation, social comparison, satisfaction, effort, and academic performance. <em>Computers &amp; Education, 80</em>, 152–161. <a href="https://doi.org/10.1016/j.compedu.2014.08.019">https://doi.org/10.1016/j.compedu.2014.08.019</a></li>
+<li id="lit-hattie2007">Hattie, J., &amp; Timperley, H. (2007). The power of feedback. <em>Review of Educational Research, 77</em>(1), 81–112. <a href="https://doi.org/10.3102/003465430298487">https://doi.org/10.3102/003465430298487</a></li>
+<li id="lit-heller1992">Heller, P., Keith, R., &amp; Anderson, S. (1992). Teaching problem solving through cooperative grouping. Part 1: Group versus individual problem solving. <em>American Journal of Physics, 60</em>(7), 627–636. <a href="https://doi.org/10.1119/1.17117">https://doi.org/10.1119/1.17117</a></li>
+<li id="lit-hulleman2009">Hulleman, C. S., &amp; Harackiewicz, J. M. (2009). Promoting interest and performance in high school science classes. <em>Science, 326</em>(5958), 1410–1412. <a href="https://doi.org/10.1126/science.1177067">https://doi.org/10.1126/science.1177067</a></li>
+<li id="lit-jamieson2010">Jamieson, J. P., Mendes, W. B., Blackstock, E., &amp; Schmader, T. (2010). Turning the knots in your stomach into bows: Reappraising arousal improves performance on the GRE. <em>Journal of Experimental Social Psychology, 46</em>(1), 208–212.</li>
+<li id="lit-kalyuga2003">Kalyuga, S., Ayres, P., Chandler, P., &amp; Sweller, J. (2003). The expertise reversal effect. <em>Educational Psychologist, 38</em>(1), 23–31.</li>
+<li id="lit-karpicke2009">Karpicke, J. D., Butler, A. C., &amp; Roediger, H. L. (2009). Metacognitive strategies in student learning: Do students practise retrieval when they study on their own? <em>Memory, 17</em>(4), 471–479. <a href="https://doi.org/10.1080/09658210802647009">https://doi.org/10.1080/09658210802647009</a></li>
+<li id="lit-kirkjohnson2019">Kirk-Johnson, A., Galla, B. M., &amp; Fraundorf, S. H. (2019). Perceiving effort as poor learning: The misinterpreted-effort hypothesis of how experienced effort and perceived learning relate to study strategy choice. <em>Cognitive Psychology, 115</em>, 101237. <a href="https://doi.org/10.1016/j.cogpsych.2019.101237">https://doi.org/10.1016/j.cogpsych.2019.101237</a></li>
+<li id="lit-kmk2021">Kultusministerkonferenz (2021). <em>Handreichung für die Erarbeitung von Rahmenlehrplänen der Kultusministerkonferenz für den berufsbezogenen Unterricht in der Berufsschule</em> (Fassung vom 17. Juni 2021). Berlin: KMK. <a href="https://berufsbildung.nrw.de/system/files/media/document/file/2021_06_17-gep-handreichung.pdf">https://berufsbildung.nrw.de/system/files/media/document/file/2021_06_17-gep-handreichung.pdf</a></li>
+<li id="lit-kornell2009">Kornell, N. (2009). Optimising learning using flashcards: Spacing is more effective than cramming. <em>Applied Cognitive Psychology, 23</em>(9), 1297–1317. <a href="https://doi.org/10.1002/acp.1537">https://doi.org/10.1002/acp.1537</a></li>
+<li id="lit-latimier2021">Latimier, A., Peyre, H., &amp; Ramus, F. (2021). A meta-analytic review of the benefit of spacing out retrieval practice episodes on retention. <em>Educational Psychology Review, 33</em>, 959–987. <a href="https://doi.org/10.1007/s10648-020-09572-8">https://doi.org/10.1007/s10648-020-09572-8</a></li>
+<li id="lit-leitner1972">Leitner, S. (1972). <em>So lernt man lernen</em>. Freiburg: Herder.</li>
+<li id="lit-lovett2013">Lovett, M. C. (2013). Make exams worth more than the grade: Using exam wrappers to promote metacognition. In M. Kaplan, N. Silver, D. LaVaque-Manty &amp; D. Meizlish (Hrsg.), <em>Using reflection and metacognition to improve student learning: Across the disciplines, across the academy</em> (S. 18–52). Sterling, VA: Stylus.</li>
+<li id="lit-metcalfe2017">Metcalfe, J. (2017). Learning from errors. <em>Annual Review of Psychology, 68</em>, 465–489. <a href="https://doi.org/10.1146/annurev-psych-010416-044022">https://doi.org/10.1146/annurev-psych-010416-044022</a></li>
+<li id="lit-miyatsu2018">Miyatsu, T., Nguyen, K., &amp; McDaniel, M. A. (2018). Five popular study strategies: Their pitfalls and optimal implementations. <em>Perspectives on Psychological Science, 13</em>(3), 390–407. <a href="https://doi.org/10.1177/1745691617710510">https://doi.org/10.1177/1745691617710510</a></li>
+<li id="lit-paruthi2016">Paruthi, S., u. a. (2016). Recommended amount of sleep for pediatric populations: A consensus statement of the American Academy of Sleep Medicine. <em>Journal of Clinical Sleep Medicine, 12</em>(6), 785–786. <a href="https://doi.org/10.5664/jcsm.5866">https://doi.org/10.5664/jcsm.5866</a></li>
+<li id="lit-polya1945">Pólya, G. (1945). <em>How to solve it: A new aspect of mathematical method</em>. Princeton: Princeton University Press.</li>
+<li id="lit-ramirez2011">Ramirez, G., &amp; Beilock, S. L. (2011). Writing about testing worries boosts exam performance in the classroom. <em>Science, 331</em>, 211–213. <a href="https://doi.org/10.1126/science.1199427">https://doi.org/10.1126/science.1199427</a></li>
+<li id="lit-rawson2013">Rawson, K. A., Dunlosky, J., &amp; Sciartelli, S. M. (2013). The power of successive relearning: Improving performance on course exams and long-term retention. <em>Educational Psychology Review, 25</em>(4), 523–548. <a href="https://doi.org/10.1007/s10648-013-9240-4">https://doi.org/10.1007/s10648-013-9240-4</a></li>
+<li id="lit-renkl2003">Renkl, A., &amp; Atkinson, R. K. (2003). Structuring the transition from example study to problem solving in cognitive skill acquisition: A cognitive load perspective. <em>Educational Psychologist, 38</em>(1), 15–22. <a href="https://doi.org/10.1207/S15326985EP3801_3">https://doi.org/10.1207/S15326985EP3801_3</a></li>
+<li id="lit-rey2012">Rey, G. D. (2012). A review of research and a meta-analysis of the seductive detail effect. <em>Educational Research Review, 7</em>(3), 216–237. <a href="https://doi.org/10.1016/j.edurev.2012.05.003">https://doi.org/10.1016/j.edurev.2012.05.003</a></li>
+<li id="lit-rhodes2011">Rhodes, M. G., &amp; Tauber, S. K. (2011). The influence of delaying judgments of learning on metacognitive accuracy: A meta-analytic review. <em>Psychological Bulletin, 137</em>(1), 131–148. <a href="https://doi.org/10.1037/a0021705">https://doi.org/10.1037/a0021705</a></li>
+<li id="lit-roediger2006">Roediger, H. L., &amp; Karpicke, J. D. (2006). Test-enhanced learning: Taking memory tests improves long-term retention. <em>Psychological Science, 17</em>(3), 249–255. <a href="https://doi.org/10.1111/j.1467-9280.2006.01693.x">https://doi.org/10.1111/j.1467-9280.2006.01693.x</a></li>
+<li id="lit-rohrer2020">Rohrer, D., Dedrick, R. F., Hartwig, M. K., &amp; Cheung, C.-N. (2020). A randomized controlled trial of interleaved mathematics practice. <em>Journal of Educational Psychology, 112</em>(1), 40–52. <a href="https://doi.org/10.1037/edu0000367">https://doi.org/10.1037/edu0000367</a></li>
+<li id="lit-ryan2000">Ryan, R. M., &amp; Deci, E. L. (2000). Self-determination theory and the facilitation of intrinsic motivation, social development, and well-being. <em>American Psychologist, 55</em>(1), 68–78. <a href="https://doi.org/10.1037/0003-066X.55.1.68">https://doi.org/10.1037/0003-066X.55.1.68</a></li>
+<li id="lit-sailer2020">Sailer, M., &amp; Homner, L. (2020). The gamification of learning: A meta-analysis. <em>Educational Psychology Review, 32</em>(1), 77–112. <a href="https://doi.org/10.1007/s10648-019-09498-w">https://doi.org/10.1007/s10648-019-09498-w</a></li>
+<li id="lit-schecker2018">Schecker, H., Wilhelm, T., Hopf, M., &amp; Duit, R. (Hrsg.) (2018). <em>Schülervorstellungen und Physikunterricht</em>. Berlin: Springer Spektrum. <a href="https://doi.org/10.1007/978-3-662-57270-2">https://doi.org/10.1007/978-3-662-57270-2</a></li>
+<li id="lit-soderstrom2015">Soderstrom, N. C., &amp; Bjork, R. A. (2015). Learning versus performance: An integrative review. <em>Perspectives on Psychological Science, 10</em>(2), 176–199. <a href="https://doi.org/10.1177/1745691615569000">https://doi.org/10.1177/1745691615569000</a></li>
+<li id="lit-soicher2017">Soicher, R. N., &amp; Gurung, R. A. R. (2017). Do exam wrappers increase metacognition and performance? A single course intervention. <em>Psychology Learning &amp; Teaching, 16</em>(1), 64–73. <a href="https://doi.org/10.1177/1475725716661872">https://doi.org/10.1177/1475725716661872</a></li>
+<li id="lit-sundararajan2020">Sundararajan, N., &amp; Adesope, O. (2020). Keep it coherent: A meta-analysis of the seductive details effect. <em>Educational Psychology Review, 32</em>(3), 707–734. <a href="https://doi.org/10.1007/s10648-020-09522-4">https://doi.org/10.1007/s10648-020-09522-4</a></li>
+<li id="lit-sweller2019">Sweller, J., van Merriënboer, J. J. G., &amp; Paas, F. (2019). Cognitive architecture and instructional design: 20 years later. <em>Educational Psychology Review, 31</em>, 261–292. <a href="https://doi.org/10.1007/s10648-019-09465-5">https://doi.org/10.1007/s10648-019-09465-5</a></li>
+<li id="lit-vomhofe2016">vom Hofe, R., &amp; Blum, W. (2016). „Grundvorstellungen“ as a category of subject-matter didactics. <em>Journal für Mathematik-Didaktik, 37</em>, 225–254. <a href="https://doi.org/10.1007/s13138-016-0107-3">https://doi.org/10.1007/s13138-016-0107-3</a></li>
+<li id="lit-vonderembse2018">von der Embse, N., Jester, D., Roy, D., &amp; Post, J. (2018). Test anxiety effects, predictors, and correlates: A 30-year meta-analytic review. <em>Journal of Affective Disorders, 227</em>, 483–493. <a href="https://doi.org/10.1016/j.jad.2017.11.048">https://doi.org/10.1016/j.jad.2017.11.048</a></li>
+<li id="lit-wisniewski2020">Wisniewski, B., Zierer, K., &amp; Hattie, J. (2020). The power of feedback revisited: A meta-analysis of educational feedback research. <em>Frontiers in Psychology, 10</em>, 3087. <a href="https://doi.org/10.3389/fpsyg.2019.03087">https://doi.org/10.3389/fpsyg.2019.03087</a></li>
+<li id="lit-yang2021">Yang, C., Luo, L., Vadillo, M. A., Yu, R., &amp; Shanks, D. R. (2021). Testing (quizzing) boosts classroom learning: A systematic and meta-analytic review. <em>Psychological Bulletin, 147</em>(4), 399–435. <a href="https://doi.org/10.1037/bul0000309">https://doi.org/10.1037/bul0000309</a></li>
+<li id="lit-zimmerman2002">Zimmerman, B. J. (2002). Becoming a self-regulated learner: An overview. <em>Theory Into Practice, 41</em>(2), 64–70. <a href="https://doi.org/10.1207/s15430421tip4102_2">https://doi.org/10.1207/s15430421tip4102_2</a></li>
+</ol>
+</section>
+
+  <section id="klasse">
+<h2>Dieser Coach in der Klasse 13NF</h2>
+<section>
+<h3>Lerngruppe und Bildungsgang</h3>
+<p>Die Klasse 13NF besucht die dreijährige Berufsfachschule zum staatlich geprüften Physikalisch-technischen Assistenten mit Fachhochschulreife (APO-BK, Anlage C1). Die Schüler kommen mit dem mittleren Schulabschluss und sind im letzten Ausbildungsjahr. Am Ende stehen der Berufsabschluss nach Landesrecht und die Fachhochschulreife. Physiktechnik ist dabei Prüfungsfach.</p>
+<p>Laut Halbjahresskript braucht die Lerngruppe Unterstützung beim Textverständnis, bei Fachbegriffen, beim Umstellen von Formeln, bei Einheiten und beim Lesen von Diagrammen. Der Coach verwendet deshalb kurze Sätze, nennt in jeder Rechenkarte die Einheiten ausdrücklich und hält jede Antwort auf ein bis drei Sätze oder eine Rechnung. Der Bezug zum Beruf steht im Profil: Wer im Prüflabor Wanddicken misst, braucht genau diese Rechnungen. Das stützt den Nutzen des Stoffs, wie ihn die Erwartungs-Wert-Theorie beschreibt (<a href="#lit-eccles2020">Eccles und Wigfield 2020</a>).</p>
+</section>
+<section>
+<h3>Fach und Halbjahr</h3>
+<p>Das Halbjahr 13.1 behandelt die zerstörungsfreie Werkstoffprüfung in 15 Wochen. Die Wochen 1 bis 10 begleiten fünf Ultraschallversuche: Wellenlänge, Laufzeit und Echo, A-Bild und Koppelung, Tauchtechnik, Winkelprüfung. Woche 11 bildet die Brücke von der Laufzeit zur Phasendifferenz. Die Wochen 12 bis 15 behandeln das Michelson-Interferometer als Theorie und Modell und enden mit einer Verfahrenswahl.</p>
+<p>Fachdidaktisch hat das Halbjahr drei Schwerpunkte. Erstens der Faktor 2: Beim Echo, bei der Spiegelverschiebung und beim Doppeldurchlauf durch eine Gaszelle läuft die Welle hin und zurück. Zweitens die Trennung von Messbefund und Deutung: Eine Echohöhe beweist keine Fehlergröße, eine Schallgeschwindigkeit keine Werkstoffsorte, eine Brechzahländerung keine absolute Brechzahl. Drittens Geometrie und Einheiten, also Winkel zur Normalen, Schallweg gegenüber Tiefe sowie Mikrosekunden, Millimeter und Nanometer. Solche Stellen gelten als typische Schülervorstellungen, die sich durch einmaliges Erklären nicht auflösen (<a href="#lit-schecker2018">Schecker et al. 2018</a>, <a href="#lit-duit2003">Duit und Treagust 2003</a>).</p>
+</section>
+<section>
+<h3>Anpassungen im Coach</h3>
+<p>Jede der 15 Etappen hat vier bis fünf Ich-kann-Sätze und sieben bis acht Abrufkarten. Die Karten mischen vier Typen: Begriff oder Formel abrufen, kurze Rechnung mit Zahlen, Deutung und eine Karte „Fehler finden“. Die Fehlerkarten greifen genau die drei Schwerpunkte auf, etwa die fehlende Division durch 2 oder die Markierung einer Anzeige „42 mm tief“. Der Inhalt bleibt im Pflichtstoff des Skripts. Die als Vertiefung markierten Teile wie Elastizitätsmodul, AVG und Mach-Zehnder-Interferometer fehlen bewusst. Wie der Kartenkasten das <a href="#abruf">Abrufen</a> und <a href="#verteilt">verteilte Wiederholen</a> organisiert, steht im allgemeinen Teil.</p>
+<p>Die typischen Fehler im Fehlerprotokoll stammen aus den Grenzen und Präzisierungen des Skripts, zum Beispiel direkte Endrundung, strenge Trennbedingung beim Wasserweg und fehlende Richtung bei der Fringezählung. Jeder Fehler hat einen Tipp, woran man ihn beim nächsten Mal erkennt (<a href="#fehler">Fehlerprotokoll</a>, <a href="#lit-metcalfe2017">Metcalfe 2017</a>).</p>
+<p>Die vier Fachstrategien folgen dem Problemlöseschema der Physik: Größen ordnen, den Weg der Welle skizzieren, Befund und Deutung trennen, das Ergebnis auf Plausibilität prüfen (<a href="#lit-heller1992">Heller et al. 1992</a>). Die Skizze ist hier besonders wichtig, weil sie zeigt, ob ein Weg einfach, doppelt oder gefaltet ist. Das passt zur Arbeitshilfe des Skripts „gegeben, gesucht, Ansatz, Rechnung, Antwort mit Grenze“.</p>
+</section>
+<section>
+<h3>Klausuren und Abschluss</h3>
+<p>Für die Klausuren des Halbjahres gilt der allgemeine <a href="#klausurphase">Rückwärtsplan</a>. Im Klassen-Repo liegt schon eine Probeklausur. Der Coach verlinkt sie. Gerade in Woche 15 und in Klausuren steht nicht dabei, welches Verfahren gefragt ist. Gemischte Karten aus älteren Etappen üben diese Entscheidung (<a href="#mischen">Aufgaben mischen</a>).</p>
+<p>Weil Physiktechnik Prüfungsfach ist, hat 13NF zusätzlich den Langzeitplan zur FHR-Prüfung (180 Minuten, Mai oder Juni 2027). Er beginnt im Februar 2027 mit einer Bestandsaufnahme und endet im Mai mit einer Probeprüfung in voller Länge. Die genauen Prüfungsthemen stehen noch nicht fest. Der Coach nennt deshalb nur allgemein Inhalte aus den Halbjahren der Ausbildung und verweist auf die Lehrkraft. Die Begründung für Abstände von einigen Wochen zwischen den Wiederholungen steht im Abschnitt <a href="#abschluss">Abschlussprüfung</a> (<a href="#lit-cepeda2008">Cepeda et al. 2008</a>, <a href="#lit-rawson2013">Rawson et al. 2013</a>).</p>
+</section>
+
+  </section>
+</main>
+<footer class="rahmen">Lerncoach 13NF, Schuljahr 2026/27. Stand 2026-10-13.</footer>
+</body>
+</html>
