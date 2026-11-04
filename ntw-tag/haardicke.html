@@ -2069,6 +2069,14 @@ const HD_LMM=()=>MW('lam')/1e6;                                // Wellenlänge i
 const HD_LTXT=()=>String(+HD_LMM().toFixed(8)).replace('.',','); // 0,00065
 const HD_D=()=>HD_LMM()*MW('L')*10/HD_AR();                    // Haardicke in mm
 const HD_UM=()=>Math.round(HD_D()*1000);                       // Haardicke in µm, gerundet
+const HD_PLAUS=um=>um>=20&&um<=180;                           // übliche Haardicke in µm
+const HD_DUM=(lam,L,a)=>lam/1e6*L*10/a*1000;                    // Haardicke in µm aus nm, cm, mm
+// Plausibilität der Messwerte: Streifenabstand und Haardicke. Häufigster Fehler: Abstand von Lücke zu Lücke gemessen, aber n > 1 eingetragen.
+function HD_PRUEF(lam,L,s,n){const a=s/n,d=HD_DUM(lam,L,a),d1=HD_DUM(lam,L,s);
+  if(HD_PLAUS(d))return a<4||a>60?`Daraus ergibt sich ein Streifenabstand von ${fmt(a,1)} mm. Erwartet sind etwa 8 bis 40 mm. Stimmen Einheit und Zahl der Abstände?`:null;
+  if(d>180&&n>1&&HD_PLAUS(d1))return `Daraus ergibt sich eine Haardicke von etwa ${fmt(d,0)} µm. Das ist für ein Haar sehr dick. Ist ${fmt(s,1)} mm schon der Abstand von einer dunklen Lücke zur nächsten? Dann trag bei „Zahl der Abstände“ eine 1 ein.`;
+  return d>180?`Daraus ergibt sich eine Haardicke von etwa ${fmt(d,0)} µm. Das ist für ein Haar sehr dick. Habt ihr die Strecke über ${fmt(n,0)} Abstände gemessen, in mm?`
+    :`Daraus ergibt sich eine Haardicke von nur etwa ${fmt(d,0)} µm. Haare sind meist 20 bis 180 µm dick. Stimmt die Zahl der Abstände? Ist die Strecke in mm eingetragen?`}
 const HD_FORM=()=>`<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin:10px 0;font-weight:600"><span>Haardicke =</span><span style="display:inline-flex;flex-direction:column;text-align:center"><span style="border-bottom:2px solid currentColor;padding:0 4px 3px">Wellenlänge · Schirmabstand</span><span style="padding-top:3px">Streifenabstand</span></span></div>`;
 const HD_KLASSE=um=>um<60?'feines Haar':um<=80?'mittleres Haar':'kräftiges Haar';
 
@@ -2108,7 +2116,7 @@ function HD_AUSWEIS(){const um=HD_UM(),q=MQ()==='richt'?' (mit Richtwerten gerec
   <dt>Name</dt><dd>${nm()}</dd>
   <dt>Messwerte</dt><dd>Wellenlänge ${fmt(MW('lam'),0)} nm, Haar bis Schirm ${fmt(MW('L'),0)} cm, ${fmt(MW('s'),1)} mm über ${fmt(MW('n'),0)} Abstände</dd>
   <dt>Streifenabstand</dt><dd>${fmt(HD_AR(),1)} mm</dd>
-  <dt>Meine Haardicke</dt><dd><b>${fmt(HD_D(),3)} mm = ${um} µm</b>${q}</dd>
+  <dt>Meine Haardicke</dt><dd><b>${fmt(HD_D(),3)} mm = ${um} µm</b>${q}${HD_PLAUS(um)?'':' (ungewöhnlich, Messwerte prüfen)'}</dd>
   <dt>Einordnung</dt><dd>${HD_KLASSE(um)} (fein unter 60 µm, mittel 60 bis 80 µm, kräftig über 80 µm)</dd>
   <dt>Gemessen am</dt><dd>${new Date().toLocaleDateString('de-DE')}, Spurenlabor Lichtblick</dd></dl>
   <p style="margin:10px 0 4px"><b>Vergleich</b> (Skala von 0 bis 150 µm)</p>
@@ -2151,14 +2159,16 @@ function HD_AUSWERT(c,api){
   b.onclick=()=>{const v=ins.map(i=>parseNum(i.value));
     if(v.some(x=>!isFinite(x))){fb.className='fb info';fb.innerHTML='✏️ Trag alle drei Werte ein. Die App rechnet dann mit deinen Zahlen weiter.';return}
     const lmm=HD_LMM(),Lmm=MW('L')*10,soll=[HD_A(),v[0]>0?lmm*Lmm/v[0]:HD_D(),v[1]*1000],tipp=[];
-    const tip=[k=>nah(v[0],MW('s'))?'Teile die Strecke noch durch die Zahl der Abstände.':nah(v[0],soll[0]/10)?'Das sieht nach cm aus. Gesucht ist der Wert in mm.':`Erwartet sind etwa ${fmt(soll[0],1)} mm: ${fmt(MW('s'),1)} mm geteilt durch ${fmt(MW('n'),0)}.`,
+    const tip=[k=>nah(v[0],MW('s'))?('Teile die Strecke noch durch die Zahl der Abstände.'+(MW('n')>1&&!HD_PLAUS(HD_UM())&&HD_PLAUS(HD_DUM(MW('lam'),MW('L'),MW('s')))?` Oder sind ${fmt(MW('s'),1)} mm schon der Abstand von Lücke zu Lücke? Dann stimmt eure Messwerteingabe nicht: Tippe unten auf „Messwerte korrigieren“ und trag bei „Zahl der Abstände“ eine 1 ein.`:'')):nah(v[0],soll[0]/10)?'Das sieht nach cm aus. Gesucht ist der Wert in mm.':`Erwartet sind etwa ${fmt(soll[0],1)} mm: ${fmt(MW('s'),1)} mm geteilt durch ${fmt(MW('n'),0)}.`,
       k=>nah(v[1],lmm*Lmm*v[0])?'Durch den Streifenabstand wird geteilt, nicht malgenommen.':nah(v[1],MW('lam')*Lmm/v[0])?`Setz die Wellenlänge in mm ein: ${HD_LTXT()} mm.`:`Mit deinem Streifenabstand ${z(v[0])} mm ergibt sich etwa ${z(soll[1])} mm.`,
       k=>nah(v[2],v[1]*100)?'1 mm sind 1000 µm, nicht 100 µm.':`Mal 1000: ${z(v[1])} mm sind ${z(soll[2])} µm.`];
     v.forEach((x,k)=>{const rot=Math.abs(x-soll[k])>Math.abs(soll[k])*0.2;ins[k].classList.remove('okI','badI');ins[k].classList.add(rot?'badI':'okI');if(rot)tipp.push(`<li>Zeile ${k+1}: ${tip[k](k)}</li>`)});
     state.sim.hdEingabe=v;save();
     fb.className='fb '+(tipp.length?'info':'ok');
     fb.innerHTML=(tipp.length?'🔍 Gerechnet. Bei den roten Feldern lohnt ein zweiter Blick:<ul>'+tipp.join('')+'</ul>Du kannst die Werte verbessern und noch einmal prüfen. Weiter geht es auch so.':'✅ Gerechnet! Deine Werte passen zusammen.')+
-      `<p class="tip">Mit euren Messwerten: Streifenabstand ${fmt(HD_AR(),1)} mm, Haardicke etwa ${fmt(HD_D(),3)} mm = ${HD_UM()} µm.</p>`;
+      `<p class="tip">Mit euren Messwerten: Streifenabstand ${fmt(HD_AR(),1)} mm, Haardicke etwa ${fmt(HD_D(),3)} mm = ${HD_UM()} µm.</p>`+
+      (HD_PLAUS(HD_UM())?'':`<p class="tip">⚠️ ${HD_UM()} µm ist für ein Haar ungewöhnlich. Prüft eure Messwerte (Strecke in mm, Zahl der Abstände).</p><button class="btn sec small" data-hdmess style="width:100%">📝 Messwerte korrigieren</button>`);
+    const mb=$('[data-hdmess]',fb);if(mb)mb.onclick=()=>{const i=LEVELS.findIndex(L=>L.versuch);openLevel(i,LEVELS[i].steps.findIndex(x=>x.type==='messung'))};
     api.solved()};
   api.setAuto(()=>{const a=Math.round(HD_A()*10)/10,d=HD_LMM()*MW('L')*10/a;ins[0].value=fmt(a,1);ins[1].value=fmt(d,4);ins[2].value=fmt(d*1000,0);b.click()});
 }
@@ -2225,11 +2235,11 @@ const LEVELS=[
   checkliste:['Haar straff und senkrecht im Halter','Schirm etwa 2 m entfernt, Strahl waagerecht in Tischhöhe','Uhren, Ringe und Handys aus dem Strahlbereich','Niemand steht zwischen Laser und Schirm'],
   auftrag:'Laser an. Sucht das Beugungsmuster: eine waagerechte Reihe quer zum Haar. Messt den Abstand Haar bis Schirm. Messt auf einer Seite von der 1. bis zur 6. dunklen Lücke. Notiert alles auf dem Messzettel. Dann Laser aus.',
   messung:{title:'Messwerte eintragen',text:'Übertrage eure Werte vom Messzettel. Die Auswertung rechnet danach genau mit diesen Werten.',groessen:[
-    {id:'lam',name:'Wellenlänge (Warnschild)',sym:'\\lambda',einheit:'nm',min:600,max:700,richtwert:HD_RW.lam,d:0,hinweis:'Rote Laser haben meist 630 bis 660 nm.'},
+    {id:'lam',name:'Wellenlänge (Warnschild)',sym:'\\lambda',einheit:'nm',min:600,max:700,richtwert:HD_RW.lam,d:1,hinweis:'Rote Laser haben meist 630 bis 660 nm.'},
     {id:'L',name:'Abstand Haar bis Schirm',sym:'',einheit:'cm',min:100,max:500,richtwert:HD_RW.L,d:0,hinweis:'Etwa 2 m sind 200 cm. Hast du in m eingetragen?'},
     {id:'s',name:'Strecke über die Abstände',sym:'',einheit:'mm',min:20,max:300,richtwert:HD_RW.s,d:1,hinweis:'Hast du in cm eingetragen? 9,3 cm sind 93 mm.'},
     {id:'n',name:'Zahl der Abstände',sym:'',einheit:'',min:1,max:10,richtwert:HD_RW.n,d:0}],
-   pruef:w=>{const a=w.s/w.n,d=w.lam/1e6*w.L*10/a*1000;return a<4||a>60?`Daraus ergibt sich ein Streifenabstand von ${fmt(a,1)} mm. Erwartet sind etwa 8 bis 40 mm. Stimmen Einheit und Zahl der Abstände?`:d<15||d>250?`Daraus ergibt sich eine Haardicke von ${fmt(d,0)} µm. Haare sind in der Regel 20 bis 180 µm dick. Prüft die Einheiten.`:null}},
+   pruef:w=>HD_PRUEF(w.lam,w.L,w.s,w.n)},
   bonus:{type:'mcq',art:'gegenfrage',title:'Bonus: Ein doppelt so dickes Haar',q:'Ihr spannt ein Haar ein, das doppelt so dick ist. Was passiert mit dem Streifenabstand?',o:[
     {t:'Er wird halb so groß.',ok:1,fb:'Richtig. Doppelte Haardicke, halber Streifenabstand. Die Lücken rücken enger zusammen.'},
     {t:'Er wird doppelt so groß.',fb:'Umgekehrt: Je dicker das Haar, desto enger liegen die Lücken.'},
