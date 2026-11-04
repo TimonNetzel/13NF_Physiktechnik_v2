@@ -2136,6 +2136,33 @@ function HD_SIM(c,api){let d=80;const seen={duenn:0,dick:0};
   api.setAuto(()=>{ctl.set(40);ctl.set(130)});
 }
 
+/* ---------- Auswertung beim Gutachter: jede Eingabe wird übernommen ----------
+   Zeile 2 rechnet mit dem eigenen Streifenabstand aus Zeile 1 weiter, Zeile 3 mit der eigenen Haardicke aus Zeile 2.
+   Ein Feld wird nur rot, wenn es mehr als 20 % vom Wert abweicht, der aus den eigenen Zahlen folgt. Weiter geht es immer. */
+function HD_AUSWERT(c,api){
+  const R=[{pre:K('\\textsf{Streifenabstand}='),u:'mm'},{pre:K('\\textsf{Haardicke}='),u:'mm'},{pre:K('\\textsf{Haardicke}='),u:'µm'}];
+  const w=document.createElement('div');w.className='calc';
+  const ins=R.map((r,k)=>{const d=document.createElement('div');d.className='crow';
+    d.innerHTML=`<span>${k+1}. ${r.pre}</span><input inputmode="decimal" autocomplete="off" aria-label="Zeile ${k+1}" placeholder="?"><span class="u">${r.u}</span>`;w.appendChild(d);return $('input',d)});
+  const alt=state.sim.hdEingabe;if(alt)ins.forEach((i,k)=>{if(alt[k]!=null)i.value=String(alt[k]).replace('.',',')});
+  c.appendChild(w);
+  const b=addCheckBtn(c,'Prüfen ✔');const fb=document.createElement('div');fb.className='fb';c.appendChild(fb);
+  const nah=(x,t)=>Math.abs(x-t)<=Math.abs(t)*0.05,z=x=>!isFinite(x)?'?':Math.abs(x)<1e-4?'fast 0':Math.abs(x)>=100?fmt(x,0):Math.abs(x)>=1?fmt(x,1):String(+x.toPrecision(2)).replace('.',',').replace('-','−');
+  b.onclick=()=>{const v=ins.map(i=>parseNum(i.value));
+    if(v.some(x=>!isFinite(x))){fb.className='fb info';fb.innerHTML='✏️ Trag alle drei Werte ein. Die App rechnet dann mit deinen Zahlen weiter.';return}
+    const lmm=HD_LMM(),Lmm=MW('L')*10,soll=[HD_A(),v[0]>0?lmm*Lmm/v[0]:HD_D(),v[1]*1000],tipp=[];
+    const tip=[k=>nah(v[0],MW('s'))?'Teile die Strecke noch durch die Zahl der Abstände.':nah(v[0],soll[0]/10)?'Das sieht nach cm aus. Gesucht ist der Wert in mm.':`Erwartet sind etwa ${fmt(soll[0],1)} mm: ${fmt(MW('s'),1)} mm geteilt durch ${fmt(MW('n'),0)}.`,
+      k=>nah(v[1],lmm*Lmm*v[0])?'Durch den Streifenabstand wird geteilt, nicht malgenommen.':nah(v[1],MW('lam')*Lmm/v[0])?`Setz die Wellenlänge in mm ein: ${HD_LTXT()} mm.`:`Mit deinem Streifenabstand ${z(v[0])} mm ergibt sich etwa ${z(soll[1])} mm.`,
+      k=>nah(v[2],v[1]*100)?'1 mm sind 1000 µm, nicht 100 µm.':`Mal 1000: ${z(v[1])} mm sind ${z(soll[2])} µm.`];
+    v.forEach((x,k)=>{const rot=Math.abs(x-soll[k])>Math.abs(soll[k])*0.2;ins[k].classList.remove('okI','badI');ins[k].classList.add(rot?'badI':'okI');if(rot)tipp.push(`<li>Zeile ${k+1}: ${tip[k](k)}</li>`)});
+    state.sim.hdEingabe=v;save();
+    fb.className='fb '+(tipp.length?'info':'ok');
+    fb.innerHTML=(tipp.length?'🔍 Gerechnet. Bei den roten Feldern lohnt ein zweiter Blick:<ul>'+tipp.join('')+'</ul>Du kannst die Werte verbessern und noch einmal prüfen. Weiter geht es auch so.':'✅ Gerechnet! Deine Werte passen zusammen.')+
+      `<p class="tip">Mit euren Messwerten: Streifenabstand ${fmt(HD_AR(),1)} mm, Haardicke etwa ${fmt(HD_D(),3)} mm = ${HD_UM()} µm.</p>`;
+    api.solved()};
+  api.setAuto(()=>{const a=Math.round(HD_A()*10)/10,d=HD_LMM()*MW('L')*10/a;ins[0].value=fmt(a,1);ins[1].value=fmt(d,4);ins[2].value=fmt(d*1000,0);b.click()});
+}
+
 const LEVELS=[
 /* ===== 0 Einstieg ===== */
 {title:'Einstieg: Ein Haar im Laserlicht',tag:'Einstieg',sub:'Was siehst du auf dem Schirm?',badge:'🔍 Neugierig',num:'🔍',hour:HA,short:'Einstieg',steps:[
@@ -2218,30 +2245,22 @@ const LEVELS=[
  boss:{name:'Dr. Zweifel',role:'Gutachter im Spurenlabor',ava:'🧐',bar:'Zweifel',win:'Dr. Zweifel ist überzeugt!'},steps:[
  {type:'info',html:()=>person(`<p>Ein Haar mit Licht messen? Das glaube ich erst, wenn die Rechnung stimmt.</p>`,HD_BOSS)+
    `<div class="merke"><b>So funktioniert der Gegner:</b> Jede richtige Aufgabe schwächt meinen Zweifel. Beim ersten Versuch gibt es bis zu 15 ⭐. Hilfen sind frei, auch der 🔁 Rückblick mit der Formel. Den Taschenrechner findest du oben.</div>`},
- {type:'calc',blatt:'A1',title:'Die Haardicke',
+ {type:'sim',blatt:'A1',title:'Die Haardicke',
   text:()=>`${OP('Berechne')} zuerst den ${T('streifenabstand')}: Ihr habt ${fmt(MW('s'),1)} mm über ${fmt(MW('n'),0)} Abstände gemessen. ${OP('Berechne')} dann die Haardicke in mm und in ${T('mikrometer')}. Alle Längen sind schon in mm umgerechnet: ${T('wellenlaenge')} ${HD_LTXT()} mm, Abstand Haar bis Schirm ${fmt(MW('L')*10,0)} mm.`+MQtxt(),
   einfach:{text:()=>`${OP('Berechne')} die Haardicke in drei Schritten. 1. Streifenabstand: Strecke ${fmt(MW('s'),1)} mm geteilt durch ${fmt(MW('n'),0)} Abstände. 2. Haardicke: Wellenlänge ${HD_LTXT()} mm mal Schirmabstand ${fmt(MW('L')*10,0)} mm, geteilt durch den Streifenabstand. 3. Das Ergebnis mal 1000 ergibt µm.`+MQtxt()},
   profi:{text:()=>`${OP('Berechne')} den Streifenabstand ${K('a')} aus ${K('s='+fmt(MW('s'),1)+'\\,\\text{mm}')} und ${K('n='+fmt(MW('n'),0))}, danach die Haardicke mit ${K('\\lambda='+HD_LTXT()+'\\,\\text{mm}')} und ${K('L='+fmt(MW('L')*10,0)+'\\,\\text{mm}')}, in mm und in µm.`+MQtxt()},
   data:()=>HD_FORM(),dataTitle:'Formel',
-  rows:[{pre:K('\\textsf{Streifenabstand}=\\dfrac{\\textsf{Strecke}}{\\textsf{Zahl der Abstände}}='),ans:()=>HD_A(),tol:.1,d:1,u:'mm',
-    traps:()=>[[MW('s'),'Du hast die ganze Strecke genommen. Teile noch durch die Zahl der Abstände.'],[HD_A()/10,'Das ist der Wert in cm. Gesucht ist er in mm.'],[MW('s')/(MW('n')+1),'Du hast durch die Zahl der dunklen Lücken geteilt. Zwischen der 1. und der 6. Lücke liegen nur 5 Abstände.']]},
-   {pre:K('\\textsf{Haardicke}=\\dfrac{\\textsf{Wellenlänge}\\cdot\\textsf{Schirmabstand}}{\\textsf{Streifenabstand}}='),ans:()=>HD_D(),rtol:.02,d:4,u:'mm',
-    traps:()=>[[HD_LMM()*MW('L')*10*HD_AR(),'Du hast mit dem Streifenabstand malgenommen. Durch den Streifenabstand wird geteilt.'],[MW('lam')*MW('L')*10/HD_AR(),'Du hast die Wellenlänge in nm eingesetzt. In mm sind das nur '+HD_LTXT()+' mm.'],[HD_D()/10,'Der Schirmabstand muss in mm eingesetzt werden, nicht in cm.']]},
-   {pre:K('\\textsf{Haardicke}='),ans:()=>HD_D()*1000,rtol:.02,d:0,u:'µm',traps:()=>[[HD_D()*100,'1 mm sind 1000 µm, nicht 100 µm.'],[HD_D()*1e6,'Einmal mal 1000 reicht: 1 mm sind 1000 µm.']]}],
-  after:()=>`Streifenabstand etwa ${fmt(HD_AR(),1)} mm. Haardicke etwa ${fmt(HD_D(),3)} mm, das sind ${HD_UM()} µm.`,
+  run:HD_AUSWERT,solution:'Streifenabstand = Strecke : Zahl der Abstände. Haardicke = Wellenlänge · Schirmabstand : Streifenabstand. Mal 1000 ergibt µm.',
   recap:`<p>Die Formel aus Level 1: Haardicke = Wellenlänge mal Schirmabstand, geteilt durch den Streifenabstand.</p><p>Beispiel: 90 mm über 5 Abstände ergeben 18 mm. Dann 0,00065 mm mal 2000 mm geteilt durch 18 mm ergibt etwa 0,072 mm, also 72 µm.</p>`,
-  hints:['Fang mit dem Streifenabstand an: Ihr habt mehrere Abstände auf einmal gemessen.','Streifenabstand = Strecke geteilt durch die Zahl der Abstände. Dann die Formel aus den gegebenen Werten.','Für µm rechnest du das Ergebnis in mm mal 1000.'],
-  twin:{type:'calc',title:'Zwilling: eine andere Gruppe',text:`${OP('Berechne')} Streifenabstand und Haardicke für eine andere Gruppe: 78 mm über 4 Abstände, Wellenlänge 0,00065 mm, Abstand Haar bis Schirm 2000 mm.`,
-   rows:[{pre:K('\\textsf{Streifenabstand}='),ans:19.5,tol:.1,d:1,u:'mm',traps:[[78,'Teile noch durch die 4 Abstände.'],[15.6,'Es sind 4 Abstände, nicht 5.']]},
-    {pre:K('\\textsf{Haardicke}='),ans:0.0667,rtol:.02,d:4,u:'mm',traps:[[25.35,'Durch den Streifenabstand teilen, nicht malnehmen.']]},
-    {pre:K('\\textsf{Haardicke}='),ans:66.7,rtol:.02,d:0,u:'µm',traps:[[6.67,'1 mm sind 1000 µm, nicht 100 µm.']]}],
-   after:'19,5 mm Streifenabstand, Haardicke etwa 0,067 mm = 67 µm.'}},
- {type:'mcq',bonus:1,art:'transfer',title:'Bonus: Grüner Laser',q:'Ihr nehmt dasselbe Haar und einen grünen Laser. Grünes Licht hat eine kleinere Wellenlänge als rotes. Was passiert mit den dunklen Lücken?',o:[
-   {t:'Sie rücken enger zusammen.',ok:1,fb:'Richtig. Kleinere Wellenlänge, kleinerer Streifenabstand. Die Haardicke bleibt ja gleich.'},
-   {t:'Sie rücken weiter auseinander.',fb:'Die Wellenlänge steht in der Formel über dem Bruchstrich. Wird sie kleiner, wird auch der Streifenabstand kleiner.'},
-   {t:'Sie bleiben genau gleich.',fb:'Der Streifenabstand hängt auch von der Wellenlänge ab.'},
-   {t:'Sie verschwinden ganz.',fb:'Auch grünes Licht ist eine Welle. Das Muster bleibt, nur der Abstand ändert sich.'}],
-  hints:['Welche Größe ändert sich, welche bleibt?','Die Haardicke bleibt gleich.','Streifenabstand und Wellenlänge wachsen zusammen.']}
+  hints:['Fang mit dem Streifenabstand an: Ihr habt mehrere Abstände auf einmal gemessen.','Streifenabstand = Strecke geteilt durch die Zahl der Abstände. Dann die Formel aus den gegebenen Werten.','Für µm rechnest du das Ergebnis in mm mal 1000.']},
+ {type:'calc',bonus:1,art:'transfer',title:'Bonus: Grüner Laser',text:()=>`${OP('Berechne')} den Streifenabstand, wenn ihr dasselbe Haar (${HD_UM()} µm = ${fmt(HD_UM()/1000,3)} mm) mit einem grünen Laser beleuchtet. Grünes Licht hat die Wellenlänge 532 nm = 0,000532 mm. Der Schirm bleibt ${fmt(MW('L')*10,0)} mm entfernt.`,
+  rows:[{pre:K('\\textsf{Streifenabstand}=\\dfrac{\\textsf{Wellenlänge}\\cdot\\textsf{Schirmabstand}}{\\textsf{Haardicke}}='),ans:()=>0.000532*MW('L')*10/(HD_UM()/1000),rtol:.03,d:1,u:'mm',
+    traps:()=>[[0.000532*MW('L')*10/HD_UM(),'Setz die Haardicke in mm ein, nicht in µm.'],[0.000532*MW('L')*10*(HD_UM()/1000),'Durch die Haardicke wird geteilt, nicht malgenommen.']]}],
+  after:()=>`Etwa ${fmt(0.000532*MW('L')*10/(HD_UM()/1000),1)} mm. Grünes Licht hat die kleinere Wellenlänge, deshalb rücken die Lücken enger zusammen.`,
+  hints:['Die Formel lässt sich umstellen: Streifenabstand und Haardicke tauschen die Plätze.','Streifenabstand = Wellenlänge · Schirmabstand : Haardicke, alles in mm.','Rechne 0,000532 mal Schirmabstand in mm und teile durch die Haardicke in mm.'],
+  twin:{type:'calc',title:'Zwilling: Blauer Laser',text:`${OP('Berechne')} den Streifenabstand für ein Haar von 80 µm = 0,08 mm, einen blauen Laser mit 450 nm = 0,00045 mm und 2000 mm Schirmabstand.`,
+   rows:[{pre:K('\\textsf{Streifenabstand}='),ans:11.25,rtol:.02,d:2,u:'mm',traps:[[0.01125,'Setz die Haardicke in mm ein: 0,08 mm.'],[0.072,'Durch die Haardicke wird geteilt, nicht malgenommen.']]}],
+   after:'0,00045 mm · 2000 mm : 0,08 mm = 11,25 mm.'}}
 ]},
 /* ===== 5 Finale: Haar-Ausweis ===== */
 {title:'Finale: Dein Haar-Ausweis',tag:'Handlungsprodukt',sub:'Ergebnis festhalten, Platz aufräumen',badge:'🪪 Haar-Detektiv',num:'🪪',hour:HB,short:'Ausweis',final:true,rankUp:'Haar-Detektiv',steps:[
