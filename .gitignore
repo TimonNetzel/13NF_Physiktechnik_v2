@@ -5,3 +5,11 @@ applet*.html
 vorlage.html
 node_modules/
 qa/
+*_simulation_loesungen.html
+lernen_loesungen.html
+halbjahresskript*.html
+lernlandkarte*
+klausur.yaml
+eh.yaml
+*NICHT_SCANNEN*
+besprechungsplan.*
