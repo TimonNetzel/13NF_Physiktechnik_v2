@@ -1,5 +1,6 @@
 kurs.json
-materialien/
+materialien/*
+!materialien/antwortbogen_anleitung.html
 nachklausuren/
 applet*.html
 vorlage.html

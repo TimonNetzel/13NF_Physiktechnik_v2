@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anleitung Antwortbogen</title>
+<style>
+:root{--ink:#1d2433;--mute:#5b6476;--line:#d7dce5;--bg:#ffffff;--soft:#f3f5f9;--acc:#1f5fbf;--ok:#1d7a46;--okbg:#e8f5ee;--no:#b3261e;--nobg:#fbeceb;--paper:#ffffff;--grid:#d9dee8}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#e6e9ef;--mute:#a6aebd;--line:#3a4252;--bg:#151922;--soft:#1e2430;--acc:#7fb0ff;--ok:#6fd39b;--okbg:#18301f;--no:#ff8a80;--nobg:#3a1d1b;--paper:#f7f8fa;--grid:#c9cfdb}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:760px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:1.65rem;margin:0 0 6px}
+h2{font-size:1.2rem;margin:34px 0 10px}
+.sub{color:var(--mute);margin:0 0 20px}
+.karte{background:var(--soft);border-radius:12px;padding:14px 16px;margin:12px 0}
+.num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--acc);color:var(--bg);font-weight:700;margin-right:8px;flex:none}
+.schritt{display:flex;align-items:flex-start;margin:10px 0}
+.zwei{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.zwei{grid-template-columns:1fr}}
+.ja,.nein{border-radius:12px;padding:12px 14px}
+.ja{background:var(--okbg);border:2px solid var(--ok)}
+.nein{background:var(--nobg);border:2px solid var(--no)}
+.ja h3,.nein h3{margin:0 0 6px;font-size:1.05rem}
+.ja h3{color:var(--ok)} .nein h3{color:var(--no)}
+.ja ul,.nein ul{margin:0;padding-left:20px}
+figure{margin:12px 0}
+svg{width:100%;height:auto;max-width:520px;display:block;margin:0 auto}
+figcaption{color:var(--mute);font-size:.9rem;text-align:center;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+.merke{border:2px solid var(--acc);border-radius:12px;padding:12px 16px;font-weight:600;margin:24px 0}
+@media print{body{font-size:11pt}main{padding:0;max-width:none}.karte,.ja,.nein,figure,table{break-inside:avoid}}
+</style>
+</head>
+<body>
+<main>
+<h1>So füllen Sie den Antwortbogen aus</h1>
+<p class="sub">Für alle Klausuren mit Antwortbogen. Lesen dauert 3 Minuten. Üben können Sie mit dem Übungsbogen der Probeklausur.</p>
+
+<h2>Was Sie in der Klausur bekommen</h2>
+<div class="karte">
+<div class="schritt"><span class="num">1</span><div><b>Aufgabenblatt.</b> Hier stehen die Aufgaben. Notizen darauf sind erlaubt, werden aber nicht bewertet.</div></div>
+<div class="schritt"><span class="num">2</span><div><b>Antwortbogen-Paket mit Ihrer Nummer.</b> Für jede Teilaufgabe gibt es ein Feld mit Rahmen. Nur das wird bewertet. Am Ende des Pakets liegen zwei Zusatzblätter.</div></div>
+</div>
+
+<h2>So sieht eine Seite aus</h2>
+<figure>
+<svg viewBox="0 0 520 420" role="img" aria-label="Skizze einer Seite des Antwortbogens mit Beschriftungen">
+<rect x="10" y="10" width="300" height="400" rx="4" fill="var(--paper)" stroke="#8a93a5"/>
+<rect x="18" y="18" width="12" height="12" fill="#111"/><rect x="290" y="18" width="12" height="12" fill="#111"/>
+<rect x="18" y="390" width="12" height="12" fill="#111"/><rect x="290" y="390" width="12" height="12" fill="#111"/>
+<rect x="255" y="34" width="34" height="34" fill="none" stroke="#111" stroke-width="2"/>
+<rect x="261" y="40" width="9" height="9" fill="#111"/><rect x="274" y="40" width="9" height="9" fill="#111"/><rect x="261" y="53" width="9" height="9" fill="#111"/><rect x="276" y="55" width="5" height="5" fill="#111"/>
+<rect x="38" y="36" width="70" height="26" fill="none" stroke="#111"/>
+<text x="73" y="54" font-size="12" text-anchor="middle" fill="#111" font-family="sans-serif">05</text>
+<text x="40" y="92" font-size="10" font-weight="700" fill="#111" font-family="sans-serif">Aufgabe 1a</text>
+<text x="290" y="92" font-size="9" text-anchor="end" fill="#111" font-family="sans-serif">3 P</text>
+<rect x="38" y="97" width="252" height="120" fill="none" stroke="#111" stroke-width="1.5"/>
+<g stroke="var(--grid)" stroke-width="1"><line x1="38" y1="121" x2="290" y2="121"/><line x1="38" y1="145" x2="290" y2="145"/><line x1="38" y1="169" x2="290" y2="169"/><line x1="38" y1="193" x2="290" y2="193"/></g>
+<text x="46" y="116" font-size="12" fill="#1f3fa0" font-family="cursive,sans-serif">T(t) = 20 + 70 e^(-0,1 t)</text>
+<text x="40" y="240" font-size="10" font-weight="700" fill="#111" font-family="sans-serif">Aufgabe 1b</text>
+<text x="290" y="240" font-size="9" text-anchor="end" fill="#111" font-family="sans-serif">3 P</text>
+<rect x="38" y="245" width="252" height="130" fill="none" stroke="#111" stroke-width="1.5"/>
+<g stroke="var(--grid)" stroke-width="1">
+<line x1="38" y1="258" x2="290" y2="258"/><line x1="38" y1="271" x2="290" y2="271"/><line x1="38" y1="284" x2="290" y2="284"/><line x1="38" y1="297" x2="290" y2="297"/><line x1="38" y1="310" x2="290" y2="310"/><line x1="38" y1="323" x2="290" y2="323"/><line x1="38" y1="336" x2="290" y2="336"/><line x1="38" y1="349" x2="290" y2="349"/><line x1="38" y1="362" x2="290" y2="362"/>
+<line x1="51" y1="245" x2="51" y2="375"/><line x1="64" y1="245" x2="64" y2="375"/><line x1="77" y1="245" x2="77" y2="375"/><line x1="90" y1="245" x2="90" y2="375"/><line x1="103" y1="245" x2="103" y2="375"/><line x1="116" y1="245" x2="116" y2="375"/><line x1="129" y1="245" x2="129" y2="375"/><line x1="142" y1="245" x2="142" y2="375"/><line x1="155" y1="245" x2="155" y2="375"/><line x1="168" y1="245" x2="168" y2="375"/><line x1="181" y1="245" x2="181" y2="375"/><line x1="194" y1="245" x2="194" y2="375"/><line x1="207" y1="245" x2="207" y2="375"/><line x1="220" y1="245" x2="220" y2="375"/><line x1="233" y1="245" x2="233" y2="375"/><line x1="246" y1="245" x2="246" y2="375"/><line x1="259" y1="245" x2="259" y2="375"/><line x1="272" y1="245" x2="272" y2="375"/><line x1="285" y1="245" x2="285" y2="375"/>
+</g>
+<g font-size="12" fill="var(--ink)" font-family="sans-serif">
+<line x1="108" y1="49" x2="330" y2="40" stroke="var(--acc)"/><text x="334" y="44">Ihre Prüfungsnummer</text><text x="334" y="58" fill="var(--mute)" font-size="11">ist schon gedruckt</text>
+<line x1="289" y1="51" x2="330" y2="90" stroke="var(--acc)"/><text x="334" y="94">QR-Code</text><text x="334" y="108" fill="var(--mute)" font-size="11">frei lassen</text>
+<line x1="302" y1="24" x2="330" y2="140" stroke="var(--acc)"/><text x="334" y="144">Eckmarken</text><text x="334" y="158" fill="var(--mute)" font-size="11">frei lassen</text>
+<line x1="290" y1="160" x2="330" y2="200" stroke="var(--acc)"/><text x="334" y="204">Feld mit Rahmen</text><text x="334" y="218" fill="var(--mute)" font-size="11">nur hier schreiben</text>
+<line x1="290" y1="300" x2="330" y2="300" stroke="var(--acc)"/><text x="334" y="304">Kästchen für Rechnungen</text>
+</g>
+</svg>
+<figcaption>Skizze einer Seite. Die echte Seite hat mehr Felder.</figcaption>
+</figure>
+
+<h2>Die Regeln</h2>
+<div class="zwei">
+<div class="ja"><h3>So ist es richtig</h3>
+<ul>
+<li>Blauer oder schwarzer Kugelschreiber oder Füller</li>
+<li>Jede Antwort in das Feld ihrer Aufgabe, z. B. 1b nur in „Aufgabe 1b“</li>
+<li>Falsches durchstreichen, daneben neu schreiben</li>
+<li>Rechenweg vollständig ins Feld</li>
+<li>Diagramme direkt in das vorgedruckte Achsenkreuz</li>
+</ul></div>
+<div class="nein"><h3>Das geht nicht</h3>
+<ul>
+<li>Bleistift, roter oder grüner Stift, Textmarker</li>
+<li>Name auf den Bögen</li>
+<li>Schreiben außerhalb der Rahmen oder auf der Rückseite</li>
+<li>Etwas auf QR-Code oder Eckmarken schreiben</li>
+<li>Tintenkiller, Tipp-Ex, Blätter knicken oder heften</li>
+</ul></div>
+</div>
+<p>Warum so streng? Die Bögen werden gescannt. Ein Programm schneidet jedes Feld einzeln aus. Was außerhalb eines Rahmens steht, sieht bei der Korrektur niemand.</p>
+
+<h2>Platz reicht nicht: Zusatzblatt</h2>
+<div class="karte">
+<div class="schritt"><span class="num">1</span><div>Im Feld der Aufgabe unten notieren: <b>„weiter auf Zusatzblatt 1“</b>.</div></div>
+<div class="schritt"><span class="num">2</span><div>Auf dem Zusatzblatt oben die Aufgabe <b>ankreuzen</b>, z. B. ☒ 1b. Mehrere Kreuze sind erlaubt.</div></div>
+<div class="schritt"><span class="num">3</span><div>Vor jedem Teil auf dem Zusatzblatt die Aufgabe als Überschrift schreiben, z. B. <b>„1b Fortsetzung“</b>.</div></div>
+<div class="schritt"><span class="num">4</span><div>Sie brauchen ein drittes Zusatzblatt? Melden Sie sich. Sie bekommen eines von der Lehrkraft.</div></div>
+</div>
+
+<h2>Am Ende der Klausur</h2>
+<div class="karte">
+<div class="schritt"><span class="num">1</span><div>Durchblättern: Steht jede Antwort im richtigen Feld?</div></div>
+<div class="schritt"><span class="num">2</span><div>Alle Blätter des Pakets abgeben, auch leere Zusatzblätter. Büroklammer wieder dran.</div></div>
+<div class="schritt"><span class="num">3</span><div>Das Aufgabenblatt getrennt abgeben.</div></div>
+</div>
+
+<h2>Häufige Fragen</h2>
+<table>
+<tr><th>Frage</th><th>Antwort</th></tr>
+<tr><td>Warum steht kein Name auf dem Bogen?</td><td>Die Korrektur läuft nur mit Prüfungsnummern. Welche Nummer zu Ihnen gehört, weiß nur die Lehrkraft. Die Liste bleibt auf Papier in der Schule.</td></tr>
+<tr><td>Wer bewertet meine Klausur?</td><td>Ihre Lehrkraft. Ein Programm hilft beim Ausschneiden der Felder und macht einen Vorschlag. Jede Punktzahl legt die Lehrkraft fest.</td></tr>
+<tr><td>Ich habe mich im Feld verschrieben.</td><td>Durchstreichen und im selben Feld weiterschreiben. Reicht der Platz nicht, das Zusatzblatt nutzen.</td></tr>
+<tr><td>Ich habe die Antwort ins falsche Feld geschrieben.</td><td>Durchstreichen und im richtigen Feld noch einmal schreiben. Ist das Feld voll, ein Zusatzblatt nehmen und die richtige Aufgabe ankreuzen.</td></tr>
+<tr><td>Was ist mit dem Übungsbogen?</td><td>Er sieht genauso aus wie der echte Bogen, hat aber keine Nummer und wird nicht bewertet. Feld „Prüfungsnummer“ leer lassen.</td></tr>
+</table>
+
+<div class="merke">Kurz gemerkt: Kugelschreiber. Nur in die Rahmen. Kein Name. Zusatzblatt ankreuzen. Alles abgeben.</div>
+</main>
+</body>
+</html>
