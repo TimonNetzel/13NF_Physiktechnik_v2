@@ -55,7 +55,7 @@ var LKZ=(function(){
   return {norm:norm,hash:hash,stimmt:stimmt,angemeldet:angemeldet,merken:merken,abmelden:abmelden,gemerkt:gemerkt};
 })();
 </script>
-  <script>var SEITEN_VERSION = "e89924d92dec";</script>
+  <script>var SEITEN_VERSION = "41ae1d44c9d1";</script>
 
   <!-- Alles Weitere erzeugt _werkzeuge/index_bauen.py. Bitte nicht von Hand ändern. -->
   <style>
@@ -348,6 +348,11 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
       <div class="karten" id="geschrieben-karten"></div>
     </section>
 
+    <section id="einzelsimulationen" aria-labelledby="einzelsimulationen-titel" hidden>
+      <div class="abschnitt-kopf"><div><h2 id="einzelsimulationen-titel">Simulationen</h2></div></div>
+      <div class="karten" id="einzelsimulation-karten"></div>
+    </section>
+
     <section id="simulationen" aria-labelledby="simulationen-titel" hidden>
       <div class="abschnitt-kopf"><div><h2 id="simulationen-titel">Lernsimulationen</h2><p>Versuche virtuell vorbereiten. Dazu gibt es das Laborheft für den echten Versuch.</p></div></div>
       <div class="karten" id="simulation-karten"></div>
@@ -392,7 +397,7 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
  "klasse": "13NF",
  "fach": "Physiktechnik",
  "schuljahr": "2026/27",
- "erzeugt": "2026-11-22",
+ "erzeugt": "2026-11-26",
  "wochen": [
   {
    "nr": 1,
@@ -535,6 +540,13 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
    "html": "klausuren/klausur-01.html",
    "titel": "Klausur 1 · Erwartungshorizont, Musterlösung und Notenverteilung",
    "dauer": ""
+  }
+ ],
+ "einzelsimulationen": [
+  {
+   "html": "simulationen/ultraschallpruefung.html",
+   "titel": "Ultraschallprüfung in Metallen",
+   "dauer": "20 Min."
   }
  ],
  "simulationen": [
@@ -729,6 +741,7 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
     if (klausuren) zahlen.push("<b>" + klausuren + "</b> Probeklausuren");
     var geschrieben = d.klausuren || [];
     if (geschrieben.length) zahlen.push("<b>" + geschrieben.length + "</b> Klausuren");
+    var einzelsimulationen = d.einzelsimulationen || [];
     var simulationen = d.simulationen || [];
     if (simulationen.length) zahlen.push("<b>" + simulationen.length + "</b> Lernsimulationen");
     var praktikum = (d.praktikum || []).concat([]);
@@ -749,6 +762,7 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
     if (d.materialien.length) sprung.push('<a href="#skripte">Skripte</a>');
     if (klausuren) sprung.push('<a href="#klausuren">Probeklausuren</a>');
     if (geschrieben.length) sprung.push('<a href="#geschrieben">Klausuren</a>');
+    if (einzelsimulationen.length) sprung.push('<a href="#einzelsimulationen">Simulationen</a>');
     if (simulationen.length) sprung.push('<a href="#simulationen">Lernsimulationen</a>');
     if (praktikum.length || praktikumMaterial.length) sprung.push('<a href="#praktikum">Praktikum</a>');
     if (modelle.length) sprung.push('<a href="#modelle">3D-Modelle</a>');
@@ -889,6 +903,13 @@ body.beamer .beamer-aus { display: inline-flex; position: fixed; top: 16px; righ
       document.getElementById("geschrieben-karten").innerHTML =
         geschrieben.map(function (k) { return klausurKarte(k, "klausur", "Besprechung öffnen"); }).join("");
       document.getElementById("geschrieben").hidden = false;
+    }
+    if (einzelsimulationen.length) {
+      document.getElementById("einzelsimulation-karten").innerHTML = einzelsimulationen.map(function (s) {
+        return '<div class="karte"><div><h3>' + esc(s.titel) + '</h3></div><div class="materialien">' +
+          knopf("simulation", {html: s.html}, "Simulation starten", s.dauer) + "</div></div>";
+      }).join("");
+      document.getElementById("einzelsimulationen").hidden = false;
     }
     // Lernsimulation: Simulation (volle Seite wie lernen.html) und Laborheft (PDF, daneben Lösung)
     if (simulationen.length) {
