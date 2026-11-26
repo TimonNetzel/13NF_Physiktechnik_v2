@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interaktive Unterrichtseinheit für die 13NF über Longitudinalwellen, Transversalwellen und Rückwandreflexion in Stahl.">
+  <title>13NF · Physiktechnik · Ultraschallprüfung in Metallen · 20 Minuten</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172a38;
+      --muted: #4a626e;
+      --paper: #f0f5f6;
+      --white: #fff;
+      --line: #c8d8dd;
+      --dark: #102a39;
+      --primary: #09596b;
+      --primary-hover: #084555;
+      --l: #72def2;
+      --t: #ffc477;
+      --l-text: #066679;
+      --t-text: #8d4806;
+      font-family: system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--paper); color: var(--ink); line-height: 1.55; }
+    button, input, select { font: inherit; }
+    button, select { cursor: pointer; }
+    a { color: var(--primary); }
+    :focus-visible { outline: 3px solid #a84d10; outline-offset: 4px; }
+    .wrap { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+    .top { background: var(--white); border-bottom: 1px solid var(--line); }
+    .top .wrap { display: flex; justify-content: space-between; gap: 12px 24px; align-items: center; flex-wrap: wrap; padding-block: 13px; }
+    .home { font-weight: 750; text-decoration: none; }
+    .top nav, .actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .top nav a { padding: 5px 9px; font-size: .92rem; text-decoration: none; border-radius: 5px; }
+    .top nav a:hover { background: var(--paper); text-decoration: underline; }
+    .hero { background: var(--dark); color: white; padding: clamp(32px, 6vw, 76px) 0; }
+    .hero .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 280px); gap: 30px; align-items: center; }
+    .eyebrow { margin: 0 0 8px; color: var(--l); font-size: .83rem; font-weight: 750; letter-spacing: .09em; text-transform: uppercase; }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: clamp(2.3rem, 6vw, 5rem); line-height: 1.02; letter-spacing: -.055em; }
+    h2 { font-size: clamp(1.7rem, 4vw, 2.5rem); line-height: 1.12; letter-spacing: -.035em; }
+    h3 { line-height: 1.25; }
+    .hero p:not(.eyebrow) { max-width: 54ch; margin-top: 17px; color: #d3e6ec; }
+    .plan { list-style: none; margin: 0; padding: 0; border-top: 1px solid #567281; }
+    .plan a { display: flex; justify-content: space-between; gap: 12px; padding-block: 9px; color: white; border-bottom: 1px solid #567281; text-decoration: none; }
+    .plan a:hover span:first-child { text-decoration: underline; }
+    .plan a span:last-child { color: #b4d6df; white-space: nowrap; }
+    main { padding-bottom: 48px; }
+    section { scroll-margin-top: 22px; margin-top: clamp(36px, 6vw, 68px); }
+    .section-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 16px; flex-wrap: wrap; margin-bottom: 15px; }
+    .minutes { color: var(--muted); font-weight: 650; white-space: nowrap; }
+    .lead { max-width: 76ch; margin-bottom: 18px; }
+    .card { background: var(--white); border: 1px solid var(--line); border-radius: 14px; }
+    .wave-grid, .lab, .tasks, .mode-grid { display: grid; gap: 14px; }
+    .wave-grid, .tasks, .mode-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .wave { padding: 18px; overflow: hidden; }
+    .wave p { margin: 8px 0 13px; }
+    .wave.long h3 { color: var(--l-text); }
+    .wave.trans h3 { color: var(--t-text); }
+    canvas { display: block; width: 100%; }
+    .wave canvas { height: 112px; border-radius: 8px; background: var(--dark); }
+    .intro-actions { margin-top: 12px; }
+    .button {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 14px;
+      border: 1px solid var(--primary); border-radius: 7px; background: var(--primary);
+      color: white; font-weight: 700; text-decoration: none; text-align: center;
+    }
+    .button:hover { background: var(--primary-hover); }
+    .button.secondary { background: var(--white); color: var(--primary); }
+    .button.secondary:hover, .button[aria-pressed="true"] { background: #dceef2; color: #083f4d; }
+    .button:disabled, .answer:disabled { cursor: default; }
+    .button:disabled { opacity: .65; }
+    .lab { grid-template-columns: minmax(0, 1fr) minmax(235px, 275px); align-items: start; }
+    .scope { margin: 0; overflow: hidden; background: var(--dark); color: white; border-radius: 14px; }
+    .scope-head { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 3px 12px; padding: 13px 16px 0; }
+    .scope-head span, .scope figcaption { color: #d3e6ec; font-size: .87rem; }
+    #plate { height: clamp(228px, 41vw, 370px); }
+    .scope figcaption { display: flex; flex-wrap: wrap; gap: 5px 18px; padding: 3px 16px 13px; }
+    .legend::before { display: inline-block; width: 19px; margin-inline-end: 6px; content: ""; vertical-align: middle; border-top: 3px solid var(--l); }
+    .legend.reflected::before { border-top-style: dashed; }
+    .legend.shear::before { border-color: var(--t); border-top-style: dotted; }
+    .controls { padding: 15px; }
+    .controls label { font-weight: 750; }
+    #angle-value { float: right; color: var(--primary); font-weight: 800; font-variant-numeric: tabular-nums; }
+    input[type="range"] { display: block; width: 100%; margin: 11px 0; accent-color: var(--primary); min-height: 26px; }
+    .presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+    .presets button { padding-inline: 4px; }
+    .pulse-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 12px; }
+    #play-pulse { grid-column: 1 / -1; }
+    .lab-status { min-height: 3.2em; margin-top: 10px; color: var(--muted); font-size: .88rem; }
+    .readouts { display: grid; gap: 8px; margin: 11px 0 0; }
+    .readout { border-top: 1px solid var(--line); padding-top: 7px; }
+    .readout dt { font-weight: 750; }
+    .readout dd { margin: 1px 0 0; font-size: .88rem; font-variant-numeric: tabular-nums; }
+    .readout:first-child dt { color: var(--l-text); }
+    .readout:last-child dt { color: var(--t-text); }
+    .tasks { margin-top: 15px; }
+    .task { padding: 16px 18px; }
+    .task p { margin-top: 8px; }
+    .tasks ol { margin: 8px 0 0; padding-inline-start: 21px; }
+    .tasks li + li { margin-top: 7px; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--primary); font-weight: 750; }
+    details p { margin-top: 7px; }
+    .model { padding: 10px 15px; color: var(--muted); font-size: .92rem; }
+    .mode { padding: 19px; }
+    .mode p { margin-block: 7px 13px; }
+    .quiz-run, .quiz-result { padding: clamp(14px, 3.2vw, 30px); }
+    .quiz-header { display: flex; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; align-items: center; color: var(--muted); font-weight: 700; }
+    .quiz-header .actions { margin-left: auto; }
+    .quiz-run progress { display: block; width: 100%; height: 12px; margin: 11px 0 16px; accent-color: var(--primary); }
+    #question { margin-bottom: 17px; font-size: clamp(1.25rem, 3.8vw, 2rem); }
+    .answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin: 0; padding: 0; list-style: none; }
+    .answers li { display: flex; }
+    .answer { display: flex; align-items: center; gap: 11px; width: 100%; min-height: 68px; padding: 11px 13px; border: 2px solid transparent; border-radius: 8px; background: var(--tile); color: white; text-align: left; font-weight: 650; }
+    button.answer:not(:disabled):hover { filter: brightness(1.14); }
+    .a { --tile: #a12d42; }
+    .b { --tile: #215d9e; }
+    .c { --tile: #875400; }
+    .d { --tile: #236345; }
+    .letter { display: grid; place-items: center; flex: 0 0 30px; height: 30px; border: 1px solid #fff; border-radius: 5px; font-weight: 800; }
+    .answer.is-correct { border-color: #104b2c; background: #d6f3df; color: #104b2c; }
+    .answer.is-wrong { border-color: #82354a; background: #f9e1e6; color: #6b2034; }
+    .answer:is(.is-correct, .is-wrong) .letter { border-color: currentColor; }
+    .feedback { margin-top: 14px; padding: 12px; border-left: 4px solid var(--primary); background: #e7f1f3; border-radius: 5px; }
+    .feedback p + p { margin-top: 4px; }
+    .quiz-actions { margin-top: 14px; }
+    .team-panel { margin: 14px 0 0; padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
+    .team-panel legend { padding-inline: 4px; font-weight: 750; }
+    .teams { display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); gap: 9px; }
+    .teams label { display: grid; gap: 4px; font-weight: 650; }
+    select { min-height: 44px; padding: 3px 8px; border: 1px solid var(--line); border-radius: 6px; background: white; color: var(--ink); }
+    #clock { min-width: 7ch; font-variant-numeric: tabular-nums; }
+    #result-list { padding-inline-start: 24px; }
+    #result-heading { font-size: 1.6rem; }
+    .back-bottom { display: inline-block; margin-top: 26px; }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: 1fr; }
+      .readouts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      .wrap { width: calc(100% - 24px); }
+      h1 { font-size: clamp(1.8rem, 8.6vw, 2.8rem); }
+      .hero .wrap, .wave-grid, .tasks, .mode-grid, .answers { grid-template-columns: 1fr; }
+      .hero .wrap { gap: 20px; }
+      .answer { min-height: 48px; }
+      .quiz-header .actions { margin-left: 0; }
+    }
+    @media (prefers-contrast: more) {
+      :root { --line: #576a72; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <a class="home" href="../index.html">← 13NF Physiktechnik</a>
+      <nav aria-label="Abschnitte">
+        <a href="#wellen">Wellenarten</a>
+        <a href="#experiment">Experiment</a>
+        <a href="#quiz">Quiz</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Zerstörungsfreie Werkstoffprüfung</p>
+        <h1>Ultraschallprüfung<br>in Metallen</h1>
+        <p>Ein Prüfkopf sendet einen Schallimpuls in Stahl. Untersuche, wann an der Rückwand eine zweite Wellenart entsteht und wann ein Echo zum Prüfkopf zurückläuft.</p>
+      </div>
+      <ol class="plan" aria-label="Ablauf für 20 Minuten">
+        <li><a href="#wellen"><span>1. Wellenarten</span><span>4 Min.</span></a></li>
+        <li><a href="#experiment"><span>2. Experiment</span><span>10 Min.</span></a></li>
+        <li><a href="#quiz"><span>3. Quiz</span><span>6 Min.</span></a></li>
+      </ol>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <noscript><p>Aktiviere JavaScript im Browser, um die Animationen und das Quiz zu verwenden.</p></noscript>
+    <section id="wellen" aria-labelledby="waves-heading">
+      <div class="section-heading"><h2 id="waves-heading">1. Wie schwingen die Teilchen?</h2><span class="minutes">4 Min.</span></div>
+      <p class="lead">Ultraschall breitet sich als mechanische Welle aus. Im Stahl schwingen Teilchen um ihre Ruhelage. Die Welle transportiert Energie durch das Bauteil. Vergleiche die weißen Teilchenpfeile mit dem farbigen Pfeil für die Ausbreitung.</p>
+      <div class="wave-grid">
+        <article class="card wave long">
+          <h3>Longitudinalwelle (L)</h3>
+          <p>Die Teilchen schwingen <strong>parallel</strong> zur Ausbreitungsrichtung. Im Stahl wandern dabei Verdichtungen und Verdünnungen.</p>
+          <canvas id="long-wave" role="img" aria-label="Die Welle läuft nach rechts. Die Teilchen schwingen waagerecht."></canvas>
+        </article>
+        <article class="card wave trans">
+          <h3>Transversalwelle (T)</h3>
+          <p>Die Teilchen schwingen <strong>quer</strong> zur Ausbreitungsrichtung. Im Stahl führt das zu einer Scherverformung.</p>
+          <canvas id="trans-wave" role="img" aria-label="Die Welle läuft nach rechts. Die Teilchen schwingen senkrecht."></canvas>
+        </article>
+      </div>
+      <div class="actions intro-actions">
+        <button class="button secondary" id="wave-play" type="button" aria-pressed="false">Teilchenbewegung abspielen</button>
+      </div>
+    </section>
+
+    <section id="experiment" aria-labelledby="lab-heading">
+      <div class="section-heading"><h2 id="lab-heading">2. Was passiert an der Rückwand?</h2><span class="minutes">10 Min.</span></div>
+      <p class="lead">Der Prüfkopf schickt im Modell immer einen L-Impuls in die Stahlplatte. Der Einfallswinkel liegt <strong>im Stahl</strong> zwischen dem Strahl und dem Lot auf die Rückwand.</p>
+      <div class="lab">
+        <figure class="scope">
+          <div class="scope-head"><strong>Strahlengang in Stahl</strong><span>Teilchenbewegung vergrößert</span></div>
+          <canvas id="plate" role="img" aria-label="Stahlplatte mit Prüfkopf und Strahlengang. Die Werte neben der Grafik beschreiben die reflektierten Wellen."></canvas>
+          <figcaption>
+            <span class="legend">L einfallend</span>
+            <span class="legend reflected">L reflektiert</span>
+            <span class="legend shear">T reflektiert</span>
+          </figcaption>
+        </figure>
+        <div class="card controls">
+          <label for="angle">Einfallswinkel</label>
+          <output id="angle-value" for="angle">0°</output>
+          <input id="angle" type="range" min="0" max="55" step="1" value="0">
+          <div class="presets" role="group" aria-label="Vorgegebene Winkel">
+            <button class="button secondary" type="button" data-angle="0" aria-pressed="true">0°</button>
+            <button class="button secondary" type="button" data-angle="30" aria-pressed="false">30°</button>
+            <button class="button secondary" type="button" data-angle="45" aria-pressed="false">45°</button>
+          </div>
+          <div class="pulse-controls">
+            <button class="button" id="play-pulse" type="button">Impuls senden</button>
+            <button class="button secondary" id="step-pulse" type="button">Nächste Phase</button>
+            <button class="button secondary" id="reset-pulse" type="button">Zurücksetzen</button>
+          </div>
+          <p class="lab-status" id="lab-status" role="status"></p>
+          <dl class="readouts" aria-label="Reflektierte Wellen">
+            <div class="readout"><dt>L reflektiert</dt><dd id="l-reflection">0° zum Lot, 100 % Energie</dd></div>
+            <div class="readout"><dt>T reflektiert</dt><dd id="t-reflection">Entsteht bei 0° nicht</dd></div>
+          </dl>
+        </div>
+      </div>
+      <div class="tasks">
+        <article class="card task">
+          <h3>Senkrecht prüfen (4 Min.)</h3>
+          <ol>
+            <li>Stelle 0° ein. Sende einen Impuls oder gehe Phase für Phase vor.</li>
+            <li>Beschreibe den Rückweg. Welche Wellenart erreicht den Prüfkopf?</li>
+          </ol>
+          <details>
+            <summary>Beobachtung abgleichen</summary>
+            <p>Die reflektierte L-Welle läuft auf demselben Weg zurück zum Prüfkopf. Im Modell entsteht bei senkrechtem Einfall keine T-Welle.</p>
+          </details>
+        </article>
+        <article class="card task">
+          <h3>Schräg prüfen (6 Min.)</h3>
+          <ol>
+            <li>Teste 30° und 45°. Vergleiche die beiden reflektierten Winkel und die Reihenfolge, in der die Impulse oben ankommen.</li>
+            <li>Erkläre, warum dieses Mal kein direktes Rückwandecho am selben Prüfkopf ankommt.</li>
+          </ol>
+          <details>
+            <summary>Beobachtung abgleichen</summary>
+            <p>Bei beiden Winkeln entstehen L- und T-Wellen. Wenn ein Teil der Energie eines L-Impulses in eine T-Welle übergeht, spricht man von Modenumwandlung. Die T-Welle läuft näher am Lot und trifft später ein. Beide Strahlen treffen die Oberseite seitlich neben dem Prüfkopf.</p>
+          </details>
+        </article>
+      </div>
+      <details class="card model">
+        <summary>Modell und Bezug zur Werkstoffprüfung</summary>
+        <p>Das Modell zeigt eine homogene, isotrope Stahlplatte mit freier, ebener Rückwand. Es berücksichtigt die erste Reflexion. Dämpfung und die Kopplung am Eintritt bleiben im Modell unberücksichtigt. Die Energieanteile beziehen sich auf die Rückwand. Die Zeichenstärke der Strahlen ist schematisch.</p>
+        <p>Typische Modellwerte für Stahl sind <strong>5 900 m/s für L</strong> und <strong>3 230 m/s für T</strong>. Die reflektierte L-Welle hat den gleichen Winkel zum Lot wie die einfallende. Für die T-Welle gilt sin(β) = (c<sub>T</sub> / c<sub>L</sub>) · sin(α). Ihr Winkel β ist daher bei schrägem Einfall kleiner als α.</p>
+        <p>Bei der Ultraschallprüfung können auch Risse oder andere Grenzflächen Schall zurückwerfen. Ob ein Echo ankommt, hängt unter anderem von der Ausrichtung der Grenzfläche ab. In der Praxis kann ein Winkelprüfkopf bereits eine T-Welle in den Stahl einschallen.</p>
+      </details>
+    </section>
+
+    <section id="quiz" aria-labelledby="quiz-heading">
+      <div class="section-heading"><h2 id="quiz-heading">3. Quiz zur Rückwandreflexion</h2><span class="minutes">6 Min.</span></div>
+      <div class="mode-grid" id="quiz-modes">
+        <article class="card mode">
+          <h3>Allein spielen</h3>
+          <p>Beantworte fünf Fragen im eigenen Tempo. Für jede richtige Antwort gibt es einen Punkt und zu jeder Frage eine Erklärung.</p>
+          <button class="button" id="start-solo" type="button">Einzelquiz starten</button>
+        </article>
+        <article class="card mode">
+          <h3>Gemeinsam am Beamer spielen</h3>
+          <p>Jedes Team stimmt mit A, B, C oder D ab, etwa per Handzeichen oder Karte. Die Lehrkraft trägt die Stimmen ein und deckt die Lösung auf.</p>
+          <div class="actions">
+            <label for="team-count">Teams</label>
+            <select id="team-count">
+              <option value="1">1 (ganze Klasse)</option>
+              <option value="2" selected>2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+            <button class="button" id="start-class" type="button">Klassenrunde starten</button>
+          </div>
+        </article>
+      </div>
+
+      <div class="card quiz-run" id="quiz-run" hidden>
+        <div class="quiz-header">
+          <span id="quiz-progress"></span>
+          <span id="quiz-score"></span>
+          <div class="actions" id="clock-panel" hidden>
+            <span id="clock" role="timer" aria-label="Verbleibende Beratungszeit">25 s</span>
+            <button class="button secondary" id="clock-start" type="button">Zeit starten</button>
+          </div>
+        </div>
+        <progress id="progress-bar" aria-label="Frage im Quiz" max="5" value="1"></progress>
+        <h3 id="question" tabindex="-1"></h3>
+        <ul class="answers" id="answers" aria-labelledby="question"></ul>
+        <fieldset class="team-panel" id="team-panel" hidden>
+          <legend>Stimmen eintragen</legend>
+          <div class="teams" id="team-inputs"></div>
+        </fieldset>
+        <div class="feedback" id="quiz-feedback" role="status" hidden></div>
+        <div class="actions quiz-actions">
+          <button class="button" id="reveal" type="button" hidden>Antwort aufdecken</button>
+          <button class="button" id="next-question" type="button" hidden>Weiter</button>
+          <button class="button secondary" id="leave-quiz" type="button">Zur Moduswahl</button>
+        </div>
+      </div>
+
+      <div class="card quiz-result" id="quiz-result" hidden>
+        <h3 id="result-heading" tabindex="-1">Ergebnis</h3>
+        <ul id="result-list"></ul>
+        <div class="actions">
+          <button class="button" id="repeat-quiz" type="button">Noch einmal spielen</button>
+          <button class="button secondary" id="change-mode" type="button">Zur Moduswahl</button>
+        </div>
+      </div>
+      <a class="back-bottom" href="#wellen">Zur Einführung ↑</a>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    const byId = (id) => document.getElementById(id);
+    const lColor = "#72def2";
+    const tColor = "#ffc477";
+    const cL = 5900;
+    const cT = 3230;
+    const relativeSpeed = cT / cL;
+    const toRadians = Math.PI / 180;
+    const number = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 1 });
+
+    function prepare(canvas) {
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      const pixelRatio = window.devicePixelRatio || 1;
+      const pixelWidth = Math.round(width * pixelRatio);
+      const pixelHeight = Math.round(height * pixelRatio);
+      if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+        canvas.width = pixelWidth;
+        canvas.height = pixelHeight;
+      }
+      const context = canvas.getContext("2d");
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      context.clearRect(0, 0, width, height);
+      return { context, width, height };
+    }
+
+    function line(ctx, x, y, endX, endY, color, width = 1.5, dash = []) {
+      ctx.beginPath();
+      ctx.setLineDash(dash);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.moveTo(x, y);
+      ctx.lineTo(endX, endY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function dot(ctx, x, y, radius, color) {
+      ctx.beginPath();
+      ctx.fillStyle = color;
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function arrow(ctx, x, y, endX, endY, color, bothEnds = false) {
+      const direction = Math.atan2(endY - y, endX - x);
+      line(ctx, x, y, endX, endY, color);
+      const head = (atX, atY, angle) => {
+        for (const offset of [-0.55, 0.55]) {
+          line(ctx, atX, atY, atX - 6 * Math.cos(angle + offset), atY - 6 * Math.sin(angle + offset), color);
+        }
+      };
+      head(endX, endY, direction);
+      if (bothEnds) head(x, y, direction + Math.PI);
+    }
+
+    const waveButton = byId("wave-play");
+    let wavePhase = 0;
+    let waveFrame = 0;
+    let waveTimestamp = null;
+
+    function drawWave(canvas, transverse) {
+      const { context: ctx, width } = prepare(canvas);
+      const color = transverse ? tColor : lColor;
+      const center = 49;
+      line(ctx, 15, center, width - 15, center, "#5b7685", 1, [3, 5]);
+      const count = Math.max(7, Math.floor((width - 42) / 17));
+      const step = (width - 44) / (count - 1);
+      const marked = Math.round((count - 1) * 0.55);
+
+      for (let index = 0; index < count; index += 1) {
+        const x = 22 + index * step;
+        const amplitude = transverse ? 18 : step * 0.34;
+        const displacement = amplitude * Math.sin(x / 16 - wavePhase);
+        dot(ctx, x, center, 2, "#809aa5");
+        if (index === marked) {
+          if (transverse) {
+            arrow(ctx, x + 10, center - 21, x + 10, center + 21, "white", true);
+          } else {
+            arrow(ctx, x - 12, center - 18, x + 12, center - 18, "white", true);
+          }
+        }
+        dot(ctx, transverse ? x : x + displacement, transverse ? center + displacement : center,
+          index === marked ? 5 : 3.3, index === marked ? "white" : color);
+      }
+      arrow(ctx, 20, 92, 52, 92, color);
+      ctx.fillStyle = color;
+      ctx.font = "12px system-ui, sans-serif";
+      ctx.fillText("Ausbreitung", 61, 96);
+    }
+
+    function drawWaves() {
+      drawWave(byId("long-wave"), false);
+      drawWave(byId("trans-wave"), true);
+    }
+
+    function animateWaves(timestamp) {
+      if (waveTimestamp !== null) wavePhase += Math.min(50, timestamp - waveTimestamp) / 260;
+      waveTimestamp = timestamp;
+      drawWaves();
+      waveFrame = requestAnimationFrame(animateWaves);
+    }
+
+    waveButton.addEventListener("click", () => {
+      if (waveFrame) {
+        cancelAnimationFrame(waveFrame);
+        waveFrame = 0;
+        waveTimestamp = null;
+      } else {
+        waveFrame = requestAnimationFrame(animateWaves);
+      }
+      waveButton.setAttribute("aria-pressed", String(Boolean(waveFrame)));
+      waveButton.textContent = waveFrame ? "Teilchenbewegung pausieren" : "Teilchenbewegung abspielen";
+    });
+
+    const angleInput = byId("angle");
+    const pulseButton = byId("play-pulse");
+    const stepButton = byId("step-pulse");
+    const labStatus = byId("lab-status");
+    const plate = byId("plate");
+    let reflection;
+    let pulseTime = 0;
+    let pulseFrame = 0;
+    let pulseTimestamp = null;
+
+    function reflectionAt(degrees) {
+      const alpha = degrees * toRadians;
+      const beta = Math.asin(relativeSpeed * Math.sin(alpha));
+      const wallTime = 1 / Math.cos(alpha);
+      const lArrival = 2 * wallTime;
+      const tArrival = degrees === 0 ? lArrival : wallTime + 1 / (relativeSpeed * Math.cos(beta));
+      // Displacement reflection coefficient for an incident P wave at a traction-free plane.
+      // The reflected P and SV energy shares sum to one in the lossless model.
+      const modeTerm = relativeSpeed ** 2 * Math.sin(2 * alpha) * Math.sin(2 * beta);
+      const normalTerm = Math.cos(2 * beta) ** 2;
+      const lEnergy = ((normalTerm - modeTerm) / (normalTerm + modeTerm)) ** 2;
+      return { degrees, alpha, beta, wallTime, lArrival, tArrival, lEnergy };
+    }
+
+    function drawRay(ctx, from, to, color, dash) {
+      line(ctx, from.x, from.y, to.x, to.y, color, 1.5, dash);
+      const dx = to.x - from.x;
+      const dy = to.y - from.y;
+      const length = Math.hypot(dx, dy);
+      const x = from.x + dx * 0.29;
+      const y = from.y + dy * 0.29;
+      arrow(ctx, x, y, x + dx / length * 18, y + dy / length * 18, color);
+    }
+
+    function drawPacket(ctx, from, to, progress, color, transverse = false) {
+      if (progress <= 0 || progress > 1.23) return;
+      const dx = to.x - from.x;
+      const dy = to.y - from.y;
+      const length = Math.hypot(dx, dy);
+      const alongX = dx / length;
+      const alongY = dy / length;
+      const wavelength = transverse ? 15 : 15 / relativeSpeed;
+
+      // Each dot oscillates locally. The packet envelope travels along the ray.
+      const first = Math.max(0, Math.floor((progress - 0.25) * length / 4));
+      const last = Math.min(Math.floor(length / 4), Math.ceil(progress * length / 4));
+      for (let sample = first; sample <= last; sample += 1) {
+        const distance = sample * 4;
+        const behind = (progress * length - distance) / Math.min(65, length * 0.25);
+        if (behind <= 0 || behind >= 1) continue;
+        const envelope = Math.sin(behind * Math.PI);
+        const shift = 7 * envelope * Math.sin((distance - progress * length) / wavelength * 2 * Math.PI);
+        const x = from.x + alongX * distance + (transverse ? -alongY : alongX) * shift;
+        const y = from.y + alongY * distance + (transverse ? alongX : alongY) * shift;
+        ctx.globalAlpha = 0.3 + 0.7 * envelope;
+        dot(ctx, x, y, 2.2 + envelope * 1.5, color);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function drawPlate() {
+      const { context: ctx, width, height } = prepare(plate);
+      const top = 53;
+      const depth = Math.min(height - 88, width * 0.32);
+      const bottom = top + depth;
+      const center = width / 2;
+      const normal = reflection.degrees === 0;
+      const lOffset = depth * Math.tan(reflection.alpha);
+      const entry = { x: center - lOffset, y: top };
+      const wall = { x: center, y: bottom };
+      const lExit = { x: center + lOffset, y: top };
+      const tExit = { x: center + depth * Math.tan(reflection.beta), y: top };
+
+      ctx.fillStyle = "#203e4e";
+      ctx.fillRect(10, top, width - 20, depth);
+      for (let y = top + 24; y < bottom; y += 24) {
+        line(ctx, 10, y, width - 10, y, "#2c4b5b", 1);
+      }
+      line(ctx, 10, top, width - 10, top, "#88a6b3");
+      line(ctx, 10, bottom, width - 10, bottom, "#88a6b3", 2);
+      if (!normal) line(ctx, center, top + 12, center, bottom, "#c2d1d8", 1, [3, 4]);
+
+      const inOffset = normal ? -3 : 0;
+      const outOffset = normal ? 3 : 0;
+      drawRay(ctx, { x: entry.x + inOffset, y: top }, { x: center + inOffset, y: bottom }, lColor, []);
+      drawRay(ctx, { x: center + outOffset, y: bottom }, { x: lExit.x + outOffset, y: top }, lColor, [6, 4]);
+      if (!normal) drawRay(ctx, wall, tExit, tColor, [2, 4]);
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(10, top, width - 20, depth);
+      ctx.clip();
+      drawPacket(ctx, entry, wall, pulseTime / reflection.wallTime, lColor);
+      drawPacket(ctx, wall, lExit, (pulseTime - reflection.wallTime) / (reflection.lArrival - reflection.wallTime), lColor);
+      if (!normal) drawPacket(ctx, wall, tExit,
+        (pulseTime - reflection.wallTime) / (reflection.tArrival - reflection.wallTime), tColor, true);
+      ctx.restore();
+      dot(ctx, center, bottom, pulseTime >= reflection.wallTime ? 4.5 : 3, "#e7f3f6");
+      if (pulseTime >= reflection.lArrival) dot(ctx, lExit.x, top, 5, lColor);
+      if (!normal && pulseTime >= reflection.tArrival) dot(ctx, tExit.x, top, 5, tColor);
+
+      ctx.font = (width < 430 ? "11px" : "13px") + " system-ui, sans-serif";
+      ctx.fillStyle = "#d3e6ec";
+      ctx.textAlign = "left";
+      ctx.fillText("Stahlplatte", 19, top + 17);
+      ctx.fillText("Freie Rückwand", 14, bottom + 19);
+      if (!normal && width >= 430 && reflection.degrees >= 15) {
+        ctx.fillText("Lot", center + 5, top + 20);
+      }
+      const probeX = Math.max(11, entry.x - 37);
+      ctx.fillStyle = normal && pulseTime >= reflection.lArrival ? "#bef4fa" : "#e1eef2";
+      ctx.fillRect(probeX, top - 26, 74, 22);
+      line(ctx, entry.x, top - 4, entry.x, top, "#e1eef2");
+      ctx.fillStyle = "#172a38";
+      ctx.textAlign = "center";
+      ctx.fillText("Prüfkopf", probeX + 37, top - 11);
+      ctx.textAlign = "left";
+    }
+
+    function updatePulseControls() {
+      const atEnd = pulseTime >= reflection.tArrival;
+      pulseButton.textContent = pulseFrame ? "Impuls pausieren"
+        : pulseTime === 0 || atEnd ? "Impuls senden" : "Impuls fortsetzen";
+      stepButton.disabled = atEnd;
+
+      let status = "Bereit. Der Prüfkopf sendet eine L-Welle.";
+      if (pulseTime > 0 && pulseTime < reflection.wallTime) {
+        status = "Der L-Impuls läuft zur Rückwand.";
+      } else if (pulseTime >= reflection.wallTime && pulseTime < reflection.lArrival) {
+        status = reflection.degrees === 0 ? "Rückwand erreicht. L wird reflektiert."
+          : "Rückwand erreicht. L und T werden reflektiert.";
+      } else if (pulseTime >= reflection.lArrival) {
+        if (reflection.degrees === 0) {
+          status = "Das L-Echo erreicht den Prüfkopf.";
+        } else if (!atEnd) {
+          status = "L erreicht die Oberseite. T ist noch unterwegs.";
+        } else {
+          status = "T erreicht ebenfalls die Oberseite. Beide Strahlen verfehlen den Prüfkopf.";
+        }
+      }
+      if (labStatus.textContent !== status) labStatus.textContent = status;
+    }
+
+    function pausePulse() {
+      cancelAnimationFrame(pulseFrame);
+      pulseFrame = 0;
+      pulseTimestamp = null;
+    }
+
+    function renderPulse() {
+      drawPlate();
+      updatePulseControls();
+    }
+
+    function animatePulse(timestamp) {
+      if (pulseTimestamp !== null) {
+        pulseTime = Math.min(reflection.tArrival, pulseTime + Math.min(50, timestamp - pulseTimestamp) / 1550);
+      }
+      pulseTimestamp = timestamp;
+      if (pulseTime >= reflection.tArrival) pausePulse();
+      else pulseFrame = requestAnimationFrame(animatePulse);
+      renderPulse();
+    }
+
+    function resetPulse() {
+      pausePulse();
+      pulseTime = 0;
+      renderPulse();
+    }
+
+    function changeAngle() {
+      reflection = reflectionAt(Number(angleInput.value));
+      const { degrees, beta, lEnergy } = reflection;
+      byId("angle-value").value = degrees + "°";
+      angleInput.setAttribute("aria-valuetext", degrees + " Grad zum Lot");
+      byId("l-reflection").textContent = degrees + "° zum Lot, " + number.format(100 * lEnergy) + " % Energie";
+      byId("t-reflection").textContent = degrees === 0 ? "Entsteht bei 0° nicht"
+        : number.format(beta / toRadians) + "° zum Lot, " + number.format(100 * (1 - lEnergy)) + " % Energie";
+      document.querySelectorAll("[data-angle]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(Number(button.dataset.angle) === degrees));
+      });
+      resetPulse();
+    }
+
+    angleInput.addEventListener("input", changeAngle);
+    document.querySelectorAll("[data-angle]").forEach((button) => {
+      button.addEventListener("click", () => {
+        angleInput.value = button.dataset.angle;
+        changeAngle();
+      });
+    });
+    pulseButton.addEventListener("click", () => {
+      if (pulseFrame) {
+        pausePulse();
+      } else {
+        if (pulseTime >= reflection.tArrival) pulseTime = 0;
+        pulseFrame = requestAnimationFrame(animatePulse);
+      }
+      renderPulse();
+    });
+    stepButton.addEventListener("click", () => {
+      pausePulse();
+      // Sample just after the wall event so the emergent packets are visible.
+      const phases = [reflection.wallTime + 0.16, reflection.lArrival, reflection.tArrival];
+      pulseTime = phases.find((phase) => phase > pulseTime) ?? reflection.tArrival;
+      renderPulse();
+    });
+    byId("reset-pulse").addEventListener("click", resetPulse);
+
+    changeAngle();
+    drawWaves();
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const { target } of entries) {
+        if (target === plate) drawPlate();
+        else drawWave(target, target.id === "trans-wave");
+      }
+    });
+    document.querySelectorAll("canvas").forEach((canvas) => resizeObserver.observe(canvas));
+
+    const questions = [
+      {
+        text: "Ein L-Impuls läuft im Stahl nach rechts. Wie schwingen die Teilchen?",
+        choices: ["Nach oben und unten", "Nach links und rechts", "Nur nach rechts, bis zur Rückwand", "Auf Kreisbahnen"],
+        correct: 1,
+        explanation: "Die Schwingung ist parallel zur Ausbreitungsrichtung. Die Teilchen bewegen sich um ihre Ruhelage hin und her."
+      },
+      {
+        text: "Ein L-Impuls trifft bei 0° auf die freie Rückwand. Welches Echo erreicht der Prüfkopf?",
+        choices: ["Ein reines T-Echo", "Ein L- und ein T-Echo", "Gar kein Echo", "Ein reines L-Echo"],
+        correct: 3,
+        explanation: "Bei senkrechtem Einfall läuft der reflektierte L-Impuls denselben Weg zurück. Dabei entsteht im Modell keine T-Welle."
+      },
+      {
+        text: "Bei 45° entstehen zwei reflektierte Strahlen. Was unterscheidet sie?",
+        choices: [
+          "T liegt näher am Lot und schwingt quer zum eigenen Strahl.",
+          "L liegt näher am Lot und schwingt quer zum eigenen Strahl.",
+          "Beide verlaufen auf demselben Weg und schwingen parallel.",
+          "T liegt weiter vom Lot entfernt und schwingt parallel zum eigenen Strahl."
+        ],
+        correct: 0,
+        explanation: "Die T-Welle hat im Stahl eine geringere Schallgeschwindigkeit und wird mit einem kleineren Winkel zum Lot reflektiert. Ihre Teilchen schwingen quer zu ihrer Ausbreitungsrichtung."
+      },
+      {
+        text: "Beide Wellen starten an der Rückwand gleichzeitig. Bei 30° erreicht L die Oberseite zuerst. Was erklärt das?",
+        choices: [
+          "T startet erst, wenn L oben ankommt.",
+          "L legt in der Simulation den kürzeren Rückweg zurück.",
+          "L breitet sich im Stahl schneller aus. Das gleicht bei 30° den längeren Rückweg aus.",
+          "L und T breiten sich im Stahl gleich schnell aus."
+        ],
+        correct: 2,
+        explanation: "Bei 30° ist der L-Rückweg länger. Die höhere Ausbreitungsgeschwindigkeit der L-Welle macht diesen Unterschied mehr als wett."
+      },
+      {
+        text: "Bei schrägem Einfall fehlt am Prüfkopf das direkte Rückwandecho. Was zeigt das Modell als mögliche Ursache?",
+        choices: [
+          "Die Rückwand wandelt sämtliche Energie in eine T-Welle um.",
+          "Die reflektierten Strahlen treffen die Oberseite seitlich neben dem Prüfkopf.",
+          "Der Stahl leitet nur bei 0° Schall.",
+          "Eine freie Rückwand kann Schall nur senkrecht reflektieren."
+        ],
+        correct: 1,
+        explanation: "Bei schrägem Einfall folgen die reflektierten Strahlen anderen Wegen als der einfallende Strahl. Deshalb kann das Echo den Prüfkopf verfehlen."
+      }
+    ];
+
+    const letters = ["A", "B", "C", "D"];
+    const questionEl = byId("question");
+    const answersEl = byId("answers");
+    const teamInputs = byId("team-inputs");
+    const nextButton = byId("next-question");
+    const revealButton = byId("reveal");
+    const feedback = byId("quiz-feedback");
+    const clock = byId("clock");
+    const clockButton = byId("clock-start");
+    let quizMode;
+    let questionIndex;
+    let scores;
+    let revealed;
+    let clockInterval = 0;
+
+    function focusHeading(heading) {
+      heading.scrollIntoView({ block: "nearest" });
+      heading.focus({ preventScroll: true });
+    }
+
+    function resetClock() {
+      clearInterval(clockInterval);
+      clockInterval = 0;
+      clock.textContent = "25 s";
+      clockButton.textContent = "Zeit starten";
+      clockButton.disabled = false;
+    }
+
+    function startClock() {
+      resetClock();
+      clockButton.textContent = "Zeit neu starten";
+      const endTime = Date.now() + 25000;
+      clockInterval = setInterval(() => {
+        const seconds = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+        clock.textContent = seconds ? seconds + " s" : "Zeit um";
+        if (seconds === 0) {
+          clearInterval(clockInterval);
+          clockInterval = 0;
+        }
+      }, 150);
+    }
+
+    function updateScore() {
+      byId("quiz-score").textContent = quizMode === "solo" ? "Punkte: " + scores[0]
+        : scores.map((score, index) => "Team " + (index + 1) + ": " + score).join(" | ");
+    }
+
+    function renderQuestion() {
+      const isClass = quizMode === "class";
+      const question = questions[questionIndex];
+      revealed = false;
+      resetClock();
+      byId("quiz-progress").textContent = "Frage " + (questionIndex + 1) + " von " + questions.length;
+      byId("progress-bar").value = questionIndex + 1;
+      updateScore();
+      questionEl.textContent = question.text;
+
+      answersEl.replaceChildren(...question.choices.map((choice, index) => {
+        const item = document.createElement("li");
+        const tile = document.createElement(isClass ? "div" : "button");
+        tile.className = "answer " + letters[index].toLowerCase();
+        if (!isClass) {
+          tile.type = "button";
+          tile.addEventListener("click", () => revealAnswer([index]));
+        }
+        const letter = document.createElement("span");
+        letter.className = "letter";
+        letter.textContent = letters[index];
+        const text = document.createElement("span");
+        text.textContent = choice;
+        tile.append(letter, text);
+        item.append(tile);
+        return item;
+      }));
+
+      if (isClass) {
+        teamInputs.replaceChildren(...scores.map((_, index) => {
+          const label = document.createElement("label");
+          label.textContent = "Team " + (index + 1);
+          const select = document.createElement("select");
+          select.add(new Option("Keine Stimme", ""));
+          letters.forEach((letter, value) => select.add(new Option(letter, value)));
+          label.append(select);
+          return label;
+        }));
+      } else {
+        teamInputs.replaceChildren();
+      }
+
+      byId("team-panel").hidden = !isClass;
+      byId("clock-panel").hidden = !isClass;
+      feedback.hidden = true;
+      nextButton.hidden = true;
+      revealButton.hidden = !isClass;
+      focusHeading(questionEl);
+    }
+
+    function startQuiz(mode, teamCount) {
+      quizMode = mode;
+      questionIndex = 0;
+      scores = Array(teamCount).fill(0);
+      byId("quiz-modes").hidden = true;
+      byId("quiz-result").hidden = true;
+      byId("quiz-run").hidden = false;
+      renderQuestion();
+    }
+
+    function revealAnswer(votes) {
+      if (revealed) return;
+      revealed = true;
+      clearInterval(clockInterval);
+      clockInterval = 0;
+      clockButton.disabled = true;
+      if (quizMode === "class" && clock.textContent !== "Zeit um") clock.textContent = "Abgestimmt";
+
+      const { correct, explanation } = questions[questionIndex];
+      votes.forEach((vote, index) => {
+        if (vote === correct) scores[index] += 1;
+      });
+      updateScore();
+      Array.from(answersEl.querySelectorAll(".answer")).forEach((tile, index) => {
+        if (tile instanceof HTMLButtonElement) tile.disabled = true;
+        if (index === correct) tile.classList.add("is-correct");
+        else if (quizMode === "solo" && index === votes[0]) tile.classList.add("is-wrong");
+      });
+      teamInputs.querySelectorAll("select").forEach((select) => { select.disabled = true; });
+
+      const heading = document.createElement("p");
+      const emph = document.createElement("strong");
+      const response = quizMode === "class" ? "Richtige Antwort" : votes[0] === correct ? "Richtig!" : "Noch nicht richtig.";
+      emph.textContent = response + " Lösung " + letters[correct] + ".";
+      heading.append(emph);
+      const reason = document.createElement("p");
+      reason.textContent = explanation;
+      feedback.hidden = false;
+      feedback.replaceChildren(heading, reason);
+      revealButton.hidden = true;
+      nextButton.hidden = false;
+      nextButton.textContent = questionIndex === questions.length - 1 ? "Ergebnis anzeigen" : "Nächste Frage";
+      nextButton.focus();
+    }
+
+    function showResult() {
+      byId("quiz-run").hidden = true;
+      byId("quiz-result").hidden = false;
+      const ordered = scores.map((score, index) => ({ score, index })).sort((a, b) => b.score - a.score);
+      byId("result-list").replaceChildren(...ordered.map(({ score, index }) => {
+        const item = document.createElement("li");
+        item.textContent = (quizMode === "class" ? "Team " + (index + 1) + ": " : "") +
+          score + " von " + questions.length + " Punkten";
+        return item;
+      }));
+      focusHeading(byId("result-heading"));
+    }
+
+    function chooseMode() {
+      resetClock();
+      byId("quiz-run").hidden = true;
+      byId("quiz-result").hidden = true;
+      byId("quiz-modes").hidden = false;
+      byId(quizMode === "class" ? "start-class" : "start-solo").focus();
+    }
+
+    byId("start-solo").addEventListener("click", () => startQuiz("solo", 1));
+    byId("start-class").addEventListener("click", () => startQuiz("class", Number(byId("team-count").value)));
+    revealButton.addEventListener("click", () => {
+      const votes = Array.from(teamInputs.querySelectorAll("select"), (select) => Number.parseInt(select.value, 10));
+      revealAnswer(votes);
+    });
+    nextButton.addEventListener("click", () => {
+      questionIndex += 1;
+      if (questionIndex === questions.length) showResult();
+      else renderQuestion();
+    });
+    clockButton.addEventListener("click", startClock);
+    byId("repeat-quiz").addEventListener("click", () => startQuiz(quizMode, scores.length));
+    byId("leave-quiz").addEventListener("click", chooseMode);
+    byId("change-mode").addEventListener("click", chooseMode);
+  </script>
+</body>
+</html>
