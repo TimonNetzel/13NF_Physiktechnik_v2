@@ -1,0 +1,1166 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Übung für die 13NF zum Winkelprüfkopf, zur Einstellung am K1 und zur Suche nach Echos im Stahl.">
+  <link rel="icon" href="data:,">
+  <title>13NF · Physiktechnik · Ultraschallprüfung mit dem Winkelprüfkopf · 20 Minuten</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f1f6f7;
+      --ink: #182c38;
+      --muted: #47616c;
+      --panel: #102c3b;
+      --accent: #0a5869;
+      --line: #c7d7dc;
+      --cyan: #83e2f3;
+      --amber: #ffd187;
+      font-family: system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--paper); color: var(--ink); line-height: 1.55; }
+    a { color: var(--accent); }
+    button, input, select { font: inherit; }
+    button, summary, select { cursor: pointer; }
+    button:disabled { cursor: default; }
+    :focus-visible { outline: 3px solid #9c450b; outline-offset: 3px; }
+    .wrap { width: min(1050px, calc(100% - 32px)); margin-inline: auto; }
+    .top { background: white; border-bottom: 1px solid var(--line); }
+    .top .wrap, nav, .actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; }
+    .top .wrap { justify-content: space-between; padding-block: 10px; }
+    .top a { display: inline-block; padding-block: 4px; text-decoration: none; }
+    .top a:hover { text-decoration: underline; }
+    .hero { padding: clamp(28px, 6vw, 64px) 0; background: var(--panel); color: white; }
+    .hero p { max-width: 58ch; margin: 12px 0 0; color: #d6e7ed; }
+    .course { font-weight: 750; color: var(--cyan); }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: clamp(1.9rem, 6vw, 4.2rem); line-height: 1.05; }
+    h2 { font-size: clamp(1.5rem, 3.5vw, 2.25rem); line-height: 1.15; }
+    h3 { line-height: 1.25; }
+    main { padding-bottom: 38px; }
+    section { margin-top: clamp(28px, 5vw, 50px); scroll-margin-top: 15px; }
+    .heading { display: flex; justify-content: space-between; align-items: baseline; gap: 5px 14px; flex-wrap: wrap; margin-bottom: 12px; }
+    .time { color: var(--muted); font-weight: 700; white-space: nowrap; }
+    .card { min-width: 0; padding: clamp(13px, 2.6vw, 22px); background: white; border: 1px solid var(--line); border-radius: 12px; }
+    .card p + p { margin-top: 8px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .button {
+      min-height: 44px; padding: 7px 12px; border: 1px solid var(--accent); border-radius: 7px;
+      background: var(--accent); color: white; font-weight: 700;
+    }
+    .button.secondary { background: white; color: var(--accent); }
+    .button:hover:not(:disabled) { filter: brightness(.92); }
+    input[type=range] { display: block; width: 100%; min-height: 28px; margin: 4px 0 10px; accent-color: var(--accent); }
+    output { white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .readouts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 13px 0 8px; }
+    .readouts dt { font-weight: 700; }
+    .readouts dd { margin: 0; font-variant-numeric: tabular-nums; }
+    .task { margin-top: 12px; }
+    ul, ol { padding-inline-start: 22px; }
+    summary { color: var(--accent); font-weight: 750; }
+    details p { margin-top: 7px; }
+    .mode p { margin-block: 6px 12px; }
+    .quiz-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; color: var(--muted); font-weight: 700; }
+    progress { width: 100%; height: 13px; margin: 9px 0 14px; accent-color: var(--accent); }
+    #quiz-frage { font-size: clamp(1.2rem, 3vw, 1.8rem); margin-bottom: 14px; }
+    #quiz-antworten { list-style: none; padding: 0; margin: 0; }
+    #quiz-antworten li { display: flex; }
+    .answer {
+      display: flex; align-items: center; gap: 8px; width: 100%; min-height: 54px; padding: 8px 10px;
+      border: 2px solid transparent; border-radius: 7px; color: white; font-weight: 700; text-align: left;
+    }
+    .answer[data-letter=A] { background: #993043; }
+    .answer[data-letter=B] { background: #205c9b; }
+    .answer[data-letter=C] { background: #805008; }
+    .answer[data-letter=D] { background: #226044; }
+    button.answer:hover:not(:disabled) { filter: brightness(1.12); }
+    .answer.correct { color: #103e28; background: #d5f2df; border-color: #216245; }
+    .answer.wrong { color: #642332; background: #f9e2e8; border-color: #993043; }
+    .letter { display: grid; place-items: center; flex: 0 0 26px; height: 26px; border: 1px solid currentColor; border-radius: 4px; }
+    .votes, .feedback { margin: 12px 0 0; padding: 10px; border: 1px solid var(--line); border-radius: 7px; min-width: 0; }
+    .votes legend { font-weight: 700; }
+    .team-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 8px; }
+    .team-inputs label { display: grid; gap: 4px; }
+    select { min-height: 44px; padding: 5px; color: var(--ink); background: white; border: 1px solid #8298a1; border-radius: 6px; }
+    .feedback { background: #e6f1f4; border-left: 4px solid var(--accent); }
+    .quiz-actions { margin-top: 12px; }
+    @media (max-width: 620px) {
+      .grid { grid-template-columns: 1fr; }
+      .wrap { width: calc(100% - 24px); }
+    }
+    .intro { max-width: 74ch; margin-block: 0 12px; }
+    .wave { border-top: 4px solid var(--accent); }
+    .wave-t { border-top-color: #9a580d; }
+    .wave h3 { margin-bottom: 5px; }
+    .compare-speed { margin-top: 10px; }
+    .station { margin: 7px 0 12px; }
+    .station h3 { margin-bottom: 4px; }
+    .station-select { gap: 6px; }
+    .station-select [aria-pressed=true] { background: var(--accent); color: white; }
+    .station-inputs { margin-top: 10px; }
+    .station-tip { margin-top: 8px; color: var(--muted); }
+    .werkbank { display: grid; grid-template-columns: minmax(0, 1.13fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+    .werk { padding: 12px; }
+    .instrument { margin: 0; background: var(--panel); color: white; border-radius: 9px; overflow: hidden; }
+    .instrument-title { display: flex; flex-wrap: wrap; gap: 3px 12px; justify-content: space-between; align-items: baseline; padding: 10px 12px 0; }
+    .instrument-title span, .instrument figcaption { color: #d6e7ed; font-size: .85rem; }
+    .instrument canvas { display: block; width: 100%; height: 217px; }
+    .instrument figcaption { padding: 0 12px 10px; }
+    .instrument figcaption span { display: inline-flex; gap: 5px; align-items: center; margin-right: 9px; }
+    .instrument figcaption span::before { content: ""; width: 17px; border-top: 2px solid var(--strahlfarbe, var(--amber)); }
+    .instrument figcaption .rueck::before { border-top: 2px dashed white; }
+    .instrument figcaption .lot::before { border-top: 2px dotted #b5ced8; }
+    .positions-label { display: flex; gap: 8px; justify-content: space-between; margin-top: 12px; font-weight: 750; }
+    .mobil-echo { display: none; }
+    .button:disabled { opacity: .64; }
+    .transport { gap: 5px; }
+    #modell-status { margin-top: 8px; }
+    .messwerte { margin-top: 9px; }
+    .form-felder { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 9px; max-width: 365px; }
+    .form-felder input { display: block; width: 100%; min-height: 44px; padding: 4px 7px; border: 1px solid #8298a1; border-radius: 6px; }
+    .rechen-aktionen, #rechen-feedback, #rechen-beispiel { margin-top: 9px; }
+    #ergebnisse { font-weight: 650; }
+    @media (max-width: 760px) {
+      .werkbank { grid-template-columns: 1fr; }
+      .instrument canvas { height: 184px; }
+      .mobil-echo { display: block; margin-bottom: 8px; color: var(--muted); font-size: .92rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top" id="seitenkopf">
+    <div class="wrap">
+      <a id="zurueck" href="../index.html">Zur Kursübersicht</a>
+      <nav aria-label="Lernabschnitte">
+        <a href="#einfuehrung">Einführung</a>
+        <a href="#experiment">Experiment</a>
+        <a href="#quiz">Quiz</a>
+      </nav>
+    </div>
+  </header>
+  <div class="hero">
+    <div class="wrap">
+      <span class="course" id="kursname"></span>
+      <h1 id="thema">Ultraschallprüfung mit dem Winkelprüfkopf</h1>
+      <p>Du stellst einen Prüfkopf am Stahlblock K1 ein. Dann suchst du eine Bohrung im Stahl. Die Spitze auf dem Bildschirm hilft dir, ihre Lage zu finden.</p>
+    </div>
+  </div>
+  <main class="wrap">
+    <noscript><p>Aktiviere JavaScript, um das Modell und das Quiz zu verwenden.</p></noscript>
+    <section id="einfuehrung" aria-labelledby="einfuehrung-titel">
+      <div class="heading"><h2 id="einfuehrung-titel">1. Wie läuft der Schall?</h2><span class="time" data-minuten="einfuehrung">4 Min.</span></div>
+      <p class="intro">Ein Prüfkopf sendet einen kurzen Schallstoß in den Stahl. Kommt Schall zum Prüfkopf zurück, sehen wir ein <strong>Echo</strong>. Auf dem Bildschirm erscheint das Echo als Spitze. Dieses Bild heißt <strong>A-Bild</strong>.</p>
+      <div class="grid">
+        <article class="card wave wave-l">
+          <h3>Normalprüfkopf</h3>
+          <p>Der Strahl läuft gerade nach unten. Die Teilchen schwingen längs zum Strahl. Das ist eine <strong>Longitudinalwelle (L)</strong>.</p>
+          <p><strong>5 920 m/s</strong> im Stahl dieser Übung. Gut zum Messen der Dicke.</p>
+        </article>
+        <article class="card wave wave-t">
+          <h3>Winkelprüfkopf</h3>
+          <p>Ein Keil lenkt den Schall schräg in den Stahl. Dort schwingen die Teilchen quer zum Strahl. Das ist eine <strong>Transversalwelle (T)</strong>.</p>
+          <p><strong>3 255 m/s</strong> im K1-Stahl. Gut zum Suchen von Rissen an einer Schweißnaht.</p>
+        </article>
+      </div>
+      <p class="intro compare-speed"><strong>Die T-Welle ist langsamer.</strong> Für 100 mm braucht L rund 17 µs und T rund 31 µs. 1 µs ist der millionste Teil einer Sekunde.</p>
+      <p class="intro">Die Linie gerade nach unten heißt <strong>Lot</strong>. Der Winkel zwischen dem Lot und dem Strahl im Stahl heißt <strong>Einschallwinkel</strong>.</p>
+    </section>
+
+    <section id="experiment" aria-labelledby="experiment-titel">
+      <div class="heading"><h2 id="experiment-titel">2. Erst am K1 prüfen. Dann suchen.</h2><span class="time" data-minuten="experiment">10 Min.</span></div>
+      <p class="intro">Der K1 ist ein Stahlblock mit bekannten Maßen. Damit prüfst du den Kopf und stellst das Gerät ein. Gib am echten Gerät etwas Gel zwischen Kopf und Stahl. Das Gel ist das Koppelmittel.</p>
+
+      <div class="actions station-select" role="group" aria-label="Aufgabe wählen">
+        <button class="button secondary" type="button" data-station="bogen" aria-pressed="true">1. Kreisbogen</button>
+        <button class="button secondary" type="button" data-station="winkel" aria-pressed="false">2. K1-Bohrung</button>
+        <button class="button secondary" type="button" data-station="pruefen" aria-pressed="false">3. Prüfstück</button>
+      </div>
+
+      <div class="card station">
+        <h3 id="station-titel"></h3>
+        <p id="station-hinweis"></p>
+        <div class="actions station-inputs" id="k1-einstellungen">
+          <label for="geschwindigkeit">Schall im Gerät</label>
+          <select id="geschwindigkeit">
+            <option value="3.255">T · 3 255 m/s</option>
+            <option value="5.920">L · 5 920 m/s</option>
+          </select>
+        </div>
+        <div class="actions station-inputs" id="pruef-einstellungen" hidden>
+          <label for="pruefkopf">Kopf</label>
+          <select id="pruefkopf">
+            <option value="winkel">Winkelprüfkopf</option>
+            <option value="normal">Normalprüfkopf</option>
+          </select>
+          <label for="stelle">Stelle im Stahl</label>
+          <select id="stelle">
+            <option value="bohrung">Runde Bohrung</option>
+            <option value="einschluss">Kleiner Einschluss</option>
+            <option value="riss">Schräger Riss</option>
+            <option value="rueckwand">Flache Rückwand</option>
+          </select>
+        </div>
+        <p class="station-tip" id="pruef-tipp" hidden></p>
+      </div>
+
+      <div class="werkbank">
+        <div class="card werk">
+          <figure class="instrument">
+            <div class="instrument-title"><h3>Weg im Stahl</h3><span id="strahlart">T-Welle</span></div>
+            <canvas id="strahlbild" role="img" aria-label="Skizze des Prüfstücks, des Lots und des Schallwegs. Die Erklärung steht direkt unter den Bedienelementen."></canvas>
+            <figcaption><span class="hin">Hinweg</span><span class="rueck">Echo zum Kopf</span><span class="lot">Lot auf die Oberfläche</span></figcaption>
+          </figure>
+          <label class="positions-label" for="position">Prüfkopf schieben <output id="position-wert" for="position"></output></label>
+          <input type="range" id="position">
+          <p class="mobil-echo">Echohöhe <strong id="mobil-hoehe"></strong></p>
+          <div class="actions transport">
+            <button class="button" type="button" id="impuls">Impuls senden</button>
+            <button class="button secondary" type="button" id="schritt">Nächster Schritt</button>
+            <button class="button secondary" type="button" id="reset">Zur Startposition</button>
+          </div>
+          <p id="modell-status" role="status"></p>
+        </div>
+
+        <div class="card werk">
+          <figure class="instrument">
+            <div class="instrument-title"><h3>A-Bild</h3><span>Beispielanzeige</span></div>
+            <canvas id="a-bild" role="img" aria-label="Kurve für die Höhe des Echos über dem Schallweg. Die Werte stehen unter dem Bild."></canvas>
+            <figcaption>Weiter rechts bedeutet mehr Schallweg. Eine hohe Spitze bedeutet ein starkes Echo.</figcaption>
+          </figure>
+          <dl class="readouts messwerte">
+            <div><dt>Echohöhe</dt><dd id="echo-hoehe"></dd></div>
+            <div><dt>Schallweg <var>w</var></dt><dd id="echo-weg"></dd></div>
+            <div id="winkel-zeile" hidden><dt>Winkel an der Marke</dt><dd id="skalenwinkel"></dd></div>
+            <div id="zeit-zeile" hidden><dt>Hin und zurück im Stahl</dt><dd id="echo-zeit"></dd></div>
+          </dl>
+          <div class="actions" id="bogen-aktionen">
+            <button class="button" type="button" id="markieren" aria-describedby="messhilfe">Punkt merken</button>
+            <button class="button" type="button" id="justieren" aria-describedby="messhilfe">Auf 100 mm stellen</button>
+          </div>
+          <div class="actions" id="winkel-aktionen" hidden>
+            <button class="button" type="button" id="winkel-ablesen" aria-describedby="messhilfe">Winkel übernehmen</button>
+          </div>
+          <div class="actions" id="pruef-aktionen" hidden>
+            <button class="button secondary" type="button" id="echo-finden">Hilfe: Zum besten Echo</button>
+          </div>
+          <p class="station-tip" id="messhilfe"></p>
+          <p class="station-tip" id="ergebnisse" role="status"></p>
+        </div>
+      </div>
+
+      <div class="card task" id="rechnung" hidden>
+        <h3>Wo liegt die Stelle, die das Echo zurückwirft?</h3>
+        <p id="rechen-hinweis"></p>
+        <div id="rechen-aufgabe" hidden>
+          <p><strong id="rechen-werte"></strong></p>
+          <p><var>x</var> zeigt seitlich ab dem Austrittspunkt. <var>z</var> zeigt senkrecht nach unten. Das Dreieck im Bild zeigt beide Wege.</p>
+          <p><var>x</var> = <var>w</var> · sin(α) und <var>z</var> = <var>w</var> · cos(α). α ist der Winkel aus der K1-Übung. Stell den Rechner auf Grad (DEG).</p>
+          <form id="rechen-form" novalidate>
+            <div class="form-felder">
+              <label for="abstand">Abstand <var>x</var> in mm<input id="abstand" inputmode="decimal" autocomplete="off"></label>
+              <label for="tiefe">Tiefe <var>z</var> in mm<input id="tiefe" inputmode="decimal" autocomplete="off"></label>
+            </div>
+            <div class="actions rechen-aktionen"><button class="button" type="submit">Antwort prüfen</button><button class="button secondary" type="button" id="rechen-loesung">Rechnung zeigen</button></div>
+          </form>
+          <p id="rechen-feedback" role="status"></p>
+          <p id="rechen-beispiel" hidden></p>
+        </div>
+      </div>
+
+      <details class="card task">
+        <summary>Warum kommen manche Echos zurück?</summary>
+        <p>An einer runden Bohrung gibt es eine Stelle, auf die der Strahl fast senkrecht trifft. Dort kommt ein Echo zurück. Ein Einschluss ist ein Stück fremdes Material im Stahl. An seinem Rand kann ein Echo entstehen.</p>
+        <p>Eine glatte Fläche lenkt den Strahl um, ähnlich wie ein Spiegel. Ein schräger Riss kann den Strahl vom Winkelprüfkopf zurückwerfen. Der Strahl vom Normalprüfkopf kann seitlich weglaufen. Probiere beide Köpfe am Riss aus.</p>
+        <p>An einer flachen Rückwand bekommt der Normalprüfkopf ein Echo. Der schräge Strahl läuft in dieser Skizze nach der Rückwand weiter. Er kann später noch eine andere Stelle treffen.</p>
+      </details>
+      <details class="card task">
+        <summary>Quelle und Grenzen des Modells</summary>
+        <p>Grundlage ist Versuch 3.3 der 13NF mit dem KARL DEUTSCH ECHOGRAPH 1095. Im Menü stellst du die Schallgeschwindigkeit des K1 ein. Die Anleitung zeigt die Taste für den Justierbereich, die Pfeile und OK. In der Übung nutzt du „Auf 100 mm stellen“.</p>
+        <p>Die Anzeige und die Knöpfe hier sind vereinfacht. Der Kopf trägt im Beispiel die Angabe 45°. Der Wert 46° ist ein Modellwert für deine Messung.</p>
+        <p>Im Keil läuft der Schall als L-Welle. Am Eintritt in den Stahl ändert sich die Richtung. Im Stahl zeigen wir die T-Welle. Das A-Bild zeigt in jeder Aufgabe ein Echo mit einer Beispielhöhe. Am echten Gerät hängt die Höhe auch von der Größe und Lage der Stelle und vom Kontakt zum Stahl ab. Ein einzelnes Echo zeigt deshalb nicht sicher, welche Art Fehler vorliegt.</p>
+        <p>Der Schallweg <var>w</var> im A-Bild ist der einfache Weg. Das Gerät misst die Zeit für Hinweg und Rückweg und rechnet sie in diesen Weg um. Die Formeln für <var>x</var> und <var>z</var> gelten hier für den direkten Weg. Führt der Strahl zuerst über die Rückwand, brauchst du auch die Plattendicke.</p>
+        <p><a href="../praktikum/3-3_winkelpruefkopf/lernen.pdf">Versuch 3.3 im Klassen-Repo</a></p>
+        <p><a href="ultraschallpruefung.html">Zur ersten Übung über Wellen und Rückwand</a></p>
+      </details>
+    </section>
+
+    <section id="quiz" aria-labelledby="quiz-titel">
+      <div class="heading"><h2 id="quiz-titel">3. Quiz</h2><span class="time" data-minuten="quiz">6 Min.</span></div>
+      <div class="grid" id="quiz-modi">
+        <article class="card mode" id="modus-einzel">
+          <h3>Allein spielen</h3>
+          <p>Spiele im eigenen Tempo. Jede richtige Antwort ergibt einen Punkt.</p>
+          <button class="button" id="start-einzel" type="button">Einzelquiz starten</button>
+        </article>
+        <article class="card mode" id="modus-klasse">
+          <h3>Gemeinsam am Beamer spielen</h3>
+          <p>Die Teams stimmen mit A, B, C oder D ab. Die Lehrkraft trägt die Stimmen ein und deckt die Lösung auf.</p>
+          <div class="actions">
+            <label for="teamzahl">Teams</label>
+            <select id="teamzahl"></select>
+            <button class="button" id="start-klasse" type="button">Klassenrunde starten</button>
+          </div>
+        </article>
+      </div>
+
+      <div class="card" id="quiz-runde" hidden>
+        <div class="quiz-top">
+          <span id="quiz-fortschritt"></span>
+          <span id="quiz-punkte"></span>
+          <div class="actions" id="zeit-feld" hidden>
+            <span id="quiz-zeit" role="timer" aria-label="Beratungszeit"></span>
+            <button class="button secondary" id="zeit-start" type="button">Zeit starten</button>
+          </div>
+        </div>
+        <progress id="quiz-balken" aria-label="Frage im Quiz"></progress>
+        <h3 id="quiz-frage" tabindex="-1"></h3>
+        <ul class="grid" id="quiz-antworten" aria-labelledby="quiz-frage"></ul>
+        <fieldset class="votes" id="stimmen-feld" hidden>
+          <legend>Stimmen eintragen</legend>
+          <div class="team-inputs" id="stimmen"></div>
+        </fieldset>
+        <div class="feedback" id="quiz-feedback" role="status" hidden></div>
+        <div class="actions quiz-actions">
+          <button class="button" id="aufdecken" type="button" hidden>Antwort aufdecken</button>
+          <button class="button" id="weiter" type="button" hidden></button>
+          <button class="button secondary" id="runde-verlassen" type="button">Zur Moduswahl</button>
+        </div>
+      </div>
+
+      <div class="card" id="quiz-ergebnis" hidden>
+        <h3 id="ergebnis-titel" tabindex="-1">Ergebnis</h3>
+        <ul id="ergebnis-liste"></ul>
+        <div class="actions">
+          <button class="button" id="wiederholen" type="button">Noch einmal spielen</button>
+          <button class="button secondary" id="modus-wechseln" type="button">Zur Moduswahl</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const einheit = {
+      klasse: "13NF",
+      fach: "Physiktechnik",
+      thema: "Ultraschallprüfung mit dem Winkelprüfkopf",
+      minuten: { einfuehrung: 4, experiment: 10, quiz: 6 },
+      quiz: {
+        modi: ["einzel", "klasse"],
+        maxTeams: 4,
+        startTeams: 2,
+        timerSekunden: 25,
+        fragen: [
+          {
+            frage: "Was stellst du am Echo vom K1-Kreisbogen ein?",
+            antworten: ["Den Winkel auf 100°", "Den Schallweg auf 100 mm", "Die Echohöhe auf 100 %", "Die Dicke auf 100 mm"],
+            richtig: 1,
+            erklaerung: "Am höchsten Echo zeigt der Prüfkopf auf den Kreisbogen. Der einfache Weg vom Austrittspunkt zum Bogen beträgt dort 100 mm."
+          },
+          {
+            frage: "Wo liest du den echten Winkel am K1 ab?",
+            antworten: ["Oben auf dem Gehäuse des Geräts", "An der Höhe der Spitze im A-Bild", "An der Skala des K1 beim höchsten Echo der großen Bohrung", "An der tiefsten Stelle im Stahl"],
+            richtig: 2,
+            erklaerung: "Schiebe den Kopf bis zum höchsten Echo der Bohrung. Lies dann den Wert an der Marke des Kopfes ab."
+          },
+          {
+            frage: "Eine L-Welle und eine T-Welle laufen im Stahl gleich weit. Welche kommt zuerst an?",
+            antworten: ["Die L-Welle", "Die T-Welle", "Beide zur gleichen Zeit", "Das hängt nur von der Echohöhe ab"],
+            richtig: 0,
+            erklaerung: "Die L-Welle läuft in dieser Übung mit 5 920 m/s. Die T-Welle läuft mit 3 255 m/s."
+          },
+          {
+            frage: "Ein Echo steht bei 32 mm Schallweg. Der Strahl läuft schräg. Was gilt für die Tiefe?",
+            antworten: ["Die Tiefe ist 64 mm.", "Die Tiefe ist immer 32 mm.", "Die Tiefe steht an der Höhe der Spitze.", "Die Tiefe ist kleiner als 32 mm."],
+            richtig: 3,
+            erklaerung: "32 mm ist der schräge Weg im Stahl. Die Tiefe ist der kürzere Weg senkrecht nach unten."
+          },
+          {
+            frage: "Du suchst einen schrägen Riss an einer Schweißnaht. Warum probierst du den Winkelprüfkopf?",
+            antworten: ["Sein Strahl kann so auf den Riss treffen, dass ein Echo zum Kopf zurückkommt.", "Er sendet immer senkrecht nach unten.", "Er erkennt jeden Riss an seiner Farbe.", "Jeder Reflex an der Rückwand läuft zum Kopf zurück."],
+            richtig: 0,
+            erklaerung: "Eine glatte Stelle reflektiert wie ein Spiegel. Je nach Lage des Risses trifft ein schräger Strahl günstiger auf die Fläche."
+          }
+        ]
+      }
+    };
+
+    const element = (id) => document.getElementById(id);
+    const gesamtzeit = Object.values(einheit.minuten).reduce((summe, teil) => summe + teil, 0);
+    document.title = [einheit.klasse, einheit.fach, einheit.thema, gesamtzeit + " Minuten"].filter(Boolean).join(" · ");
+    element("kursname").textContent = [einheit.klasse, einheit.fach].filter(Boolean).join(" · ");
+    element("thema").textContent = einheit.thema;
+    for (const anzeige of document.querySelectorAll("[data-minuten]")) {
+      anzeige.textContent = einheit.minuten[anzeige.dataset.minuten] + " Min.";
+    }
+
+    // Fachmodell. Längen in mm, Zeiten in µs, Geschwindigkeiten in mm/µs.
+    const cL = 5.920;
+    const cT = 3.255;
+    const keilzeit = 6;
+    const modellwinkel = 46;
+    const rad = Math.PI / 180;
+    const alpha = modellwinkel * rad;
+    const rK1 = 100;
+    const k1Mitte = { x: 35, y: 70 };
+    const k1Loch = { mittelpunkt: k1Mitte, radius: 25, hoehe: 92 };
+    const toFixedOne = new Intl.NumberFormat("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const gerade = { x: 0, y: 1 };
+    const schraeg = { x: Math.sin(alpha), y: Math.cos(alpha) };
+    const orange = "#ffd187";
+    const blau = "#83e2f3";
+    const sichtbar = 4;
+
+    function add(p, u, s) { return { x: p.x + s * u.x, y: p.y + s * u.y }; }
+    function delta(a, b) { return { x: a.x - b.x, y: a.y - b.y }; }
+    function skalar(a, b) { return a.x * b.x + a.y * b.y; }
+    function distanz(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+    function richtung(a, b) {
+      const laenge = distanz(a, b);
+      return { x: (b.x - a.x) / laenge, y: (b.y - a.y) / laenge };
+    }
+
+    function rundeStelle(start, weg, radius, hoehe) {
+      return { mittelpunkt: add({ x: start, y: 0 }, schraeg, weg + radius), radius, hoehe, start };
+    }
+
+    const stellen = {
+      bohrung: rundeStelle(70, 32, 4, 88),
+      einschluss: rundeStelle(99, 27, 3, 43),
+      riss: {
+        mittelpunkt: add({ x: 65, y: 0 }, schraeg, 31),
+        start: 65,
+        laenge: 8,
+        normal: schraeg,
+        tangente: { x: Math.cos(alpha), y: -Math.sin(alpha) },
+        hoehe: 79
+      }
+    };
+
+    const stationen = {
+      bogen: {
+        titel: "1. Stell den Schallweg ein.",
+        hinweis: "Stell T am Gerät ein. Schiebe den Kopf bis zum höchsten Echo. Merke den Austrittspunkt. Stell dann die Anzeige auf 100 mm.",
+        min: 86, max: 114, schritt: 1, start: 111
+      },
+      winkel: {
+        titel: "2. Lies den echten Winkel ab.",
+        hinweis: "Der K1 ist jetzt gedreht. Schiebe den Kopf zur höchsten Spitze der großen Bohrung. Lies dort den Winkel an der Marke des Kopfes ab.",
+        min: 84, max: 134, schritt: 0.5, start: 119
+      },
+      pruefen: {
+        titel: "3. Such Echos im Prüfstück.",
+        hinweis: "Such zuerst die höchste Spitze der runden Bohrung. Rechne ihre Lage aus. Vergleiche danach beide Köpfe am Riss oder an der Rückwand.",
+        min: 28, max: 144, schritt: 1, start: 58
+      }
+    };
+
+    const position = element("position");
+    const geschwindigkeit = element("geschwindigkeit");
+    const pruefkopf = element("pruefkopf");
+    const stelle = element("stelle");
+    const strahlbild = element("strahlbild");
+    const aBild = element("a-bild");
+    const impuls = element("impuls");
+    const schritt = element("schritt");
+    const ergebnisse = element("ergebnisse");
+    const status = element("modell-status");
+    const stand = { station: "bogen", punkt: false, justiert: false, winkel: null };
+    let messung;
+    let fortschritt = 0;
+    let animation = 0;
+    let zuletzt = null;
+
+    function mm(wert) { return toFixedOne.format(wert) + " mm"; }
+
+    function kreisTreffer(p, d, c, r) {
+      const v = delta(p, c);
+      const b = skalar(v, d);
+      const q = b * b - skalar(v, v) + r * r;
+      if (q < 0) return null;
+      const nahe = -b - Math.sqrt(q);
+      const fern = -b + Math.sqrt(q);
+      if (fern <= 0) return null;
+      const ort = add(p, d, nahe > 0 ? nahe : fern);
+      return { ort, normal: richtung(c, ort) };
+    }
+
+    function randTreffer(p, d, breite, tiefe) {
+      const kanten = [];
+      if (d.x < 0) kanten.push({ weg: -p.x / d.x, normal: { x: -1, y: 0 } });
+      if (d.x > 0) kanten.push({ weg: (breite - p.x) / d.x, normal: { x: 1, y: 0 } });
+      if (d.y < 0) kanten.push({ weg: -p.y / d.y, normal: { x: 0, y: -1 } });
+      if (d.y > 0) kanten.push({ weg: (tiefe - p.y) / d.y, normal: { x: 0, y: 1 } });
+      const treffen = kanten.filter((kante) => kante.weg > 1e-7).sort((a, b) => a.weg - b.weg)[0];
+      return { ort: add(p, d, treffen.weg), normal: treffen.normal };
+    }
+
+    function ebeneTreffer(p, d, objekt) {
+      const einfall = skalar(d, objekt.normal);
+      if (Math.abs(einfall) < 1e-7) return null;
+      const weg = skalar(delta(objekt.mittelpunkt, p), objekt.normal) / einfall;
+      const ort = add(p, d, weg);
+      const seitlich = skalar(delta(ort, objekt.mittelpunkt), objekt.tangente);
+      return weg > 0 && Math.abs(seitlich) <= objekt.laenge ? { ort, normal: objekt.normal } : null;
+    }
+
+    function dreheZurueck(d, normal) {
+      return add(d, normal, -2 * skalar(d, normal));
+    }
+
+    function rundeAntwort(p, d, objekt, winkelbreite) {
+      const u = richtung(p, objekt.mittelpunkt);
+      const abweichung = Math.acos(Math.min(1, skalar(d, u))) / rad;
+      const hoehe = Math.round(objekt.hoehe * Math.exp(-((abweichung / winkelbreite) ** 2)));
+      const weg = distanz(p, objekt.mittelpunkt) - objekt.radius;
+      return { ort: add(p, u, weg), hoehe, weg };
+    }
+
+    function modell() {
+      const x = Number(position.value);
+      const k1 = stand.station !== "pruefen";
+      const bogen = stand.station === "bogen";
+      const normal = !k1 && pruefkopf.value === "normal";
+      const d = k1 ? { x: -schraeg.x, y: schraeg.y } : normal ? gerade : schraeg;
+      const p = { x, y: 0 };
+      const breite = k1 ? 300 : 185;
+      const tiefe = k1 ? 100 : 40;
+      const name = stelle.value;
+      const objekt = !k1 ? stellen[name] : bogen ? null : k1Loch;
+      const c = normal ? cL : cT;
+      const cEingabe = normal ? cL : Number(geschwindigkeit.value);
+      const restKeil = normal || stand.justiert ? 0 : keilzeit;
+      let treffer;
+      let echo;
+      let skalenwinkel = null;
+      let kontakt = "rueckwand";
+
+      if (bogen) {
+        treffer = kreisTreffer(p, d, { x: rK1, y: 0 }, rK1);
+        const hoehe = Math.round(92 * Math.exp(-(((x - rK1) / 5) ** 2)));
+        echo = { ort: treffer.ort, hoehe, weg: distanz(p, treffer.ort) };
+        kontakt = "bogen";
+      } else if (k1) {
+        treffer = kreisTreffer(p, d, k1Mitte, k1Loch.radius) || randTreffer(p, d, breite, tiefe);
+        echo = rundeAntwort(p, d, k1Loch, 2.6);
+        skalenwinkel = Math.atan2(x - k1Mitte.x, k1Mitte.y) / rad;
+        kontakt = "k1-loch";
+      } else {
+        treffer = randTreffer(p, d, breite, tiefe);
+        const direkt = name === "riss" ? ebeneTreffer(p, d, objekt)
+          : objekt ? kreisTreffer(p, d, objekt.mittelpunkt, objekt.radius) : null;
+        if (direkt && distanz(p, direkt.ort) < distanz(p, treffer.ort)) {
+          treffer = direkt;
+          kontakt = name;
+        }
+
+        if (name === "riss" && !normal && direkt) {
+          echo = { ort: treffer.ort, hoehe: Math.round(objekt.hoehe * Math.exp(-(((x - objekt.start) / 7) ** 2))), weg: distanz(p, treffer.ort) };
+        } else if (objekt && name !== "riss") {
+          echo = rundeAntwort(p, d, objekt, normal ? 9 : 10);
+        }
+        if (normal && kontakt === "rueckwand" && (!echo || echo.hoehe < sichtbar)) {
+          echo = { ort: treffer.ort, hoehe: 90, weg: tiefe, quelle: "rueckwand" };
+        }
+      }
+
+      if (echo && echo.hoehe < sichtbar) echo = null;
+      if (echo) {
+        echo.zeit = 2 * echo.weg / c;
+        echo.anzeige = (echo.zeit + restKeil) * cEingabe / 2;
+      }
+      const reflektiert = dreheZurueck(d, treffer.normal);
+      const ende = randTreffer(treffer.ort, reflektiert, breite, tiefe).ort;
+      const rueckkehr = Boolean(echo) && (!bogen || x === rK1);
+      const weg = rueckkehr ? [p, echo.ort, p] : [p, treffer.ort, ende];
+      return { p, d, normal, k1, bogen, breite, tiefe, kontakt, objekt, echo, rueckkehr, weg, skalenwinkel, cEingabe };
+    }
+
+    function leinwand(canvas) {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      const dpr = window.devicePixelRatio || 1;
+      const pw = Math.round(w * dpr);
+      const ph = Math.round(h * dpr);
+      if (canvas.width !== pw || canvas.height !== ph) {
+        canvas.width = pw;
+        canvas.height = ph;
+      }
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      ctx.font = "11px system-ui, sans-serif";
+      return { ctx, w, h };
+    }
+
+    function linie(ctx, a, b, farbe, breite = 1, striche = []) {
+      ctx.beginPath();
+      ctx.setLineDash(striche);
+      ctx.strokeStyle = farbe;
+      ctx.lineWidth = breite;
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function kreis(ctx, p, r, farbe) {
+      ctx.fillStyle = farbe;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+
+    function beschriftung(ctx, text, p, farbe = "#d6e7ed", ausrichtung = "left") {
+      ctx.fillStyle = farbe;
+      ctx.textAlign = ausrichtung;
+      ctx.fillText(text, p.x, p.y);
+    }
+
+    function pfeil(ctx, a, b, farbe, versetzt = false) {
+      const u = richtung(a, b);
+      const quer = { x: -u.y, y: u.x };
+      const mitte = add(a, u, distanz(a, b) * (versetzt ? 0.61 : 0.44));
+      const spitze = add(mitte, quer, versetzt ? 4 : 0);
+      const ende = add(spitze, u, -8);
+      linie(ctx, add(ende, quer, 4), spitze, farbe, 2);
+      linie(ctx, spitze, add(ende, quer, -4), farbe, 2);
+    }
+
+    function zeichneStrahl() {
+      const { ctx, w, h } = leinwand(strahlbild);
+      const m = messung;
+      const s = Math.min((w - 29) / m.breite, (h - 66) / m.tiefe);
+      const links = (w - m.breite * s) / 2;
+      const oben = Math.max(43, (h - m.tiefe * s) / 2 + 10);
+      const punkt = (p) => ({ x: links + p.x * s, y: oben + p.y * s });
+      const ursprung = punkt(m.p);
+      const farbe = m.normal ? blau : orange;
+
+      ctx.beginPath();
+      if (m.bogen) {
+        ctx.moveTo(links, oben);
+        ctx.lineTo(w - links, oben);
+        ctx.lineTo(w - links, oben + m.tiefe * s);
+        ctx.lineTo(links + rK1 * s, oben + m.tiefe * s);
+        ctx.arc(links + rK1 * s, oben, rK1 * s, Math.PI / 2, Math.PI);
+        ctx.closePath();
+      } else {
+        ctx.rect(links, oben, m.breite * s, m.tiefe * s);
+      }
+      ctx.fillStyle = "#264858";
+      ctx.fill();
+      ctx.strokeStyle = "#8caebc";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      beschriftung(ctx, m.k1 ? "K1" : "Stahl", { x: w - links - 9, y: oben + 17 }, "#d6e7ed", "right");
+
+      if (m.bogen) {
+        const marke = punkt({ x: rK1, y: 0 });
+        for (const offset of [-8, -4, 0, 4, 8]) {
+          linie(ctx, { x: marke.x + offset, y: oben + 2 }, { x: marke.x + offset, y: oben + (offset === 0 ? 11 : 8) }, blau);
+        }
+        beschriftung(ctx, "R = 100 mm", { x: links + 3, y: oben + m.tiefe * s + 16 });
+      } else if (m.k1) {
+        ctx.font = w < 360 ? "9px system-ui, sans-serif" : "11px system-ui, sans-serif";
+        for (const wert of w < 360 ? [35, 45, 55] : [35, 40, 45, 50, 55]) {
+          const x = punkt({ x: k1Mitte.x + k1Mitte.y * Math.tan(wert * rad), y: 0 }).x;
+          linie(ctx, { x, y: oben + 1 }, { x, y: oben + 7 }, blau);
+          beschriftung(ctx, wert + "°", { x, y: oben + 18 }, blau, "center");
+        }
+        ctx.font = "11px system-ui, sans-serif";
+      }
+
+      if (m.objekt?.radius) {
+        kreis(ctx, punkt(m.objekt.mittelpunkt), m.objekt.radius * s, stelle.value === "einschluss" && !m.k1 ? "#b082a6" : "#102c3b");
+        const mitte = punkt(m.objekt.mittelpunkt);
+        if (m.k1) beschriftung(ctx, "Ø 50 mm", { x: mitte.x + 29, y: mitte.y + 5 });
+      } else if (m.objekt) {
+        const { mittelpunkt, tangente, laenge } = m.objekt;
+        linie(ctx, punkt(add(mittelpunkt, tangente, -laenge)), punkt(add(mittelpunkt, tangente, laenge)), "#f1a5ac", 3);
+      }
+
+      const lotEnde = { x: ursprung.x, y: ursprung.y + Math.min(47, m.tiefe * s - 5) };
+      linie(ctx, ursprung, lotEnde, "#b5ced8", 1, [2, 4]);
+      if (!m.normal) beschriftung(ctx, stand.winkel === null ? "α" : stand.winkel + "°",
+        { x: ursprung.x + (m.k1 ? -13 : 13), y: ursprung.y + 31 }, orange, "center");
+
+      const treff = punkt(m.weg[1]);
+      const ende = punkt(m.weg[2]);
+      linie(ctx, ursprung, treff, farbe, 2);
+      pfeil(ctx, ursprung, treff, farbe);
+      if (m.rueckkehr) {
+        const u = richtung(treff, ende);
+        const quer = { x: -u.y, y: u.x };
+        // Kleine Verschiebung in der Zeichnung. Der Rückweg liegt auf dem Hinweg.
+        linie(ctx, add(treff, quer, 4), add(ende, quer, 4), "white", 1.5, [4, 4]);
+        pfeil(ctx, treff, ende, "white", true);
+      } else {
+        linie(ctx, treff, ende, farbe, 1.5, [7, 4]);
+        pfeil(ctx, treff, ende, farbe);
+      }
+      kreis(ctx, treff, 3, farbe);
+
+      if (rechnungOffen()) {
+        const obenAmEcho = { x: treff.x, y: ursprung.y };
+        linie(ctx, ursprung, obenAmEcho, "#9cdfad", 1.3, [4, 3]);
+        linie(ctx, obenAmEcho, treff, "#9cdfad", 1.3, [4, 3]);
+        beschriftung(ctx, "x", { x: (ursprung.x + treff.x) / 2, y: obenAmEcho.y - 5 }, "#c2f2ca", "center");
+        beschriftung(ctx, "z", { x: treff.x + 6, y: (treff.y + ursprung.y) / 2 }, "#c2f2ca");
+      }
+
+      const keil = { x: ursprung.x - 19, y: oben - 23 };
+      ctx.fillStyle = "#e3f1f4";
+      ctx.fillRect(keil.x, keil.y, 38, 21);
+      const kopfStrahl = { x: ursprung.x - Math.sign(m.d.x) * 14, y: oben - 19 };
+      linie(ctx, kopfStrahl, ursprung, "#07596d", 2);
+      linie(ctx, { x: ursprung.x - 5, y: oben }, { x: ursprung.x + 5, y: oben }, "#85e8cf", 2);
+      kreis(ctx, ursprung, 3, "#e6f3f8");
+      beschriftung(ctx, m.normal ? "Kopf" : "Kopf mit Keil", { x: ursprung.x, y: keil.y - 5 }, "#d6e7ed", "center");
+
+      if (fortschritt > 0) {
+        const strecke1 = distanz(ursprung, treff);
+        const strecke2 = distanz(treff, ende);
+        const gelaufen = fortschritt * (strecke1 + strecke2);
+        const bewegt = gelaufen <= strecke1 ? add(ursprung, richtung(ursprung, treff), gelaufen)
+          : add(treff, richtung(treff, ende), gelaufen - strecke1);
+        kreis(ctx, bewegt, 4.5, "#ffffff");
+      }
+      strahlbild.parentElement.style.setProperty("--strahlfarbe", farbe);
+    }
+
+    function zeichneABild() {
+      const { ctx, w, h } = leinwand(aBild);
+      const links = 35;
+      const rechts = w - 13;
+      const oben = 24;
+      const unten = h - 32;
+      const maximum = 140;
+      const x = (wert) => links + (rechts - links) * wert / maximum;
+      const y = (wert) => unten - (unten - oben) * wert / 100;
+      const echo = messung.echo;
+      const farbe = messung.normal ? blau : orange;
+      for (const wert of [0, 20, 40, 60, 80, 100, 120, 140]) {
+        linie(ctx, { x: x(wert), y: oben }, { x: x(wert), y: unten }, "#3d606d");
+        beschriftung(ctx, String(wert), { x: x(wert), y: unten + 15 }, "#d6e7ed", "center");
+      }
+      for (const wert of [0, 50, 100]) {
+        linie(ctx, { x: links, y: y(wert) }, { x: rechts, y: y(wert) }, "#3d606d");
+        beschriftung(ctx, wert + "%", { x: links - 5, y: y(wert) + 4 }, "#d6e7ed", "right");
+      }
+      ctx.beginPath();
+      for (let i = 0; i <= 420; i += 1) {
+        const weg = i * maximum / 420;
+        const grund = 1.5 + Math.sin(i * 0.86) * 0.7;
+        const signal = echo ? echo.hoehe * Math.exp(-(((weg - echo.anzeige) / 1.8) ** 2)) : 0;
+        if (i === 0) ctx.moveTo(x(weg), y(grund + signal));
+        else ctx.lineTo(x(weg), y(grund + signal));
+      }
+      ctx.strokeStyle = farbe;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      if (echo && echo.anzeige <= maximum) {
+        const spitze = { x: x(echo.anzeige), y: y(echo.hoehe) };
+        linie(ctx, spitze, { x: spitze.x, y: unten }, "#d6e7ed", 1, [2, 4]);
+        kreis(ctx, spitze, 2.5, farbe);
+      }
+      beschriftung(ctx, "Schallweg in mm", { x: rechts, y: unten + 29 }, "#d6e7ed", "right");
+    }
+
+    function rechnungOffen() {
+      return stand.station === "pruefen" && stelle.value === "bohrung" && !messung.normal &&
+        stand.justiert && stand.winkel !== null && messung.cEingabe === cT &&
+        messung.echo?.hoehe >= stellen.bohrung.hoehe * 0.96;
+    }
+
+    function rechenDaten() {
+      const w = Number(messung.echo.anzeige.toFixed(1));
+      const beta = stand.winkel * rad;
+      return { w, x: w * Math.sin(beta), z: w * Math.cos(beta) };
+    }
+
+    function umkehr() {
+      const [a, b, c] = messung.weg;
+      const hin = distanz(a, b);
+      return hin / (hin + distanz(b, c));
+    }
+
+    function aktualisiereImpuls() {
+      const m = messung;
+      const fertig = fortschritt >= 1;
+      const amTreffer = fortschritt >= umkehr();
+      let text = "Bereit. Sende einen Impuls oder gehe Schritt für Schritt vor.";
+      if (fertig) text = m.rueckkehr ? "Das Echo erreicht den Prüfkopf."
+        : m.echo ? "Der Hauptstrahl läuft am Kopf vorbei. Ein schwaches Echo kann trotzdem ankommen."
+        : "Der Strahl läuft vom Prüfkopf weg. Für diesen Strahl fehlt ein Echo am Kopf.";
+      else if (amTreffer) text = m.rueckkehr ? "Der Schall trifft auf eine Fläche. Ein Teil läuft zurück zum Kopf."
+        : m.kontakt === "riss" ? "Der Strahl trifft den Riss. Der Riss lenkt den Strahl zur Seite."
+        : "Der Strahl trifft die Wand und läuft in eine andere Richtung.";
+      else if (fortschritt > 0) text = "Der Schall läuft in den Stahl.";
+      if (status.textContent !== text) status.textContent = text;
+      const beschriftung = animation ? "Pausieren" : fortschritt > 0 && !fertig ? "Fortsetzen" : "Impuls senden";
+      if (impuls.textContent !== beschriftung) impuls.textContent = beschriftung;
+      schritt.disabled = fertig;
+      zeichneStrahl();
+    }
+
+    function stopp() {
+      cancelAnimationFrame(animation);
+      animation = 0;
+      zuletzt = null;
+    }
+
+    function frame(zeit) {
+      if (zuletzt !== null) fortschritt = Math.min(1, fortschritt + Math.min(50, zeit - zuletzt) / 2700);
+      zuletzt = zeit;
+      if (fortschritt < 1) animation = requestAnimationFrame(frame);
+      else stopp();
+      aktualisiereImpuls();
+    }
+
+    function neuMessen() {
+      stopp();
+      fortschritt = 0;
+      messung = modell();
+      const { echo, bogen, k1, skalenwinkel, cEingabe } = messung;
+      const naheBogen = bogen && Number(position.value) === rK1;
+      const naheWinkel = skalenwinkel !== null && Math.abs(skalenwinkel - modellwinkel) <= 0.45;
+      const laesstSichAblesen = echo && echo.anzeige <= 140;
+
+      element("position-wert").value = mm(Number(position.value));
+      position.setAttribute("aria-valuetext", element("position-wert").value);
+      element("strahlart").textContent = messung.normal ? "Longitudinalwelle (L)" : "Transversalwelle (T)";
+      element("echo-hoehe").textContent = laesstSichAblesen ? echo.hoehe + " %" : "Kein Echo auf der Skala";
+      element("mobil-hoehe").textContent = element("echo-hoehe").textContent;
+      element("echo-weg").textContent = laesstSichAblesen ? mm(echo.anzeige) : "—";
+      element("skalenwinkel").textContent = skalenwinkel === null ? "—" : Math.round(skalenwinkel) + "°";
+      element("echo-zeit").textContent = echo ? toFixedOne.format(echo.zeit) + " µs" : "—";
+      element("winkel-zeile").hidden = stand.station !== "winkel";
+      element("zeit-zeile").hidden = k1;
+      element("markieren").disabled = !naheBogen || stand.punkt;
+      element("justieren").disabled = !naheBogen || cEingabe !== cT || !stand.punkt || stand.justiert;
+      element("winkel-ablesen").disabled = !naheWinkel || !stand.punkt;
+
+      let hinweis = "";
+      if (echo && !laesstSichAblesen) hinweis = "Das Echo liegt rechts außerhalb der Skala. Prüfe die eingestellte Schallgeschwindigkeit.";
+      else if (k1 && cEingabe !== cT) hinweis = "Wähle T. Diese Welle läuft mit 3 255 m/s.";
+      else if (bogen && naheBogen) hinweis = "Hier ist das Echo am höchsten. Wo der Schall in den Stahl geht, ist der Austrittspunkt.";
+      else if (bogen) hinweis = Number(position.value) > rK1 ? "Schiebe den Kopf etwas nach links." : "Schiebe den Kopf etwas nach rechts.";
+      else if (k1 && !stand.punkt) hinweis = "Merke zuerst am Kreisbogen den Austrittspunkt.";
+      else if (k1 && naheWinkel) hinweis = "Hier ist das Echo fast am höchsten. Lies den Winkel an der Marke ab.";
+      else if (k1) hinweis = "Schiebe den Kopf, bis die Spitze höher wird.";
+      else if (echo?.quelle === "rueckwand") hinweis = "Hier siehst du das Echo von der Rückwand.";
+      else if (echo) hinweis = "Hier kommt ein Echo an. Nutze den Wert unter Schallweg.";
+      else hinweis = "Hier kommt kein Echo der gewählten Stelle an. Ändere die Lage oder den Kopf.";
+      element("messhilfe").textContent = hinweis;
+
+      const gemessen = [];
+      if (stand.punkt) gemessen.push("Austrittspunkt gemerkt.");
+      if (stand.justiert) gemessen.push("Kreisbogen auf 100 mm gestellt.");
+      if (stand.winkel !== null) gemessen.push("Gemessen " + stand.winkel + "°. Aufdruck 45°.");
+      const meldung = gemessen.join(" ");
+      if (ergebnisse.textContent !== meldung) ergebnisse.textContent = meldung;
+
+      element("pruef-tipp").textContent = stelle.value === "riss"
+        ? "Probiere am selben Riss beide Köpfe aus. Nutze die Hilfe, um sie passend hinzustellen."
+        : stelle.value === "rueckwand"
+          ? "Vergleiche die Rückwege. Welcher Strahl trifft wieder den Kopf?"
+          : stelle.value === "einschluss"
+            ? "Schiebe den Kopf. Vergleiche die Spitze mit der Bohrung."
+            : "Finde die stärkste Spitze. Dann kannst du die Lage der Bohrung ausrechnen.";
+      element("echo-finden").textContent = messung.normal ? "Hilfe: Kopf über die Stelle setzen" : "Hilfe: Zum besten Echo";
+      element("rechnung").hidden = k1 || stelle.value !== "bohrung";
+      const offen = rechnungOffen();
+      element("rechen-aufgabe").hidden = !offen;
+      element("rechen-hinweis").hidden = offen;
+      element("rechen-hinweis").textContent = messung.normal
+        ? "Wähle den Winkelprüfkopf, um den schrägen Weg zu berechnen."
+        : !stand.justiert || stand.winkel === null || cEingabe !== cT
+          ? "Stell zuerst den Schallweg am K1 ein. Lies danach den Winkel ab. Wähle dabei T."
+          : "Schiebe den Kopf bis zur höchsten Spitze der Bohrung.";
+      element("rechen-beispiel").hidden = true;
+      element("rechen-feedback").textContent = "";
+      if (offen) {
+        element("rechen-werte").textContent = "Schallweg w = " + mm(rechenDaten().w) + ", Winkel α = " + stand.winkel + "°";
+      }
+      zeichneABild();
+      aktualisiereImpuls();
+    }
+
+    function wechsleStation(name) {
+      stand.station = name;
+      const daten = stationen[name];
+      position.min = daten.min;
+      position.max = daten.max;
+      position.step = daten.schritt;
+      position.value = daten.start;
+      element("station-titel").textContent = daten.titel;
+      element("station-hinweis").textContent = daten.hinweis;
+      element("k1-einstellungen").hidden = name === "pruefen";
+      element("pruef-einstellungen").hidden = name !== "pruefen";
+      element("pruef-tipp").hidden = name !== "pruefen";
+      element("bogen-aktionen").hidden = name !== "bogen";
+      element("winkel-aktionen").hidden = name !== "winkel";
+      element("pruef-aktionen").hidden = name !== "pruefen";
+      document.querySelectorAll("[data-station]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.station === name));
+      });
+      neuMessen();
+    }
+
+    document.querySelectorAll("[data-station]").forEach((button) => {
+      button.addEventListener("click", () => wechsleStation(button.dataset.station));
+    });
+    for (const eingabe of [position, geschwindigkeit, pruefkopf, stelle]) eingabe.addEventListener("input", neuMessen);
+
+    element("markieren").addEventListener("click", () => {
+      stand.punkt = true;
+      neuMessen();
+    });
+    element("justieren").addEventListener("click", () => {
+      stand.justiert = true;
+      neuMessen();
+    });
+    element("winkel-ablesen").addEventListener("click", () => {
+      stand.winkel = Math.round(messung.skalenwinkel);
+      neuMessen();
+    });
+    element("echo-finden").addEventListener("click", () => {
+      const objekt = stellen[stelle.value];
+      if (objekt) position.value = messung.normal ? Math.round(objekt.mittelpunkt.x) : objekt.start;
+      neuMessen();
+    });
+    element("reset").addEventListener("click", () => {
+      position.value = stationen[stand.station].start;
+      neuMessen();
+    });
+
+    impuls.addEventListener("click", () => {
+      if (animation) stopp();
+      else {
+        if (fortschritt >= 1) fortschritt = 0;
+        animation = requestAnimationFrame(frame);
+      }
+      aktualisiereImpuls();
+    });
+    schritt.addEventListener("click", () => {
+      stopp();
+      fortschritt = fortschritt < umkehr() ? umkehr() : 1;
+      aktualisiereImpuls();
+    });
+
+    function zahlAusFeld(id) {
+      const text = element(id).value.trim().replace(",", ".");
+      return text === "" ? NaN : Number(text);
+    }
+
+    element("rechen-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!rechnungOffen()) return;
+      const abstand = zahlAusFeld("abstand");
+      const tiefe = zahlAusFeld("tiefe");
+      const werte = rechenDaten();
+      let text = "Prüfe noch einmal, welche Seite des Dreiecks x und welche z ist.";
+      if (!Number.isFinite(abstand) || !Number.isFinite(tiefe)) text = "Trage beide Zahlen in mm ein.";
+      else if (Math.abs(abstand - werte.x) <= 0.25 && Math.abs(tiefe - werte.z) <= 0.25) {
+        text = "Richtig. Die Stelle liegt " + mm(werte.x) + " seitlich und " + mm(werte.z) + " tief.";
+      }
+      element("rechen-feedback").textContent = text;
+    });
+    element("rechen-loesung").addEventListener("click", () => {
+      const { w, x, z } = rechenDaten();
+      const ausgabe = element("rechen-beispiel");
+      ausgabe.textContent = "x = " + mm(w) + " · sin(" + stand.winkel + "°) ≈ " + mm(x) +
+        ". z = " + mm(w) + " · cos(" + stand.winkel + "°) ≈ " + mm(z) + ".";
+      ausgabe.hidden = false;
+    });
+
+    wechsleStation("bogen");
+    const groesse = new ResizeObserver(() => {
+      zeichneStrahl();
+      zeichneABild();
+    });
+    groesse.observe(strahlbild);
+    groesse.observe(aBild);
+
+    // Gemeinsame Quizoberfläche
+    const quiz = einheit.quiz;
+    const buchstaben = ["A", "B", "C", "D"];
+    const teamzahl = element("teamzahl");
+    const frage = element("quiz-frage");
+    const antworten = element("quiz-antworten");
+    const stimmen = element("stimmen");
+    const feedback = element("quiz-feedback");
+    const weiter = element("weiter");
+    const aufdecken = element("aufdecken");
+    const uhr = element("quiz-zeit");
+    const zeitStart = element("zeit-start");
+    let modus;
+    let fragenIndex;
+    let punkte;
+    let aufgeloest;
+    let timer;
+
+    element("modus-einzel").hidden = !quiz.modi.includes("einzel");
+    element("modus-klasse").hidden = !quiz.modi.includes("klasse");
+    for (let anzahl = 1; anzahl <= quiz.maxTeams; anzahl += 1) {
+      teamzahl.add(new Option(anzahl === 1 ? "1 (ganze Klasse)" : String(anzahl), anzahl));
+    }
+    teamzahl.value = quiz.startTeams;
+    element("quiz-balken").max = quiz.fragen.length;
+
+    function resetTimer() {
+      clearInterval(timer);
+      uhr.textContent = quiz.timerSekunden + " s";
+      zeitStart.textContent = "Zeit starten";
+      zeitStart.disabled = false;
+    }
+
+    function starteTimer() {
+      resetTimer();
+      const ende = Date.now() + quiz.timerSekunden * 1000;
+      zeitStart.textContent = "Zeit neu starten";
+      timer = setInterval(() => {
+        const rest = Math.max(0, Math.ceil((ende - Date.now()) / 1000));
+        uhr.textContent = rest ? rest + " s" : "Zeit um";
+        if (!rest) clearInterval(timer);
+      }, 150);
+    }
+
+    function zeigePunkte() {
+      element("quiz-punkte").textContent = modus === "einzel" ? punkte[0] + " Punkte"
+        : punkte.map((wert, index) => "Team " + (index + 1) + ": " + wert).join(" | ");
+    }
+
+    function zeigeFrage() {
+      const aktuell = quiz.fragen[fragenIndex];
+      const klassenrunde = modus === "klasse";
+      aufgeloest = false;
+      resetTimer();
+      zeigePunkte();
+      element("quiz-fortschritt").textContent = "Frage " + (fragenIndex + 1) + " von " + quiz.fragen.length;
+      element("quiz-balken").value = fragenIndex + 1;
+      frage.textContent = aktuell.frage;
+      antworten.replaceChildren(...aktuell.antworten.map((text, index) => {
+        const li = document.createElement("li");
+        const kachel = document.createElement(klassenrunde ? "div" : "button");
+        kachel.className = "answer";
+        kachel.dataset.letter = buchstaben[index];
+        if (!klassenrunde) {
+          kachel.type = "button";
+          kachel.addEventListener("click", () => loeseAuf([index]));
+        }
+        const marke = document.createElement("span");
+        marke.className = "letter";
+        marke.textContent = buchstaben[index];
+        const inhalt = document.createElement("span");
+        inhalt.textContent = text;
+        kachel.append(marke, inhalt);
+        li.append(kachel);
+        return li;
+      }));
+      stimmen.replaceChildren();
+      if (klassenrunde) {
+        for (let team = 1; team <= punkte.length; team += 1) {
+          const label = document.createElement("label");
+          label.textContent = "Team " + team;
+          const auswahl = document.createElement("select");
+          auswahl.add(new Option("Keine Stimme", ""));
+          buchstaben.forEach((buchstabe, index) => auswahl.add(new Option(buchstabe, index)));
+          label.append(auswahl);
+          stimmen.append(label);
+        }
+      }
+      element("zeit-feld").hidden = !klassenrunde || !quiz.timerSekunden;
+      element("stimmen-feld").hidden = !klassenrunde;
+      aufdecken.hidden = !klassenrunde;
+      feedback.hidden = true;
+      weiter.hidden = true;
+      frage.focus();
+    }
+
+    function starteQuiz(neuerModus, teams) {
+      modus = neuerModus;
+      fragenIndex = 0;
+      punkte = Array(teams).fill(0);
+      element("quiz-modi").hidden = true;
+      element("quiz-runde").hidden = false;
+      element("quiz-ergebnis").hidden = true;
+      zeigeFrage();
+    }
+
+    function loeseAuf(antwortenNachTeam) {
+      if (aufgeloest) return;
+      aufgeloest = true;
+      clearInterval(timer);
+      zeitStart.disabled = true;
+      if (uhr.textContent !== "Zeit um") uhr.textContent = "Abgestimmt";
+      const { richtig, erklaerung } = quiz.fragen[fragenIndex];
+      antwortenNachTeam.forEach((antwort, index) => {
+        if (antwort === richtig) punkte[index] += 1;
+      });
+      zeigePunkte();
+
+      antworten.querySelectorAll(".answer").forEach((kachel, index) => {
+        if (index === richtig) kachel.classList.add("correct");
+        if (modus === "einzel") {
+          kachel.disabled = true;
+          if (index !== richtig && index === antwortenNachTeam[0]) kachel.classList.add("wrong");
+        }
+      });
+      stimmen.querySelectorAll("select").forEach((auswahl) => { auswahl.disabled = true; });
+
+      const rueckmeldung = document.createElement("strong");
+      const einzelFeedback = antwortenNachTeam[0] === richtig ? "Richtig! " : "Noch nicht richtig. ";
+      rueckmeldung.textContent = (modus === "einzel" ? einzelFeedback : "") + "Lösung " + buchstaben[richtig] + ".";
+      const grund = document.createElement("p");
+      grund.textContent = erklaerung;
+      feedback.hidden = false;
+      feedback.replaceChildren(rueckmeldung, grund);
+      aufdecken.hidden = true;
+      weiter.hidden = false;
+      weiter.textContent = fragenIndex + 1 === quiz.fragen.length ? "Ergebnis anzeigen" : "Nächste Frage";
+      weiter.focus();
+    }
+
+    function zeigeErgebnis() {
+      element("quiz-runde").hidden = true;
+      element("quiz-ergebnis").hidden = false;
+      const rangfolge = punkte.map((wert, index) => ({ wert, team: index + 1 }))
+        .sort((a, b) => b.wert - a.wert || a.team - b.team);
+      element("ergebnis-liste").replaceChildren(...rangfolge.map(({ wert, team }) => {
+        const li = document.createElement("li");
+        const name = modus === "klasse" ? "Team " + team + ": " : "";
+        li.textContent = name + wert + " von " + quiz.fragen.length + " Punkten";
+        return li;
+      }));
+      element("ergebnis-titel").focus();
+    }
+
+    function zurModuswahl() {
+      resetTimer();
+      element("quiz-runde").hidden = true;
+      element("quiz-ergebnis").hidden = true;
+      element("quiz-modi").hidden = false;
+      element("start-" + modus).focus();
+    }
+
+    element("start-einzel").addEventListener("click", () => starteQuiz("einzel", 1));
+    element("start-klasse").addEventListener("click", () => starteQuiz("klasse", Number(teamzahl.value)));
+    zeitStart.addEventListener("click", starteTimer);
+    aufdecken.addEventListener("click", () => {
+      const auswahl = Array.from(stimmen.querySelectorAll("select"), (feld) => Number.parseInt(feld.value, 10));
+      loeseAuf(auswahl);
+    });
+    weiter.addEventListener("click", () => {
+      fragenIndex += 1;
+      if (fragenIndex === quiz.fragen.length) zeigeErgebnis();
+      else zeigeFrage();
+    });
+    element("runde-verlassen").addEventListener("click", zurModuswahl);
+    element("modus-wechseln").addEventListener("click", zurModuswahl);
+    element("wiederholen").addEventListener("click", () => starteQuiz(modus, punkte.length));
+  </script>
+</body>
+</html>
